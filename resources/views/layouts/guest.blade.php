@@ -21,7 +21,7 @@
 
     {{ $slot }}
 
-    <script src="{{ asset('/') }}assets/auth/js/login-script.js"></script>
+    
   </body>
 
   @stack('auth-js')

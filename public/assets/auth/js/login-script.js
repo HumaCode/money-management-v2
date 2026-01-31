@@ -32,3 +32,36 @@ function togglePassword() {
       `;
     }
 }
+
+// Login handler (demo)
+// function handleLogin() {
+//     const username = document.getElementById("username").value.trim();
+//     const password = document.getElementById("password").value.trim();
+
+//     if (!username || !password) {
+//         document.getElementById("errorText").textContent =
+//             "Please fill in all fields.";
+//         document.getElementById("errorMsg").classList.add("show");
+//         return;
+//     }
+
+//     // Demo: simulate login check
+//     // Replace with actual API call
+//     if (username === "admin" && password === "admin123") {
+//         document.getElementById("errorMsg").classList.remove("show");
+//         // Simulate success — redirect or show dashboard
+//         alert("Login successful! Redirecting...");
+//     } else {
+//         document.getElementById("errorText").textContent =
+//             "Username or password is incorrect.";
+//         document.getElementById("errorMsg").classList.add("show");
+//         // Shake the form card subtly
+//         document.querySelector(".panel-form").style.animation = "none";
+//         void document.querySelector(".panel-form").offsetWidth;
+//     }
+// }
+
+// Enter key triggers login
+// document.addEventListener("keydown", (e) => {
+//     if (e.key === "Enter") handleLogin();
+// });
