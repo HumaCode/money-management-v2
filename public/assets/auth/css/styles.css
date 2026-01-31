@@ -1,0 +1,1136 @@
+:root {
+  --bg-deep: #0a0e1a;
+  --bg-card: #111827;
+  --bg-card-border: rgba(255, 255, 255, 0.06);
+  --bg-input: rgba(255, 255, 255, 0.04);
+  --bg-input-focus: rgba(255, 255, 255, 0.07);
+  --text-primary: #f0f2f5;
+  --text-secondary: #6b7280;
+  --text-placeholder: #4b5563;
+  --accent: #7dd3a8;
+  --accent-dim: rgba(125, 211, 168, 0.15);
+  --accent-glow: rgba(125, 211, 168, 0.3);
+  --error: #f87171;
+  --radius: 14px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Ambient background shapes */
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.ambient::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  left: -15%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    rgba(125, 211, 168, 0.08) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: driftA 12s ease-in-out infinite alternate;
+}
+.ambient::after {
+  content: "";
+  position: absolute;
+  bottom: -25%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.07) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  filter: blur(50px);
+  animation: driftB 14s ease-in-out infinite alternate;
+}
+
+@keyframes driftA {
+  to {
+    transform: translate(60px, 80px) scale(1.1);
+  }
+}
+@keyframes driftB {
+  to {
+    transform: translate(-50px, -60px) scale(1.15);
+  }
+}
+
+/* Grid overlay subtle */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Main layout */
+.container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 580px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Left panel — branding */
+.panel-brand {
+  flex: 1;
+  background: linear-gradient(145deg, #131e3a 0%, #0d1525 100%);
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.panel-brand::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -30%;
+  width: 420px;
+  height: 420px;
+  border: 1px solid rgba(125, 211, 168, 0.08);
+  border-radius: 50%;
+}
+.panel-brand::after {
+  content: "";
+  position: absolute;
+  top: -25%;
+  right: -18%;
+  width: 300px;
+  height: 300px;
+  border: 1px solid rgba(125, 211, 168, 0.05);
+  border-radius: 50%;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.brand-logo svg {
+  width: 36px;
+  height: 36px;
+}
+.brand-name {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+}
+.brand-name span {
+  color: var(--accent);
+}
+
+.brand-tagline {
+  position: relative;
+  z-index: 1;
+}
+.brand-tagline h2 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+.brand-tagline h2 em {
+  font-style: italic;
+  color: var(--accent);
+}
+.brand-tagline p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 320px;
+  font-weight: 300;
+}
+
+.brand-features {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.feature-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--accent-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.feature-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--accent);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.feature-text h4 {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.feature-text p {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+/* Right panel — login form */
+.panel-form {
+  flex: 1;
+  background: var(--bg-card);
+  padding: 56px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.form-header {
+  margin-bottom: 40px;
+}
+.form-header h1 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.form-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+/* Form group */
+.form-group {
+  margin-bottom: 22px;
+}
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.input-wrapper {
+  position: relative;
+}
+.input-wrapper .icon-left {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-placeholder);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  transition: stroke 0.3s;
+}
+.input-wrapper input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+  transition:
+    border-color 0.3s,
+    background 0.3s,
+    box-shadow 0.3s;
+}
+.input-wrapper input::placeholder {
+  color: var(--text-placeholder);
+}
+.input-wrapper input:focus {
+  border-color: var(--accent);
+  background: var(--bg-input-focus);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.input-wrapper input:focus + .icon-left,
+.input-wrapper input:focus ~ .icon-left {
+  stroke: var(--accent);
+}
+/* Reposition icon on focus using sibling won't work, use JS class instead */
+
+.input-wrapper.focused .icon-left {
+  stroke: var(--accent);
+}
+
+/* Password toggle */
+.toggle-password {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.toggle-password:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-placeholder);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.3s;
+}
+.toggle-password:hover svg {
+  stroke: var(--text-secondary);
+}
+
+/* Remember me + Forgot */
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  margin-top: -8px;
+}
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.remember-me input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+  position: relative;
+}
+.remember-me input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.remember-me input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid #0a0e1a;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.remember-me span {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+.forgot-link {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 400;
+  transition: opacity 0.2s;
+}
+.forgot-link:hover {
+  opacity: 0.7;
+}
+
+/* Submit button */
+.btn-login {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #5bbf8a, #7dd3a8);
+  border: none;
+  border-radius: var(--radius);
+  color: #0a0e1a;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.3s,
+    filter 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-login::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+.btn-login:hover::before {
+  left: 100%;
+}
+.btn-login:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+.btn-login:active {
+  transform: translateY(0);
+}
+
+/* Error message */
+.error-msg {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.error-msg.show {
+  display: flex;
+  animation: shake 0.4s ease;
+}
+.error-msg svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--error);
+  fill: none;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+.error-msg span {
+  font-size: 13px;
+  color: var(--error);
+  font-weight: 300;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* Sign up link */
+.signup-link {
+  text-align: center;
+  margin-top: 36px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+.signup-link a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+.signup-link a:hover {
+  opacity: 0.7;
+}
+
+/* forgot password */
+/* Back link atas form */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 300;
+  margin-bottom: 32px;
+  transition:
+    color 0.2s,
+    gap 0.2s;
+}
+.back-link:hover {
+  color: var(--accent);
+  gap: 12px;
+}
+.back-link svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Icon besar di atas heading */
+.form-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: var(--accent-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.form-icon-wrap svg {
+  width: 28px;
+  height: 28px;
+  stroke: var(--accent);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Form header — sedikit berbeda dari login */
+.form-header p {
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+/* Success state */
+.success-msg {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px 0;
+}
+.success-msg.show {
+  display: flex;
+  animation: fadeIn 0.4s ease;
+}
+.success-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.success-icon-wrap svg {
+  width: 32px;
+  height: 32px;
+  stroke: var(--accent);
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.success-msg h3 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.success-msg p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  line-height: 1.6;
+  max-width: 280px;
+}
+.success-msg .btn-back-login {
+  margin-top: 28px;
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.success-msg .btn-back-login:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* Form body — dibungkus supaya bisa hide saat success */
+.form-body {
+  transition: opacity 0.3s;
+}
+.form-body.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* register page */
+/* Right panel — register form (SCROLLABLE WITH HIDDEN SCROLLBAR) */
+.panel-form {
+  flex: 1;
+  background: var(--bg-card);
+  padding: 48px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+/* Hide scrollbar tapi tetap bisa scroll */
+.panel-form::-webkit-scrollbar {
+  display: none;
+}
+.panel-form {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.form-header {
+  margin-bottom: 32px;
+}
+.form-header h1 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.form-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  margin-bottom: 4px;
+}
+
+/* Form group */
+.form-group {
+  margin-bottom: 18px;
+}
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.input-wrapper {
+  position: relative;
+}
+.input-wrapper .icon-left {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-placeholder);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  transition: stroke 0.3s;
+}
+.input-wrapper input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+  transition:
+    border-color 0.3s,
+    background 0.3s,
+    box-shadow 0.3s;
+}
+.input-wrapper input::placeholder {
+  color: var(--text-placeholder);
+}
+.input-wrapper input:focus {
+  border-color: var(--accent);
+  background: var(--bg-input-focus);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.input-wrapper.focused .icon-left {
+  stroke: var(--accent);
+}
+
+/* Password toggle */
+.toggle-password {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.toggle-password:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-placeholder);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.3s;
+}
+.toggle-password:hover svg {
+  stroke: var(--text-secondary);
+}
+
+/* Password strength indicator */
+.password-strength {
+  margin-top: 8px;
+  display: none;
+}
+.password-strength.show {
+  display: block;
+}
+.strength-bar {
+  height: 4px;
+  background: var(--bg-input);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.strength-fill {
+  height: 100%;
+  width: 0%;
+  transition:
+    width 0.3s,
+    background 0.3s;
+  border-radius: 2px;
+}
+.strength-fill.weak {
+  width: 33%;
+  background: var(--error);
+}
+.strength-fill.medium {
+  width: 66%;
+  background: #f59e0b;
+}
+.strength-fill.strong {
+  width: 100%;
+  background: var(--accent);
+}
+.strength-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+/* Terms checkbox */
+.terms-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+.terms-check input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.terms-check input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.terms-check input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid #0a0e1a;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.terms-check label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  line-height: 1.5;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+  margin: 0;
+}
+.terms-check label a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 400;
+  transition: opacity 0.2s;
+}
+.terms-check label a:hover {
+  opacity: 0.7;
+}
+
+/* Submit button */
+.btn-login {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #5bbf8a, #7dd3a8);
+  border: none;
+  border-radius: var(--radius);
+  color: #0a0e1a;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.3s,
+    filter 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-login::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+.btn-login:hover::before {
+  left: 100%;
+}
+.btn-login:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+.btn-login:active {
+  transform: translateY(0);
+}
+
+/* Error message */
+.error-msg {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.error-msg.show {
+  display: flex;
+  animation: shake 0.4s ease;
+}
+.error-msg svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--error);
+  fill: none;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+.error-msg span {
+  font-size: 13px;
+  color: var(--error);
+  font-weight: 300;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* Sign up link */
+.signup-link {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+.signup-link a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+.signup-link a:hover {
+  opacity: 0.7;
+}
+
+/* Success state */
+.success-msg {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0;
+}
+.success-msg.show {
+  display: flex;
+  animation: fadeIn 0.4s ease;
+}
+.success-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.success-icon-wrap svg {
+  width: 32px;
+  height: 32px;
+  stroke: var(--accent);
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.success-msg h3 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.success-msg p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  line-height: 1.6;
+  max-width: 300px;
+}
+.success-msg .btn-back-login {
+  margin-top: 28px;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #5bbf8a, #7dd3a8);
+  border: none;
+  border-radius: var(--radius);
+  color: #0a0e1a;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.3s;
+}
+.success-msg .btn-back-login:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+
+.form-body {
+  transition: opacity 0.3s;
+}
+.form-body.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    max-width: 460px;
+    min-height: auto;
+    margin: 20px;
+    border-radius: 20px;
+  }
+  .panel-brand {
+    padding: 40px 36px 36px;
+  }
+  .brand-features {
+    display: none;
+  }
+  .brand-tagline h2 {
+    font-size: 26px;
+  }
+  .panel-form {
+    padding: 40px 36px 48px;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+}
