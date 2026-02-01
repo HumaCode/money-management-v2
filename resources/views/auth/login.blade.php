@@ -85,7 +85,7 @@
                 <span id="errorText">Username or password is incorrect.</span>
             </div>
 
-            <form method="POST" action="{{ route('login') }}">
+            <form id="loginForm" method="POST" data-url="{{ route('login') }}">
                 @csrf
 
                 <div class="form-group">
@@ -95,8 +95,8 @@
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                             <circle cx="12" cy="7" r="4" />
                         </svg>
-                        <input type="text" id="identity" name="identity" autofocus placeholder="Enter your username" autocomplete="off"
-                           />
+                        <input type="text" id="identity" name="identity" autofocus placeholder="Enter your username"
+                            autocomplete="off" />
                     </div>
                 </div>
 
@@ -107,8 +107,8 @@
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                         </svg>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="off"
-                             />
+                        <input type="password" id="password" name="password" placeholder="Enter your password"
+                            autocomplete="off" />
                         <button class="toggle-password" type="button" onclick="togglePassword()"
                             aria-label="Toggle password visibility">
                             <!-- Eye icon (visible state) -->
@@ -128,8 +128,8 @@
 
                     @if (Route::has('password.request'))
                         <a href="{{ route('password.request') }}" class="forgot-link">Forgot password?</a>
+                    @endif
                 </div>
-                @endif
                 <button type="submit" class="btn-login">Sign In</button>
 
             </form>

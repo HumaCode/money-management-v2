@@ -33,35 +33,52 @@ function togglePassword() {
     }
 }
 
-// Login handler (demo)
-// function handleLogin() {
-//     const username = document.getElementById("username").value.trim();
-//     const password = document.getElementById("password").value.trim();
+$("#loginForm").on("submit", function (e) {
+    e.preventDefault();
 
-//     if (!username || !password) {
-//         document.getElementById("errorText").textContent =
-//             "Please fill in all fields.";
-//         document.getElementById("errorMsg").classList.add("show");
-//         return;
-//     }
+    const $form = $(this);
+    const url = $form.data("url");
 
-//     // Demo: simulate login check
-//     // Replace with actual API call
-//     if (username === "admin" && password === "admin123") {
-//         document.getElementById("errorMsg").classList.remove("show");
-//         // Simulate success — redirect or show dashboard
-//         alert("Login successful! Redirecting...");
-//     } else {
-//         document.getElementById("errorText").textContent =
-//             "Username or password is incorrect.";
-//         document.getElementById("errorMsg").classList.add("show");
-//         // Shake the form card subtly
-//         document.querySelector(".panel-form").style.animation = "none";
-//         void document.querySelector(".panel-form").offsetWidth;
-//     }
-// }
+    if (!url) {
+        console.error("Login URL is missing");
+        return;
+    }
 
-// Enter key triggers login
-// document.addEventListener("keydown", (e) => {
-//     if (e.key === "Enter") handleLogin();
-// });
+    $("#btnLogin").prop("disabled", true);
+    $("#loadingModal").css("display", "flex");
+    $("#errorMsg").removeClass("show");
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: $form.serialize(),
+
+        success: function (res) {
+            if (res.redirect) {
+                window.location.href = res.redirect;
+            } else {
+                console.error("Redirect URL not provided");
+            }
+        },
+
+        error: function (xhr) {
+            let message = "Login failed.";
+
+            if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                message = Object.values(xhr.responseJSON.errors)[0][0];
+            }
+
+            if (xhr.status === 401 && xhr.responseJSON?.message) {
+                message = xhr.responseJSON.message;
+            }
+
+            $("#errorText").text(message);
+            $("#errorMsg").addClass("show");
+        },
+
+        complete: function () {
+            $("#btnLogin").prop("disabled", false);
+            $("#loadingModal").hide();
+        },
+    });
+});
