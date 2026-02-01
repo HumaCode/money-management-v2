@@ -1,5 +1,82 @@
 <x-guest-layout>
 
+    @push('auth-css')
+        <style>
+            .auth-panel {
+                position: relative;
+                min-height: 420px;
+                /* samakan dengan tinggi form */
+            }
+
+            /* SUCCESS STATE */
+            .success-msg {
+                display: none;
+                height: 100%;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+
+                text-align: center;
+                animation: fadeScale .4s ease;
+            }
+
+            .success-msg.show { display: block; }
+
+            .success-icon-wrap {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                background: rgba(34, 197, 94, 0.15);
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                margin-bottom: 20px;
+            }
+
+            .success-icon-wrap svg {
+                width: 28px;
+                height: 28px;
+                stroke: #22c55e;
+                stroke-width: 3;
+                fill: none;
+            }
+
+            .success-msg h3 {
+                font-size: 22px;
+                font-weight: 600;
+                margin-bottom: 8px;
+            }
+
+            .success-msg p {
+                font-size: 14px;
+                color: #94a3b8;
+                max-width: 360px;
+                line-height: 1.6;
+            }
+
+            #successMsg {
+                display: none;
+            }
+
+            /* subtle animation */
+            @keyframes fadeScale {
+                from {
+                    opacity: 0;
+                    transform: scale(.96);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+        </style>
+    @endpush
+
     @push('auth-js')
         <script src="{{ asset('/') }}assets/auth/js/login-script.js"></script>
     @endpush
@@ -133,10 +210,26 @@
                 <button type="submit" class="btn-login">Sign In</button>
 
             </form>
-            <div class="signup-link">
+            <div class="signup-link" id="link">
                 Don't have an account? <a href="{{ route('register') }}">Sign up</a>
             </div>
+
+            <!-- Success state (tersembunyi default) -->
+            <div class="success-msg" id="successMsg">
+                <div class="success-icon-wrap">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+                <h3>Login successful!</h3>
+                <p>
+                    Welcome back to MoneyFlow. You’ve been successfully logged in.
+                    Redirecting you to your dashboard.
+                </p>
+            </div>
+
         </div>
 
+       
     </div>
 </x-guest-layout>
