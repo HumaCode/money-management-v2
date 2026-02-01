@@ -1,85 +1,83 @@
 <x-guest-layout>
 
+    @push('auth-css')
+        <style>
+            .auth-panel {
+                position: relative;
+                min-height: 420px;
+                /* samakan dengan tinggi form */
+            }
+
+            /* SUCCESS STATE */
+            .success-msg {
+                display: none;
+                height: 100%;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+
+                text-align: center;
+                animation: fadeScale .4s ease;
+            }
+
+            .success-icon-wrap {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                background: rgba(34, 197, 94, 0.15);
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                margin-bottom: 20px;
+            }
+
+            .success-icon-wrap svg {
+                width: 28px;
+                height: 28px;
+                stroke: #22c55e;
+                stroke-width: 3;
+                fill: none;
+            }
+
+            .success-msg h3 {
+                font-size: 22px;
+                font-weight: 600;
+                margin-bottom: 8px;
+            }
+
+            .success-msg p {
+                font-size: 14px;
+                color: #94a3b8;
+                max-width: 360px;
+                line-height: 1.6;
+            }
+
+            #successMsg {
+                display: none;
+            }
+
+            /* subtle animation */
+            @keyframes fadeScale {
+                from {
+                    opacity: 0;
+                    transform: scale(.96);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+        </style>
+    @endpush
+
+
     @push('auth-js')
-        <script>
-            // Focus state styling
-            document.querySelectorAll(".input-wrapper input").forEach((input) => {
-                input.addEventListener("focus", () => {
-                    input.closest(".input-wrapper").classList.add("focused");
-                });
-                input.addEventListener("blur", () => {
-                    input.closest(".input-wrapper").classList.remove("focused");
-                });
-            });
-
-            // Toggle password visibility
-            const passwordVisibility = {
-                password: false,
-                confirmPassword: false,
-            };
-
-            function togglePassword(fieldId, iconId) {
-                passwordVisibility[fieldId] = !passwordVisibility[fieldId];
-                const input = document.getElementById(fieldId);
-                const icon = document.getElementById(iconId);
-
-                input.type = passwordVisibility[fieldId] ? "text" : "password";
-
-                if (passwordVisibility[fieldId]) {
-                    // Eye-off icon
-                    icon.innerHTML = `
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                        <line x1="1" y1="1" x2="23" y2="23"/>
-                    `;
-                } else {
-                    // Eye icon
-                    icon.innerHTML = `
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                    `;
-                }
-            }
-
-            // Password strength checker
-            function checkPasswordStrength() {
-                const password = document.getElementById("password").value;
-                const strengthDiv = document.getElementById("passwordStrength");
-                const strengthFill = document.getElementById("strengthFill");
-                const strengthText = document.getElementById("strengthText");
-
-                if (password.length === 0) {
-                    strengthDiv.classList.remove("show");
-                    return;
-                }
-
-                strengthDiv.classList.add("show");
-
-                let strength = 0;
-                if (password.length >= 8) strength++;
-                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-                if (/\d/.test(password)) strength++;
-                if (/[^a-zA-Z0-9]/.test(password)) strength++;
-
-                strengthFill.className = "strength-fill";
-
-                if (strength <= 1) {
-                    strengthFill.classList.add("weak");
-                    strengthText.textContent = "Weak password";
-                    strengthText.style.color = "var(--error)";
-                } else if (strength <= 2) {
-                    strengthFill.classList.add("medium");
-                    strengthText.textContent = "Medium strength";
-                    strengthText.style.color = "#f59e0b";
-                } else {
-                    strengthFill.classList.add("strong");
-                    strengthText.textContent = "Strong password";
-                    strengthText.style.color = "var(--accent)";
-                }
-
-                clearError();
-            }
-        </script>
+        <script src="{{ asset('/') }}assets/auth/js/register-script.js"></script>
     @endpush
 
     <div class="container">
@@ -163,7 +161,7 @@
                     <span id="errorText">Something went wrong. Please try again.</span>
                 </div>
 
-                <form method="POST" action="{{ route('register') }}">
+                <form id="formRegister" method="POST" data-url="{{ route('register') }}">
                     @csrf
 
 
@@ -175,8 +173,8 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                                 <circle cx="12" cy="7" r="4" />
                             </svg>
-                            <input type="text" name="name" autofocus id="name" placeholder="John Doe"
-                                autocomplete="off" />
+                            <input type="text" name="name" autofocus id="name" value="{{ old('name') }}"
+                                placeholder="John Doe" autocomplete="off" />
                         </div>
                     </div>
 
@@ -188,8 +186,8 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                                 <circle cx="12" cy="7" r="4" />
                             </svg>
-                            <input type="text" name="username" id="username" placeholder="johndoe"
-                                autocomplete="off" />
+                            <input type="text" name="username" id="username" value="{{ old('username') }}"
+                                placeholder="johndoe" autocomplete="off" />
                         </div>
                     </div>
 
@@ -201,8 +199,8 @@
                                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                                 <polyline points="22,6 12,13 2,6" />
                             </svg>
-                            <input type="email" name="email" id="email" placeholder="you@example.com"
-                                autocomplete="off" />
+                            <input type="email" name="email" id="email" value="{{ old('email') }}"
+                                placeholder="you@example.com" autocomplete="off" />
                         </div>
                     </div>
 
@@ -273,7 +271,7 @@
                 </form>
 
                 <!-- Sign in link -->
-                <div class="signup-link">
+                <div class="signup-link" id="link">
                     Already have an account? <a href="{{ route('login') }}">Sign in</a>
                 </div>
             </div>
@@ -287,10 +285,9 @@
                 </div>
                 <h3>Account created!</h3>
                 <p>
-                    Welcome to MoneyFlow! Your account has been successfully created. Let's
-                    get started.
+                    Welcome to MoneyFlow! Your account has been successfully created.
+                    Let's get started.
                 </p>
-                <button class="{{ route('login') }}">Go to Login</button>
             </div>
         </div>
     </div>
