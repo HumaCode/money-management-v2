@@ -25,6 +25,13 @@ class Category extends Model
         'is_active' => 'boolean',
     ];
 
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        });
+    }
+
     // Relationships
     public function user()
     {
