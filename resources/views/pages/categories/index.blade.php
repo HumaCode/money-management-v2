@@ -1,11 +1,13 @@
 <x-master-layout>
 
     @push('css')
-    <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/category.css">
+        <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/category.css">
     @endpush
 
     @push('js')
-    <script src="{{ asset('assets/backend/js/category.js') }}"></script>
+        {{-- <script src="{{ asset('assets/backend/js/category.js') }}"></script> --}}
+
+      
     @endpush
 
     <!-- Page Header -->
@@ -14,12 +16,15 @@
             <h2>Manage Categories</h2>
             <p>Organize your income and expense categories</p>
         </div>
-        <button class="btn-primary" onclick="openAddModal()">
+
+        <a href="{{ route('category.create') }}" class="btn-primary action">
             <svg viewBox="0 0 24 24">
                 <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" /></svg>
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
             Add Category
-        </button>
+        </a>
+
     </div>
 
     <!-- Table Card -->
@@ -30,7 +35,8 @@
                 <div class="search-box">
                     <svg viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.35-4.35" /></svg>
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
                     <input type="text" placeholder="Search categories..." id="searchInput" />
                 </div>
 
@@ -54,7 +60,8 @@
                     <svg viewBox="0 0 24 24">
                         <polyline points="23 4 23 10 17 10" />
                         <polyline points="1 20 1 14 7 14" />
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                    </svg>
                 </button>
             </div>
 
@@ -97,12 +104,15 @@
                                 <button class="btn-action edit" onclick="openEditModal(1)" title="Edit">
                                     <svg viewBox="0 0 24 24">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
                                 </button>
                                 <button class="btn-action delete" onclick="deleteCategory(1)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                        <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
                                 </button>
                             </div>
                         </td>
@@ -120,12 +130,15 @@
                                 <button class="btn-action edit" onclick="openEditModal(2)" title="Edit">
                                     <svg viewBox="0 0 24 24">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
                                 </button>
                                 <button class="btn-action delete" onclick="deleteCategory(2)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                        <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
                                 </button>
                             </div>
                         </td>
@@ -143,12 +156,15 @@
                                 <button class="btn-action edit" onclick="openEditModal(3)" title="Edit">
                                     <svg viewBox="0 0 24 24">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
                                 </button>
                                 <button class="btn-action delete" onclick="deleteCategory(3)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                        <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
                                 </button>
                             </div>
                         </td>
@@ -166,12 +182,15 @@
                                 <button class="btn-action edit" onclick="openEditModal(4)" title="Edit">
                                     <svg viewBox="0 0 24 24">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
                                 </button>
                                 <button class="btn-action delete" onclick="deleteCategory(4)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                        <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
                                 </button>
                             </div>
                         </td>
@@ -189,12 +208,15 @@
                                 <button class="btn-action edit" onclick="openEditModal(5)" title="Edit">
                                     <svg viewBox="0 0 24 24">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
                                 </button>
                                 <button class="btn-action delete" onclick="deleteCategory(5)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                        <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
                                 </button>
                             </div>
                         </td>
@@ -210,8 +232,10 @@
             </div>
             <div class="pagination">
                 <button disabled>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 18 9 12 15 6" /></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
                 </button>
                 <button class="active">1</button>
                 <button>2</button>
@@ -219,91 +243,14 @@
                 <button>4</button>
                 <button>5</button>
                 <button>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 18 15 12 9 6" /></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Add/Edit Modal -->
-    <div class="modal-overlay" id="categoryModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="modalTitle">Add New Category</h3>
-                <button class="modal-close" onclick="closeModal()">
-                    <svg viewBox="0 0 24 24">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" /></svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="categoryForm">
-                    <div class="form-group">
-                        <label for="categoryName">Category Name *</label>
-                        <input type="text" id="categoryName" placeholder="e.g., Food & Dining" required />
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="categoryType">Type *</label>
-                            <select id="categoryType" required>
-                                <option value="">Select Type</option>
-                                <option value="income">Income</option>
-                                <option value="expense">Expense</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="categoryParent">Parent Category</label>
-                            <select id="categoryParent">
-                                <option value="">None (Main Category)</option>
-                                <option value="1">Food & Dining</option>
-                                <option value="2">Transportation</option>
-                                <option value="3">Housing</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="categoryIcon">Icon</label>
-                            <input type="text" id="categoryIcon" placeholder="🍔" maxlength="2" />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="categoryColor">Color</label>
-                            <div class="color-picker-wrapper">
-                                <input type="color" id="categoryColor" class="color-picker" value="#7dd3a8" />
-                                <input type="text" id="categoryColorHex" value="#7dd3a8" placeholder="#7dd3a8" style="flex: 1;" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="categoryStatus">Status *</label>
-                        <select id="categoryStatus" required>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="categoryDescription">Description</label>
-                        <textarea id="categoryDescription" placeholder="Optional description for this category"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                <button class="btn-primary" onclick="saveCategory()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                        <polyline points="17 21 17 13 7 13 7 21" />
-                        <polyline points="7 3 7 8 15 8" /></svg>
-                    Save Category
-                </button>
-            </div>
-        </div>
-    </div>
 </x-master-layout>

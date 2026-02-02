@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Interface\CategoryRepositoryInterface;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -28,5 +29,25 @@ class CategoryController extends Controller
         ];
 
         return view($this->indexView, $data);
+    }
+
+    public function create(Category $category)
+    {
+          // Get all active parent categories for dropdown
+        $categories = Category::whereNull('parent_id')
+            ->where('is_active', true)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return view('pages.categories.category-form', [
+            'action'        => route('category.store'),
+            'data'          => $category,
+            'categories'    => $categories,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        dd($request->all());
     }
 }
