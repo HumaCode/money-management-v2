@@ -14,7 +14,7 @@
     <nav class="sidebar-nav">
         <!-- Dashboard -->
         <div class="nav-section">
-            <a href="{{ route('dashboard') }}" class="nav-item active">
+            <a href="{{ route('dashboard') }}" class="nav-item {{ active_route('dashboard') }}">
                 <svg viewBox="0 0 24 24">
                     <rect x="3" y="3" width="7" height="7" />
                     <rect x="14" y="3" width="7" height="7" />
@@ -28,7 +28,7 @@
         <!-- Master -->
         <div class="nav-section">
             <div class="nav-section-title">Master</div>
-            <a href="{{ route('category.index') }}" class="nav-item">
+            <a href="{{ route('category.index') }}" class="nav-item {{ active_route('category.index') }}">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 7h-9" />
                     <path d="M14 17H5" />
