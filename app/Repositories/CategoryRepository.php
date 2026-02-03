@@ -122,4 +122,11 @@ class CategoryRepository implements CategoryRepositoryInterface
         return $category->delete();
     }
 
+    public function getCategoriesWithoutParentId()
+    {
+        return Category::active()->whereNull('parent_id')
+        ->orderBy('name', 'asc')
+        ->get();
+    }
+
 }

@@ -22,11 +22,11 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-title">
-            <h2>Manage Categories</h2>
-            <p>Organize your income and expense categories</p>
+            <h2>{{ $title }}</h2>
+            <p>{{ $subtitle }}</p>
         </div>
 
-        <a href="{{ route('category.create') }}" class="btn-primary action" style="text-decoration: none;">
+        <a href="{{ $createUrl }}" class="btn-primary action" style="text-decoration: none;">
             <svg viewBox="0 0 24 24">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
@@ -46,7 +46,7 @@
                         <circle cx="11" cy="11" r="8" />
                         <path d="m21 21-4.35-4.35" />
                     </svg>
-                    <input type="text" placeholder="Search categories..." id="searchInput" />
+                    <input type="text" placeholder="Search..." id="searchInput" />
                 </div>
 
                 <div class="custom-select">

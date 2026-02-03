@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\CategoryMessage;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\CategoryStoreRequest;
 use App\Http\Resources\CategoryResource;
@@ -11,11 +12,18 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    private string $title               = CategoryMessage::TITLE;
+    private string $subtitle            = CategoryMessage::SUBTITLE;
+    private string $formView            = CategoryMessage::FORMVIEW;
+    private string $indexView           = CategoryMessage::INDEXVIEW;
+
+    private string $createUrl           = CategoryMessage::CREATEURL;
+    private string $storeUrl            = CategoryMessage::STOREURL;
+
+    private string $dataTableId         = CategoryMessage::TABLEID;
+
+
     private CategoryRepositoryInterface $categoryRepository;
-    private string $permissionAkses = 'categories';
-    private string $indexView = 'pages.categories.index';
-    private string $createView = 'categories.create';
-    private string $editView = 'categories.edit';
 
     public function __construct(CategoryRepositoryInterface $categoryRepository)
     {
@@ -27,7 +35,10 @@ class CategoryController extends Controller
         // Gate::authorize('read ' . $this->permissionAkses);
 
         $data = [
-            'title'             => 'Categories',
+            'title'             => $this->title,
+            'subtitle'          => $this->subtitle,
+            'createUrl'         => route($this->createUrl),
+            'dataTableId'       => $this->dataTableId,
             // 'permissionAkses'   => $this->permissionAkses,
         ];
 
@@ -36,16 +47,10 @@ class CategoryController extends Controller
 
     public function create(Category $category)
     {
-          // Get all active parent categories for dropdown
-        $categories = Category::whereNull('parent_id')
-            ->where('is_active', true)
-            ->orderBy('name', 'asc')
-            ->get();
-
-        return view('pages.categories.category-form', [
-            'action'        => route('category.store'),
+        return view($this->formView, [
+            'action'        => route($this->storeUrl),
             'data'          => $category,
-            'categories'    => $categories,
+            'categories'    => $this->categoryRepository->getCategoriesWithoutParentId(),
         ]);
     }
 
@@ -56,7 +61,7 @@ class CategoryController extends Controller
         try {
             $category = $this->categoryRepository->create($request);
 
-            return ResponseHelper::jsonResponse(true, 'Category successfully created.', new CategoryResource($category), 201);
+            return ResponseHelper::jsonResponse(true, CategoryMessage::CATEGORY_RETRIEVED_SUCCESS, new CategoryResource($category), 201);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
