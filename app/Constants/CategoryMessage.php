@@ -12,6 +12,7 @@ class CategoryMessage
     const PAGINATIONURL                         = 'category.allPagination';
     const CREATEURL                             = 'category.create';
     const EDITURL                               = 'category.edit';
+    const SHOWURL                               = 'category.show';
     const STOREURL                              = 'category.store';
     const UPDATEURL                             = 'category.update';
 

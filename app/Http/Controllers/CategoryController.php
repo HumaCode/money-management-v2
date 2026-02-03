@@ -21,6 +21,7 @@ class CategoryController extends Controller
 
     private string $createUrl           = CategoryMessage::CREATEURL;
     private string $editUrl             = CategoryMessage::EDITURL;
+    private string $showUrl             = CategoryMessage::SHOWURL;
     private string $storeUrl            = CategoryMessage::STOREURL;
     private string $updateUrl           = CategoryMessage::UPDATEURL;
 
@@ -44,6 +45,7 @@ class CategoryController extends Controller
             'subtitle'          => $this->subtitle,
             'createUrl'         => route($this->createUrl),
             'editUrl'           => route($this->editUrl, ['category' => '__ID__']),
+            'showUrl'           => route($this->showUrl, ['category' => '__ID__']),
             'dataUrl'           => route($this->dataUrl),
             'dataTableId'       => $this->dataTableId,
             // 'permissionAkses'   => $this->permissionAkses,
@@ -95,6 +97,14 @@ class CategoryController extends Controller
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
+    }
+
+    public function show(Category $category)
+    {
+        return view($this->formView, [
+            'type'      => 'show',
+            'data'      => $category,
+        ]);
     }
 
     public function edit(Category $category)

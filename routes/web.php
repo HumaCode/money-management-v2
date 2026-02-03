@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('category.store');
     Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
     Route::put('/categories/{category}/update', [CategoryController::class, 'update'])->name('category.update');
+    Route::get('/categories/{category}/show', [CategoryController::class, 'show'])->name('category.show');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
