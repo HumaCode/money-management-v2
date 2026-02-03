@@ -32,24 +32,9 @@
             --header-height: 70px;
         }
 
-        .spinner {
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(255, 255, 255, .3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .6s linear infinite;
-            display: inline-block;
-            margin-right: 6px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
     </style>
 
+    <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/custom-css.css">
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/dashboard.css">
 
     @stack('css')
@@ -123,6 +108,15 @@
         </div>
     </div>
 
+    <!-- OVERLAY SPINNER -->
+    <div class="spinner-overlay hidden" id="spinner-form-modal">
+        <div class="spinner-card">
+            <div class="spinner-circle"></div>
+            <div class="spinner-text">Sedang memproses...</div>
+        </div>
+    </div>
+
+
     <!-- JAVASCRIPT -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -141,138 +135,8 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        /**
-         * Modal Handler for Category
-         * Handles opening modal and loading content via AJAX
-         */
 
-        $(document).ready(function() {
-
-            // Handle button with class "action" click
-            $(document).on('click', '.action', function(e) {
-                e.preventDefault();
-
-                const url = $(this).attr('href');
-                openModal(url);
-            });
-
-            /**
-             * Open modal and load content
-             * @param {string} url - URL to load content from
-             */
-            function openModal(url) {
-                const $modal = $('#modal');
-
-                // Show loading state
-                $modal.html(`
-                        <div class="modal">
-                            <div class="modal-body" style="text-align: center; padding: 40px;">
-                                <div class="">Loading...</div>
-                            </div>
-                        </div>
-                    `);
-
-                // Show modal overlay
-                $modal.addClass('show');
-                $('body').css('overflow', 'hidden'); // Prevent body scroll
-
-                // Load content via AJAX
-                $.ajax({
-                    url: url,
-                    method: 'GET',
-                    success: function(response) {
-                        // Insert loaded content into modal
-                        $modal.html(response);
-
-                        // Initialize modal after content loaded
-                        initializeModal();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error loading modal:', error);
-
-                        // Show error message
-                        $modal.html(`
-                        <div class="modal">
-                            <div class="modal-header">
-                                <h3>Error</h3>
-                                <button class="modal-close" onclick="closeModal()">
-                                    <svg viewBox="0 0 24 24">
-                                        <line x1="18" y1="6" x2="6" y2="18"/>
-                                        <line x1="6" y1="6" x2="18" y2="18"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p style="color: var(--error);">Failed to load content. Please try again.</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn-secondary" onclick="closeModal()">Close</button>
-                            </div>
-                        </div>
-                    `);
-                        }
-                    });
-            }
-
-            /**
-             * Initialize modal after content loaded
-             */
-            function initializeModal() {
-                // Sync color picker and hex input
-                const $colorPicker = $('#categoryColor');
-                const $colorHex = $('#categoryColorHex');
-
-                if ($colorPicker.length && $colorHex.length) {
-                    $colorPicker.on('input', function() {
-                        $colorHex.val($(this).val());
-                    });
-
-                    $colorHex.on('input', function() {
-                        const value = $(this).val();
-                        if (/^#[0-9A-F]{6}$/i.test(value)) {
-                            $colorPicker.val(value);
-                        }
-                    });
-                }
-
-                // Focus first input
-                setTimeout(() => {
-                    $('#categoryName').focus();
-                }, 100);
-            }
-
-            /**
-             * Close modal when clicking overlay
-             */
-            $(document).on('click', '#modal', function(e) {
-                if ($(e.target).is('#modal')) {
-                    closeModal();
-                }
-            });
-
-            /**
-             * Close modal on ESC key
-             */
-            $(document).on('keydown', function(e) {
-                if (e.key === 'Escape' && $('#modal').hasClass('show')) {
-                    closeModal();
-                }
-            });
-        });
-
-        /**
-         * Close modal function (global scope for onclick)
-         */
-        function closeModal() {
-            const $modal = $('#modal');
-            $modal.removeClass('show');
-            $modal.html('');
-            $('body').css('overflow', ''); // Restore body scroll
-        }
-
-        
-    </script>
+    <script src="{{ asset('/') }}assets/backend/js/main.js"></script>
 
     <script>
         // Scroll to Top

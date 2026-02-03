@@ -8,14 +8,15 @@
     :action="$action ?? null"
     :is-edit="$isEdit"
 >
+
     <div class="form-group">
-        <label for="categoryName">
+        <label for="name">
             Category Name <span class="required">*</span>
         </label>
 
         <input
             type="text"
-            id="categoryName"
+            id="name"
             name="name"
             value="{{ old('name', $data->name) }}"
             placeholder="e.g., Food & Dining"
@@ -79,10 +80,10 @@
         <div class="form-group">
             <label for="categoryColor">Color</label>
 
-            <div class="color-picker-wrapper">
+            <div class="color-picker-wrapper" style="display:flex; gap:8px;">
                 <input
                     type="color"
-                    id="categoryColor"
+                    id="inputColor"
                     name="color"
                     class="color-picker"
                     value="{{ old('color', $data->color ?? '#7dd3a8') }}"
@@ -90,10 +91,10 @@
 
                 <input
                     type="text"
-                    id="categoryColorHex"
+                    id="inputColorHex"
+                    class="form-control"
                     value="{{ old('color', $data->color ?? '#7dd3a8') }}"
-                    placeholder="#7dd3a8"
-                    style="flex:1;"
+                    placeholder="#7dd3a8" readonly
                 />
             </div>
         </div>

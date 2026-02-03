@@ -1,13 +1,22 @@
 <x-master-layout>
 
     @push('css')
-        <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/category.css">
+    <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/category.css">
     @endpush
 
     @push('js')
-        {{-- <script src="{{ asset('assets/backend/js/category.js') }}"></script> --}}
+    {{-- <script src="{{ asset('assets/backend/js/category.js') }}"></script> --}}
 
-      
+    <script>
+        const dataTableId = 'table-category';
+
+        handleAction(dataTableId, function () {
+            initColorPicker();   // 🔴 INI WAJIB
+
+            $('#name')?.focus();
+        });
+    </script>
+
     @endpush
 
     <!-- Page Header -->
@@ -17,7 +26,7 @@
             <p>Organize your income and expense categories</p>
         </div>
 
-        <a href="{{ route('category.create') }}" class="btn-primary action">
+        <a href="{{ route('category.create') }}" class="btn-primary action" style="text-decoration: none;">
             <svg viewBox="0 0 24 24">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
@@ -110,8 +119,7 @@
                                 <button class="btn-action delete" onclick="deleteCategory(1)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path
-                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </button>
                             </div>
@@ -136,8 +144,7 @@
                                 <button class="btn-action delete" onclick="deleteCategory(2)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path
-                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </button>
                             </div>
@@ -162,8 +169,7 @@
                                 <button class="btn-action delete" onclick="deleteCategory(3)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path
-                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </button>
                             </div>
@@ -188,8 +194,7 @@
                                 <button class="btn-action delete" onclick="deleteCategory(4)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path
-                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </button>
                             </div>
@@ -214,8 +219,7 @@
                                 <button class="btn-action delete" onclick="deleteCategory(5)" title="Delete">
                                     <svg viewBox="0 0 24 24">
                                         <polyline points="3 6 5 6 21 6" />
-                                        <path
-                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </button>
                             </div>
@@ -232,8 +236,7 @@
             </div>
             <div class="pagination">
                 <button disabled>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="15 18 9 12 15 6" />
                     </svg>
                 </button>
@@ -243,8 +246,7 @@
                 <button>4</button>
                 <button>5</button>
                 <button>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6" />
                     </svg>
                 </button>
