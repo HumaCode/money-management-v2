@@ -219,3 +219,63 @@ function initColorPicker() {
         }
     });
 }
+
+function handleDelete(dataTableId, onSuccess) {
+    $(document).on("click", `#${dataTableId} .delete`, function (e) {
+        e.preventDefault();
+
+        const url = $(this).attr("href");
+        if (!url) return;
+
+        Swal.fire({
+            title: "Delete this item?",
+            html: `
+                <div style="text-align:center">
+                    <p>This action cannot be undone.</p>
+                    <strong class="text-danger">The data will be permanently removed.</strong>
+                </div>
+            `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#ef4444",
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            $.ajax({
+                url,
+                method: "DELETE",
+
+                beforeSend() {
+                    showLoading(true);
+                },
+
+                success(res) {
+                    showToast(
+                        res.status || "success",
+                        res.message || "Data deleted successfully",
+                    );
+
+                    // 🔁 Reload table (AJAX custom)
+                    if (typeof loadData === "function") {
+                        loadData();
+                    }
+
+                    onSuccess && onSuccess(res);
+                },
+
+                error(err) {
+                    showToast(
+                        "error",
+                        err.responseJSON?.message || "Failed to delete data",
+                    );
+                },
+
+                complete() {
+                    showLoading(false);
+                },
+            });
+        });
+    });
+}

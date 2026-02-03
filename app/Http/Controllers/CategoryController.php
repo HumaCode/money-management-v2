@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\CategoryMessage;
+use App\Constants\GlobalMessage;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\CategoryStoreRequest;
 use App\Http\Requests\CategoryUpdateRequest;
@@ -24,6 +25,7 @@ class CategoryController extends Controller
     private string $showUrl             = CategoryMessage::SHOWURL;
     private string $storeUrl            = CategoryMessage::STOREURL;
     private string $updateUrl           = CategoryMessage::UPDATEURL;
+    private string $destroyUrl          = CategoryMessage::DESTROYURL;
 
     private string $dataUrl             = CategoryMessage::PAGINATIONURL;
     private string $dataTableId         = CategoryMessage::TABLEID;
@@ -46,6 +48,7 @@ class CategoryController extends Controller
             'createUrl'         => route($this->createUrl),
             'editUrl'           => route($this->editUrl, ['category' => '__ID__']),
             'showUrl'           => route($this->showUrl, ['category' => '__ID__']),
+            'destroyUrl'        => route($this->destroyUrl, ['category' => '__ID__']),
             'dataUrl'           => route($this->dataUrl),
             'dataTableId'       => $this->dataTableId,
             // 'permissionAkses'   => $this->permissionAkses,
@@ -124,6 +127,25 @@ class CategoryController extends Controller
             $category = $this->categoryRepository->update($category->id, $request);
 
             return ResponseHelper::jsonResponse(true, CategoryMessage::CATEGORY_UPDATED_SUCCESS, new CategoryResource($category), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function destroy(Category $category)
+    {
+
+        try {
+            $category = $this->categoryRepository->getById($category->id);
+
+            if (!$category) {
+                return ResponseHelper::jsonResponse(false, GlobalMessage::NOT_FOUND, null, 404);
+            }
+
+
+            $this->categoryRepository->delete($category->id);
+
+            return ResponseHelper::jsonResponse(true, CategoryMessage::CATEGORY_DELETED_SUCCESS, null, 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

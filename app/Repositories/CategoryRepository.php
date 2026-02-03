@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Constants\CategoryMessage;
 use App\Interface\CategoryRepositoryInterface;
 use App\Models\Category;
 use Illuminate\Support\Facades\DB;
@@ -85,7 +86,7 @@ class CategoryRepository implements CategoryRepositoryInterface
             return $category;
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new \Exception('Error creating category: ' . $e->getMessage());
+            throw new \Exception(CategoryMessage::ERROR_CREATING . $e->getMessage());
         }
     }
 
@@ -111,21 +112,8 @@ class CategoryRepository implements CategoryRepositoryInterface
             return $category;
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new \Exception('Error updating category: ' . $e->getMessage());
+            throw new \Exception(CategoryMessage::ERROR_UPDATING . $e->getMessage());
         }
-    }
-
-    public function toggleStatus(string $id)
-    {
-        $category = $this->getById($id);
-
-        if (!$category) {
-            return false;
-        }
-
-        return $category->update([
-            'is_active' => !$category->is_active
-        ]);
     }
 
     public function delete(string $id)

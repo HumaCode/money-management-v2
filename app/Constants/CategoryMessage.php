@@ -15,6 +15,7 @@ class CategoryMessage
     const SHOWURL                               = 'category.show';
     const STOREURL                              = 'category.store';
     const UPDATEURL                             = 'category.update';
+    const DESTROYURL                            = 'category.destroy';
 
     const TABLEID                               = 'table-category';
 

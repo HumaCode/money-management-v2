@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard — MoneyFlow</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap"
@@ -190,6 +191,16 @@
         document.getElementById("logoutModal")?.addEventListener("click", function(e) {
             if (e.target === this) hideLogoutModal();
         });
+
+        window.showLoading = function(show = true) {
+            const $overlay = $("#spinner-overlay");
+            if (!$overlay.length) return;
+
+            show
+                ?
+                $overlay.removeClass("hidden") :
+                $overlay.addClass("hidden");
+        };
     </script>
 
     <script src="{{ asset('assets/backend/js/dashboard.js') }}"></script>

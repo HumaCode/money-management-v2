@@ -25,7 +25,5 @@ interface CategoryRepositoryInterface
 
     public function getById(string $id);
 
-    public function toggleStatus(string $id);
-
     public function delete(string $id);
 }
