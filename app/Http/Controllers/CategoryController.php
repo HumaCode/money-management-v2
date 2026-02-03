@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants\CategoryMessage;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\CategoryStoreRequest;
+use App\Http\Requests\CategoryUpdateRequest;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\PaginateResource;
 use App\Interface\CategoryRepositoryInterface;
@@ -19,7 +20,9 @@ class CategoryController extends Controller
     private string $indexView           = CategoryMessage::INDEXVIEW;
 
     private string $createUrl           = CategoryMessage::CREATEURL;
+    private string $editUrl             = CategoryMessage::EDITURL;
     private string $storeUrl            = CategoryMessage::STOREURL;
+    private string $updateUrl           = CategoryMessage::UPDATEURL;
 
     private string $dataUrl             = CategoryMessage::PAGINATIONURL;
     private string $dataTableId         = CategoryMessage::TABLEID;
@@ -40,6 +43,7 @@ class CategoryController extends Controller
             'title'             => $this->title,
             'subtitle'          => $this->subtitle,
             'createUrl'         => route($this->createUrl),
+            'editUrl'           => route($this->editUrl, ['category' => '__ID__']),
             'dataUrl'           => route($this->dataUrl),
             'dataTableId'       => $this->dataTableId,
             // 'permissionAkses'   => $this->permissionAkses,
@@ -88,6 +92,28 @@ class CategoryController extends Controller
             $category = $this->categoryRepository->create($request);
 
             return ResponseHelper::jsonResponse(true, CategoryMessage::CATEGORY_RETRIEVED_SUCCESS, new CategoryResource($category), 201);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function edit(Category $category)
+    {
+        return view($this->formView, [
+            'action'        => route($this->updateUrl, ['category' => $category->id]),
+            'data'          => $category,
+            'categories'    => $this->categoryRepository->getCategoriesWithoutParentId(),
+        ]);
+    }
+
+    public function update(CategoryUpdateRequest $request, Category $category)
+    {
+        $request = $request->validated();
+
+        try {
+            $category = $this->categoryRepository->update($category->id, $request);
+
+            return ResponseHelper::jsonResponse(true, CategoryMessage::CATEGORY_UPDATED_SUCCESS, new CategoryResource($category), 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

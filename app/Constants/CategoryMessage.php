@@ -11,7 +11,10 @@ class CategoryMessage
 
     const PAGINATIONURL                         = 'category.allPagination';
     const CREATEURL                             = 'category.create';
+    const EDITURL                               = 'category.edit';
     const STOREURL                              = 'category.store';
+    const UPDATEURL                             = 'category.update';
+
     const TABLEID                               = 'table-category';
 
 

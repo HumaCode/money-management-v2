@@ -91,13 +91,28 @@ class CategoryRepository implements CategoryRepositoryInterface
 
     public function update(string $id, array $data)
     {
+        DB::beginTransaction();
+
         $category = $this->getById($id);
 
-        if (!$category) {
-            return false;
-        }
 
-        return $category->update($data);
+        try {
+            $category->parent_id    = $data['parent_id'] ?? null;
+            $category->name         = $data['name'];
+            $category->slug         = Str::of($data['name'])->slug('-');
+            $category->type         = $data['type'];
+            $category->icon         = $data['icon'] ?? null;
+            $category->color        = $data['color'] ?? null;
+            $category->is_active    = $data['is_active'] ?? 0;
+            $category->save();
+
+            DB::commit();
+
+            return $category;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception('Error updating category: ' . $e->getMessage());
+        }
     }
 
     public function toggleStatus(string $id)

@@ -18,6 +18,7 @@
 
             window.dataTableId = @json($dataTableId);
             window.urlData = @json($dataUrl);
+            window.urlEdit = @json($editUrl);
         </script>
 
 
@@ -104,6 +105,7 @@
 
                 const $tbody = $('#tableBody');
 
+
                 if (!rows || rows.length === 0) {
                     renderEmpty('No data available');
                     return;
@@ -112,6 +114,9 @@
                 let html = '';
 
                 rows.forEach(row => {
+
+
+                    const finalEditUrl = window.urlEdit.replace('__ID__', row.id);
                     html += `
                     <tr>
                         <td>
@@ -140,7 +145,7 @@
                                     <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> 
                                 </a> 
                                 
-                                <a href="" class="btn-action edit action" title="Edit"> 
+                                <a href="${finalEditUrl}" class="btn-action edit action" title="Edit"> 
                                     <svg viewBox="0 0 24 24"> <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /> 
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /> </svg> 
                                 </a> 
