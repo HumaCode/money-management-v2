@@ -9,6 +9,7 @@ class CategoryMessage
     const FORMVIEW                              = 'pages.categories.category-form';
     const INDEXVIEW                             = 'pages.categories.index';
 
+    const PAGINATIONURL                         = 'category.allPagination';
     const CREATEURL                             = 'category.create';
     const STOREURL                              = 'category.store';
     const TABLEID                               = 'table-category';

@@ -15,8 +15,243 @@
 
             $('#name')?.focus();
         });
+
+        window.dataTableId = @json($dataTableId);
+        window.urlData = @json($dataUrl);
     </script>
 
+
+    <script>
+        /* =========================================================
+         | GLOBAL STATE
+         ========================================================= */
+        const tableState = {
+            search: null,
+            status: null,
+            type: null,
+            per_page: 10,
+            page: 1
+        };
+
+        /* =========================================================
+         | MAIN AJAX LOADER
+         ========================================================= */
+        function loadData() {
+            const $tbody = $('#tableBody');
+
+            // loading placeholder
+            $tbody.html(`
+                <tr>
+                    <td colspan="6" class="text-center py-6">
+                        Loading...
+                    </td>
+                </tr>
+            `);
+
+            $.ajax({
+                url: window.urlData,
+                method: 'GET',
+                data: {
+                    search: tableState.search,
+                    status: tableState.status,
+                    type: tableState.type,
+                    row_per_page: tableState.per_page,
+                    page: tableState.page
+                },
+                success(res) {
+                    if (!res.success) {
+                        renderEmpty('Failed to load data');
+                        return;
+                    }
+
+                    const rows = res.data.data;
+                    const meta = res.data.meta;
+
+                    renderTable(rows);
+                    renderInfo(meta);
+                    renderPagination(meta);
+                },
+                error() {
+                    renderEmpty('Error loading data');
+                }
+            });
+        }
+
+        /* =========================================================
+         | TABLE RENDER
+         ========================================================= */
+        function renderTable(rows) {
+            const $tbody = $('#tableBody');
+
+            if (!rows || rows.length === 0) {
+                renderEmpty('No data available');
+                return;
+            }
+
+            let html = '';
+
+            rows.forEach(row => {
+                html += `
+                    <tr>
+                        <td>
+                            <div class="category-icon" style="background:${row.color_bg ?? 'rgba(125,211,168,0.15)'}">
+                                ${row.icon ?? '—'}
+                            </div>
+                        </td>
+                        <td>${row.name}</td>
+                        <td>
+                            <span class="badge ${row.type}">
+                                ${row.type_label}
+                            </span>
+                        </td>
+                        <td>${row.parent_name ?? '—'}</td>
+                        <td>
+                            <span class="badge ${row.is_active ? 'success' : 'danger'}">
+                                ${row.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                ${row.actions ?? ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            $tbody.html(html);
+        }
+
+        function renderEmpty(text) {
+            $('#tableBody').html(`
+                <tr>
+                    <td colspan="6" class="text-center py-6">
+                        ${text}
+                    </td>
+                </tr>
+            `);
+        }
+
+        /* =========================================================
+         | INFO FOOTER
+         ========================================================= */
+        function renderInfo(meta) {
+            $('.table-info').text(
+                `Showing ${meta.from} to ${meta.to} of ${meta.total} entries`
+            );
+        }
+
+        /* =========================================================
+         | PAGINATION (COMPACT & SAFE)
+         ========================================================= */
+        function renderPagination(meta) {
+            const $pagination = $('.pagination');
+            $pagination.empty();
+
+            const current = meta.current_page;
+            const last = meta.last_page;
+
+            // Prev
+            $pagination.append(paginationButton('prev', current === 1));
+
+            let pages = [];
+
+            if (last <= 5) {
+                pages = [...Array(last).keys()].map(i => i + 1);
+            } else {
+                if (current <= 3) {
+                    pages = [1, 2, 3, '...', last];
+                } else if (current >= last - 2) {
+                    pages = [1, '...', last - 2, last - 1, last];
+                } else {
+                    pages = [1, '...', current, '...', last];
+                }
+            }
+
+            pages.forEach(p => {
+                if (p === '...') {
+                    $pagination.append(`<button disabled>...</button>`);
+                } else {
+                    $pagination.append(
+                        paginationButton(p, false, p === current)
+                    );
+                }
+            });
+
+            // Next
+            $pagination.append(paginationButton('next', current === last));
+        }
+
+        function paginationButton(page, disabled = false, active = false) {
+            let label = page;
+            if (page === 'prev') label = '‹';
+            if (page === 'next') label = '›';
+
+            return `
+                <button
+                    data-page="${page}"
+                    ${disabled ? 'disabled' : ''}
+                    class="${active ? 'active' : ''}">
+                    ${label}
+                </button>
+            `;
+        }
+
+        /* =========================================================
+         | PAGINATION CLICK
+         ========================================================= */
+        $(document).on('click', '.pagination button', function () {
+            const page = $(this).data('page');
+
+            if (page === 'prev' && tableState.page > 1) {
+                tableState.page--;
+            } else if (page === 'next') {
+                tableState.page++;
+            } else if (!isNaN(page)) {
+                tableState.page = Number(page);
+            }
+
+            loadData();
+        });
+
+        /* =========================================================
+         | SEARCH & FILTER (LODASH DEBOUNCE)
+         ========================================================= */
+        const debouncedReload = _.debounce(() => {
+            tableState.page = 1;
+            loadData();
+        }, 400);
+
+        $('#searchInput').on('input', function () {
+            tableState.search = this.value || null;
+            debouncedReload();
+        });
+
+        $('#statusFilter').on('change', function () {
+            tableState.status = this.value === 'all' ? null : this.value;
+            debouncedReload();
+        });
+
+        $('#typeFilter').on('change', function () {
+            tableState.type = this.value === 'all' ? null : this.value;
+            debouncedReload();
+        });
+
+        $('#perPage').on('change', function () {
+            tableState.per_page = Number(this.value);
+            tableState.page = 1;
+            loadData();
+        });
+
+        /* =========================================================
+        | INITIAL LOAD (DELAYED)
+         ========================================================= */
+        $(window).on('load', function () {
+            setTimeout(() => {
+                loadData();
+            }, 600);
+        });
+    </script>
     @endpush
 
     <!-- Page Header -->
@@ -38,6 +273,7 @@
 
     <!-- Table Card -->
     <div class="table-card" data-aos="fade-up">
+
         <!-- Table Controls -->
         <div class="table-controls">
             <div class="table-controls-left">
@@ -46,19 +282,19 @@
                         <circle cx="11" cy="11" r="8" />
                         <path d="m21 21-4.35-4.35" />
                     </svg>
-                    <input type="text" placeholder="Search..." id="searchInput" />
+                    <input type="text" name="search" placeholder="Search..." id="searchInput" />
                 </div>
 
                 <div class="custom-select">
-                    <select id="statusFilter">
+                    <select id="statusFilter" name="status">
                         <option value="all">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
                     </select>
                 </div>
 
                 <div class="custom-select">
-                    <select id="typeFilter">
+                    <select id="typeFilter" name="type">
                         <option value="all">All Types</option>
                         <option value="income">Income</option>
                         <option value="expense">Expense</option>
@@ -100,140 +336,20 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr>
-                        <td>
-                            <div class="category-icon" style="background: rgba(125,211,168,0.15);">🍔</div>
-                        </td>
-                        <td>Food & Dining</td>
-                        <td><span class="badge expense">Expense</span></td>
-                        <td>—</td>
-                        <td><span class="badge success">Active</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action edit" onclick="openEditModal(1)" title="Edit">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                    </svg>
-                                </button>
-                                <button class="btn-action delete" onclick="deleteCategory(1)" title="Delete">
-                                    <svg viewBox="0 0 24 24">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="category-icon" style="background: rgba(125,211,168,0.15);">🚗</div>
-                        </td>
-                        <td>Transportation</td>
-                        <td><span class="badge expense">Expense</span></td>
-                        <td>—</td>
-                        <td><span class="badge success">Active</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action edit" onclick="openEditModal(2)" title="Edit">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                    </svg>
-                                </button>
-                                <button class="btn-action delete" onclick="deleteCategory(2)" title="Delete">
-                                    <svg viewBox="0 0 24 24">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="category-icon" style="background: rgba(125,211,168,0.15);">💰</div>
-                        </td>
-                        <td>Salary</td>
-                        <td><span class="badge income">Income</span></td>
-                        <td>—</td>
-                        <td><span class="badge success">Active</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action edit" onclick="openEditModal(3)" title="Edit">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                    </svg>
-                                </button>
-                                <button class="btn-action delete" onclick="deleteCategory(3)" title="Delete">
-                                    <svg viewBox="0 0 24 24">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="category-icon" style="background: rgba(125,211,168,0.15);">🏠</div>
-                        </td>
-                        <td>Housing</td>
-                        <td><span class="badge expense">Expense</span></td>
-                        <td>—</td>
-                        <td><span class="badge danger">Inactive</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action edit" onclick="openEditModal(4)" title="Edit">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                    </svg>
-                                </button>
-                                <button class="btn-action delete" onclick="deleteCategory(4)" title="Delete">
-                                    <svg viewBox="0 0 24 24">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="category-icon" style="background: rgba(125,211,168,0.15);">🎮</div>
-                        </td>
-                        <td>Entertainment</td>
-                        <td><span class="badge expense">Expense</span></td>
-                        <td>—</td>
-                        <td><span class="badge success">Active</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action edit" onclick="openEditModal(5)" title="Edit">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                    </svg>
-                                </button>
-                                <button class="btn-action delete" onclick="deleteCategory(5)" title="Delete">
-                                    <svg viewBox="0 0 24 24">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+
                 </tbody>
             </table>
         </div>
 
         <!-- Table Footer -->
         <div class="table-footer">
+
+            {{--  info  --}}
             <div class="table-info">
                 Showing 1 to 5 of 57 entries
             </div>
+
+            {{--  pagination  --}}
             <div class="pagination">
                 <button disabled>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -242,8 +358,7 @@
                 </button>
                 <button class="active">1</button>
                 <button>2</button>
-                <button>3</button>
-                <button>4</button>
+                <button>..</button>
                 <button>5</button>
                 <button>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
