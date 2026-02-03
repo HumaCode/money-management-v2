@@ -161,12 +161,20 @@
             function renderEmpty(text) {
                 $('#tableBody').html(`
                     <tr>
-                        <td colspan="6" class="py-6 text-center">
-                            ${text}
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    ⚠️
+                                </div>
+                                <div class="empty-text">
+                                    ${text}
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 `);
             }
+
 
             /* =========================================================
              | INFO FOOTER
