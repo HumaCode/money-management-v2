@@ -15,12 +15,7 @@
         <!-- Dashboard -->
         <div class="nav-section">
             <a href="{{ route('dashboard') }}" class="nav-item {{ active_route('dashboard') }}">
-                <svg viewBox="0 0 24 24">
-                    <rect x="3" y="3" width="7" height="7" />
-                    <rect x="14" y="3" width="7" height="7" />
-                    <rect x="14" y="14" width="7" height="7" />
-                    <rect x="3" y="14" width="7" height="7" />
-                </svg>
+                <i data-lucide="air-vent"></i>
                 Dashboard
             </a>
         </div>

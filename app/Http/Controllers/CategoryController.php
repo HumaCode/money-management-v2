@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
+use App\Http\Requests\CategoryStoreRequest;
+use App\Http\Resources\CategoryResource;
 use App\Interface\CategoryRepositoryInterface;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -46,8 +49,16 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(CategoryStoreRequest $request)
     {
-        dd($request->all());
+        $request = $request->validated();
+
+        try {
+            $category = $this->categoryRepository->create($request);
+
+            return ResponseHelper::jsonResponse(true, 'Category successfully created.', new CategoryResource($category), 201);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 }

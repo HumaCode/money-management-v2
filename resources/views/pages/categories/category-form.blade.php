@@ -75,6 +75,9 @@
                 placeholder="🍔"
                 maxlength="10"
             />
+            <small class="text-muted">
+                Press <b>Win + .</b> (Windows) or <b>Ctrl + Cmd + Space</b> (Mac)
+            </small>
         </div>
 
         <div class="form-group">
@@ -100,23 +103,26 @@
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="categoryStatus">
-            Status <span class="required">*</span>
-        </label>
+    @if ($isEdit)
+        <div class="form-group">
+            <label for="categoryStatus">
+                Status <span class="required">*</span>
+            </label>
 
-        <select id="categoryStatus" name="is_active" required>
-            <option value="1"
-                {{ old('is_active', $data->is_active) == 1 ? 'selected' : '' }}>
-                Active
-            </option>
+            <select id="categoryStatus" name="is_active" required>
+                <option value="1"
+                    {{ old('is_active', $data->is_active) == 1 ? 'selected' : '' }}>
+                    Active
+                </option>
 
-            <option value="0"
-                {{ old('is_active', $data->is_active) == 0 ? 'selected' : '' }}>
-                Inactive
-            </option>
-        </select>
-    </div>
+                <option value="0"
+                    {{ old('is_active', $data->is_active) == 0 ? 'selected' : '' }}>
+                    Inactive
+                </option>
+            </select>
+        </div>
+    @endif
+
 
     <div class="form-group">
         <label for="categoryDescription">Description</label>

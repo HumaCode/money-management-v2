@@ -195,12 +195,10 @@ function handleAction(datatableId, onShow) {
            UTILITIES
         ============================================================ */
 
-function showToast(status = "success", message = "") {
-    iziToast[status]({
-        title: status === "success" ? "Success" : "Failed",
-        message,
-        position: "topRight",
-    });
+function showToast(status = "success", message = "", duration = 3000) {
+    const validStatuses = ['success', 'error', 'warning', 'info'];
+    const toastType = validStatuses.includes(status) ? status : 'info';
+    Toast.show(toastType, message, duration);
 }
 
 function initColorPicker() {

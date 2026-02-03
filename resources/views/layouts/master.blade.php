@@ -10,7 +10,6 @@
         rel="stylesheet" />
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
 
-
     <style>
         :root {
             --bg-deep: #0a0e1a;
@@ -33,7 +32,7 @@
         }
 
     </style>
-
+    <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/toast.css">
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/custom-css.css">
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/dashboard.css">
 
@@ -134,6 +133,8 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="{{ asset('/') }}assets/backend/js/toast.js"></script>
 
 
     <script src="{{ asset('/') }}assets/backend/js/main.js"></script>
