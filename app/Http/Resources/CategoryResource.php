@@ -17,7 +17,6 @@ class CategoryResource extends JsonResource
         return [
             'id'                => $this->id,
             'user_id'           => $this->user_id,
-            'parent_id'         => $this->parent_id,
             'name'              => $this->name,
             'slug'              => $this->slug,
             'type'              => $this->type,
@@ -39,7 +38,7 @@ class CategoryResource extends JsonResource
             }),
 
             'children'          => $this->whenLoaded('children', function () {
-                return CategoryResource::collection($this->children);
+                return          CategoryResource::collection($this->children);
             }),
 
             'user'              => $this->whenLoaded('user', function () {

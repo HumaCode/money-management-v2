@@ -21,9 +21,11 @@ class CategoryRepository implements CategoryRepositoryInterface
         // Status filter
         if ($status && $status !== 'all') {
             if ($status === 'active') {
-                $query->where('is_active', true);
-            } elseif ($status === 'inactive') {
-                $query->where('is_active', false);
+                $query->active();
+            }
+
+            if ($status === 'inactive') {
+                $query->where('is_active', 0);
             }
         }
 
@@ -38,10 +40,10 @@ class CategoryRepository implements CategoryRepositoryInterface
         }
 
         // Order by
-        $query->orderBy('id', 'asc');
+        $query->orderBy('id', 'desc');
 
         // Eager loading jika diperlukan
-        // $query->with(['parent', 'children', 'user']);
+        $query->with(['parent', 'children', 'user']);
 
         // Execute or return query builder
         if ($execute) {
@@ -68,7 +70,7 @@ class CategoryRepository implements CategoryRepositoryInterface
         DB::beginTransaction();
         try {
             $category = new Category();
-            $category->user_id      = $data['user_id'] ?? null;
+            $category->user_id      = user('id');
             $category->parent_id    = $data['parent_id'] ?? null;
             $category->name         = $data['name'];
             $category->slug         = Str::of($data['name'])->slug('-');
@@ -125,8 +127,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function getCategoriesWithoutParentId()
     {
         return Category::active()->whereNull('parent_id')
-        ->orderBy('name', 'asc')
-        ->get();
+            ->orderBy('name', 'asc')
+            ->get();
     }
-
 }

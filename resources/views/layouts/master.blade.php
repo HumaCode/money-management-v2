@@ -31,6 +31,57 @@
             --header-height: 70px;
         }
 
+        /* base skeleton */
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.06) 25%,
+                    rgba(255, 255, 255, 0.12) 37%,
+                    rgba(255, 255, 255, 0.06) 63%);
+            background-size: 400% 100%;
+            animation: skeleton-loading 1.2s ease-in-out infinite;
+            border-radius: 6px;
+        }
+
+        /* animation */
+        @keyframes skeleton-loading {
+            0% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0 50%;
+            }
+        }
+
+        /* sizes */
+        .skeleton-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .skeleton-text {
+            height: 14px;
+            width: 100%;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-badge {
+            height: 18px;
+            width: 70px;
+            border-radius: 999px;
+        }
+
+        .skeleton-actions {
+            height: 32px;
+            width: 96px;
+            border-radius: 8px;
+        }
     </style>
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/toast.css">
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/custom-css.css">
@@ -108,7 +159,7 @@
     </div>
 
     <!-- OVERLAY SPINNER -->
-    <div class="spinner-overlay hidden" id="spinner-form-modal">
+    <div class="hidden spinner-overlay" id="spinner-form-modal">
         <div class="spinner-card">
             <div class="spinner-circle"></div>
             <div class="spinner-text">Sedang memproses...</div>

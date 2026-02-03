@@ -112,13 +112,8 @@ function handleFormSubmit(formSelector) {
                 showToast(res.status || "success", res.message || "Success");
                 closeModal();
 
-                dataTables.forEach((id) => {
-                    if ($("#" + id).length) {
-                        $("#" + id)
-                            .DataTable()
-                            .ajax.reload(null, false);
-                    }
-                });
+                // reload table data
+                loadData();
 
                 onSuccessCallback && onSuccessCallback(res);
             },
@@ -146,7 +141,9 @@ function handleFormSubmit(formSelector) {
                 Swal.fire({
                     icon: "error",
                     title: "Request Failed",
-                    text: xhr.responseJSON?.message || "The operation could not be completed. Please try again.",
+                    text:
+                        xhr.responseJSON?.message ||
+                        "The operation could not be completed. Please try again.",
                 });
             },
 
@@ -196,24 +193,24 @@ function handleAction(datatableId, onShow) {
         ============================================================ */
 
 function showToast(status = "success", message = "", duration = 3000) {
-    const validStatuses = ['success', 'error', 'warning', 'info'];
-    const toastType = validStatuses.includes(status) ? status : 'info';
+    const validStatuses = ["success", "error", "warning", "info"];
+    const toastType = validStatuses.includes(status) ? status : "info";
     Toast.show(toastType, message, duration);
 }
 
 function initColorPicker() {
-    const $color = $('#inputColor');
-    const $hex   = $('#inputColorHex');
+    const $color = $("#inputColor");
+    const $hex = $("#inputColorHex");
 
     if (!$color.length || !$hex.length) return;
 
     // color → hex
-    $color.off('input').on('input', function () {
+    $color.off("input").on("input", function () {
         $hex.val(this.value);
     });
 
     // hex → color
-    $hex.off('input').on('input', function () {
+    $hex.off("input").on("input", function () {
         const val = this.value;
 
         // valid hex only
