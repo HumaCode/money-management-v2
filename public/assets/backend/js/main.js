@@ -220,6 +220,45 @@ function initColorPicker() {
     });
 }
 
+function initRgbaPicker() {
+    const $color = $("#rgbaColorPicker");
+    const $alpha = $("#rgbaAlpha");
+    const $output = $("#inputRgba");
+
+    if (!$color.length || !$alpha.length || !$output.length) return;
+
+    function hexToRgb(hex) {
+        hex = hex.replace("#", "");
+
+        if (hex.length === 3) {
+            hex = hex
+                .split("")
+                .map((c) => c + c)
+                .join("");
+        }
+
+        const num = parseInt(hex, 16);
+
+        return {
+            r: (num >> 16) & 255,
+            g: (num >> 8) & 255,
+            b: num & 255,
+        };
+    }
+
+    function update() {
+        const { r, g, b } = hexToRgb($color.val());
+        const a = parseFloat($alpha.val()).toFixed(2);
+
+        $output.val(`rgba(${r},${g},${b},${a})`);
+    }
+
+    $color.on("input", update);
+    $alpha.on("input", update);
+
+    update(); // init
+}
+
 function handleDelete(dataTableId, onSuccess) {
     $(document).on("click", `#${dataTableId} .delete`, function (e) {
         e.preventDefault();

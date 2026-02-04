@@ -26,10 +26,10 @@ class Account extends Model
     ];
 
     protected $casts = [
-        'balance' => 'decimal:2',
-        'credit_limit' => 'decimal:2',
-        'is_active' => 'boolean',
-        'is_default' => 'boolean',
+        'balance'       => 'decimal:2',
+        'credit_limit'  => 'decimal:2',
+        'is_active'     => 'boolean',
+        'is_default'    => 'boolean',
     ];
 
     // Relationships
@@ -71,6 +71,13 @@ class Account extends Model
     public function recurringTransactions()
     {
         return $this->hasMany(RecurringTransaction::class);
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        });
     }
 
     // Scopes

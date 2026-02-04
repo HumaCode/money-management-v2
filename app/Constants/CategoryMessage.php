@@ -20,12 +20,8 @@ class CategoryMessage
     const TABLEID                               = 'table-category';
 
 
-    const CATEGORY_RETRIEVED_SUCCESS            = 'User data retrieved successfully';
-    const CATEGORY_CREATED_SUCCESS              = 'User created successfully';
-    const CATEGORY_UPDATED_SUCCESS              = 'User updated successfully';
-    const CATEGORY_DELETED_SUCCESS              = 'User deleted successfully';
-
-    const ERROR_CREATING                        = 'Error creating : ';
-    const ERROR_UPDATING                        = 'Error updating : ';
-    const ERROR_DELETED                         = 'Error deleting : ';
+    const CATEGORY_RETRIEVED_SUCCESS            = 'Category data retrieved successfully';
+    const CATEGORY_CREATED_SUCCESS              = 'Category created successfully';
+    const CATEGORY_UPDATED_SUCCESS              = 'Category updated successfully';
+    const CATEGORY_DELETED_SUCCESS              = 'Category deleted successfully';
 }

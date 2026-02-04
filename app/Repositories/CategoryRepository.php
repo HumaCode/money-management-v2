@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Constants\CategoryMessage;
+use App\Constants\GlobalMessage;
 use App\Interface\CategoryRepositoryInterface;
 use App\Models\Category;
 use Illuminate\Support\Facades\DB;
@@ -86,7 +87,7 @@ class CategoryRepository implements CategoryRepositoryInterface
             return $category;
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new \Exception(CategoryMessage::ERROR_CREATING . $e->getMessage());
+            throw new \Exception(GlobalMessage::ERROR_CREATING . $e->getMessage());
         }
     }
 
@@ -112,7 +113,7 @@ class CategoryRepository implements CategoryRepositoryInterface
             return $category;
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new \Exception(CategoryMessage::ERROR_UPDATING . $e->getMessage());
+            throw new \Exception(GlobalMessage::ERROR_UPDATING . $e->getMessage());
         }
     }
 

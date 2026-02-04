@@ -14,4 +14,8 @@ class GlobalMessage
     const NOT_FOUND                         = 'Data not found';
     const SERVER_ERROR                      = 'Server error';
     const NO_DATA_SELECTED                  = 'No data selected for deletion';
+
+    const ERROR_CREATING                        = 'Error creating : ';
+    const ERROR_UPDATING                        = 'Error updating : ';
+    const ERROR_DELETED                         = 'Error deleting : ';
 }

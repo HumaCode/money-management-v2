@@ -282,7 +282,7 @@
     border: 1px dashed rgba(248, 113, 113, 0.35);
     border-radius: 12px;
 
-    color: #b91c1c;
+    color: var(--color-primary);
     font-size: 14px;
     text-align: center;
 }

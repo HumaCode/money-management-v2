@@ -32,7 +32,7 @@
                 </svg>
                 Categories
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('account.index') }}" class="nav-item {{ active_route('account.index') }}">
                 <svg viewBox="0 0 24 24">
                     <rect x="2" y="5" width="20" height="14" rx="2" />
                     <line x1="2" y1="10" x2="22" y2="10" />
