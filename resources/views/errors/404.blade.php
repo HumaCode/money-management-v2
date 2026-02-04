@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +10,11 @@
         :root {
             --bg-deep: #0a0e1a;
             --bg-card: #111827;
-            --bg-card-border: rgba(255,255,255,0.06);
+            --bg-card-border: rgba(255, 255, 255, 0.06);
             --text-primary: #f0f2f5;
             --text-secondary: #6b7280;
             --accent: #7dd3a8;
-            --accent-glow: rgba(125,211,168,0.3);
+            --accent-glow: rgba(125, 211, 168, 0.3);
             --error: #f87171;
         }
 
@@ -41,7 +42,7 @@
         body::-webkit-scrollbar {
             display: none;
         }
-        
+
         body {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -93,12 +94,16 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) rotate(0deg);
             }
+
             33% {
                 transform: translate(30px, -50px) rotate(120deg);
             }
+
             66% {
                 transform: translate(-20px, 20px) rotate(240deg);
             }
@@ -129,18 +134,24 @@
         }
 
         @keyframes glitch {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0);
             }
+
             20% {
                 transform: translate(-2px, 2px);
             }
+
             40% {
                 transform: translate(-2px, -2px);
             }
+
             60% {
                 transform: translate(2px, 2px);
             }
+
             80% {
                 transform: translate(2px, -2px);
             }
@@ -156,9 +167,12 @@
         }
 
         @keyframes bounce {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0);
             }
+
             50% {
                 transform: translateY(-20px);
             }
@@ -193,16 +207,20 @@
             from {
                 transform: rotate(0deg);
             }
+
             to {
                 transform: rotate(360deg);
             }
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 1;
                 transform: scale(1);
             }
+
             50% {
                 opacity: 0.5;
                 transform: scale(0.9);
@@ -230,6 +248,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -276,7 +295,7 @@
         }
 
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             transform: translateY(-2px);
         }
 
@@ -311,12 +330,15 @@
                 transform: translateY(100vh) translateX(0);
                 opacity: 0;
             }
+
             10% {
                 opacity: 0.3;
             }
+
             90% {
                 opacity: 0.3;
             }
+
             100% {
                 transform: translateY(-100px) translateX(100px);
                 opacity: 0;
@@ -372,6 +394,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Animated Background -->
     <div class="bg-animation">
@@ -389,9 +412,9 @@
         <div class="error-icon">
             <svg viewBox="0 0 200 200">
                 <!-- Search Circle -->
-                <circle class="search-circle" cx="80" cy="80" r="40"/>
+                <circle class="search-circle" cx="80" cy="80" r="40" />
                 <!-- Search Handle -->
-                <line class="search-handle" x1="110" y1="110" x2="140" y2="140"/>
+                <line class="search-handle" x1="110" y1="110" x2="140" y2="140" />
                 <!-- Question Mark -->
                 <text class="question-mark" x="80" y="90" font-size="40" text-anchor="middle">?</text>
             </svg>
@@ -403,26 +426,19 @@
         <!-- Content -->
         <h1 class="error-title">Page Not Found</h1>
         <p class="error-message">
-            Oops! The page you're looking for seems to have wandered off. 
+            Oops! The page you're looking for seems to have wandered off.
             It might have been moved, deleted, or perhaps it never existed.
         </p>
 
         <!-- Actions -->
         <div class="error-actions">
-            <a href="/" class="btn btn-primary">
+            <a href="{{ route('dashboard') }}" class="btn btn-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    <polyline points="9 22 9 12 15 12 15 22"/>
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
-                Back to Home
+                Back to Dashboard
             </a>
-            <button onclick="history.back()" class="btn btn-secondary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
-                </svg>
-                Go Back
-            </button>
         </div>
     </div>
 
@@ -441,4 +457,5 @@
         }
     </script>
 </body>
+
 </html>

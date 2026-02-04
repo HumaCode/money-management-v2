@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +10,11 @@
         :root {
             --bg-deep: #0a0e1a;
             --bg-card: #111827;
-            --bg-card-border: rgba(255,255,255,0.06);
+            --bg-card-border: rgba(255, 255, 255, 0.06);
             --text-primary: #f0f2f5;
             --text-secondary: #6b7280;
             --accent: #7dd3a8;
-            --accent-glow: rgba(125,211,168,0.3);
+            --accent-glow: rgba(125, 211, 168, 0.3);
             --error: #f87171;
             --warning: #f59e0b;
         }
@@ -42,7 +43,7 @@
         body::-webkit-scrollbar {
             display: none;
         }
-        
+
         body {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -65,7 +66,7 @@
             left: 0;
             width: 200%;
             height: 200px;
-            background: linear-gradient(90deg, transparent, rgba(248,113,113,0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(248, 113, 113, 0.1), transparent);
             animation: wave 8s linear infinite;
         }
 
@@ -83,6 +84,7 @@
             0% {
                 transform: translateX(0);
             }
+
             100% {
                 transform: translateX(-50%);
             }
@@ -116,6 +118,7 @@
                 opacity: 0;
                 transform: scale(0.8);
             }
+
             to {
                 opacity: 1;
                 transform: scale(1);
@@ -132,15 +135,32 @@
         }
 
         @keyframes lockShake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
         }
 
         .lock-icon svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 10px 30px rgba(248,113,113,0.3));
+            filter: drop-shadow(0 10px 30px rgba(248, 113, 113, 0.3));
         }
 
         .lock-body {
@@ -164,18 +184,24 @@
         }
 
         @keyframes pulseStroke {
-            0%, 100% {
+
+            0%,
+            100% {
                 stroke-opacity: 1;
             }
+
             50% {
                 stroke-opacity: 0.5;
             }
         }
 
         @keyframes glowPulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 filter: drop-shadow(0 0 5px var(--error));
             }
+
             50% {
                 filter: drop-shadow(0 0 15px var(--error));
             }
@@ -190,9 +216,12 @@
         }
 
         @keyframes floatShield {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0) rotate(0deg);
             }
+
             50% {
                 transform: translateY(-10px) rotate(5deg);
             }
@@ -260,6 +289,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -298,7 +328,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(248,113,113,0.4);
+            box-shadow: 0 10px 30px rgba(248, 113, 113, 0.4);
         }
 
         .btn-secondary {
@@ -308,7 +338,7 @@
         }
 
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             transform: translateY(-2px);
         }
 
@@ -374,6 +404,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Animated Background -->
     <div class="bg-animation">
@@ -389,17 +420,17 @@
             <svg viewBox="0 0 200 200">
                 <!-- Lock Shackle -->
                 <path class="lock-shackle" d="M 60 80 Q 60 30, 100 30 Q 140 30, 140 80" />
-                
+
                 <!-- Lock Body -->
-                <rect class="lock-body" x="50" y="80" width="100" height="80" rx="10"/>
-                
+                <rect class="lock-body" x="50" y="80" width="100" height="80" rx="10" />
+
                 <!-- Keyhole -->
-                <circle class="lock-keyhole" cx="100" cy="110" r="10"/>
-                <rect class="lock-keyhole" x="95" y="120" width="10" height="20" rx="2"/>
-                
+                <circle class="lock-keyhole" cx="100" cy="110" r="10" />
+                <rect class="lock-keyhole" x="95" y="120" width="10" height="20" rx="2" />
+
                 <!-- Warning Shield -->
                 <g class="warning-shield">
-                    <path d="M 170 20 L 180 30 L 170 40 L 160 30 Z" fill="var(--warning)" opacity="0.8"/>
+                    <path d="M 170 20 L 180 30 L 170 40 L 160 30 Z" fill="var(--warning)" opacity="0.8" />
                     <text x="170" y="35" font-size="12" fill="white" text-anchor="middle" font-weight="bold">!</text>
                 </g>
             </svg>
@@ -411,7 +442,7 @@
         <!-- Content -->
         <h1 class="error-title">Access Forbidden</h1>
         <p class="error-message">
-            You don't have permission to access this resource. 
+            You don't have permission to access this resource.
             This area is restricted and requires proper authorization.
         </p>
 
@@ -428,22 +459,23 @@
 
         <!-- Actions -->
         <div class="error-actions">
-            <a href="/" class="btn btn-primary">
+            <a href="{{ url('/') }}" class="btn btn-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    <polyline points="9 22 9 12 15 12 15 22"/>
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
                 Back to Home
             </a>
-            <a href="/login" class="btn btn-secondary">
+            <a href="{{ route('login') }}" class="btn btn-secondary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                    <polyline points="10 17 15 12 10 7"/>
-                    <line x1="15" y1="12" x2="3" y2="12"/>
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
                 </svg>
                 Login
             </a>
         </div>
     </div>
 </body>
+
 </html>

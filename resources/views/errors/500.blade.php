@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +10,11 @@
         :root {
             --bg-deep: #0a0e1a;
             --bg-card: #111827;
-            --bg-card-border: rgba(255,255,255,0.06);
+            --bg-card-border: rgba(255, 255, 255, 0.06);
             --text-primary: #f0f2f5;
             --text-secondary: #6b7280;
             --accent: #7dd3a8;
-            --accent-glow: rgba(125,211,168,0.3);
+            --accent-glow: rgba(125, 211, 168, 0.3);
             --error: #f87171;
             --warning: #f59e0b;
         }
@@ -42,7 +43,7 @@
         body::-webkit-scrollbar {
             display: none;
         }
-        
+
         body {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -68,17 +69,37 @@
             animation: glitchLine 8s linear infinite;
         }
 
-        .glitch-line:nth-child(1) { animation-delay: 0s; top: 20%; }
-        .glitch-line:nth-child(2) { animation-delay: 2s; top: 40%; }
-        .glitch-line:nth-child(3) { animation-delay: 4s; top: 60%; }
-        .glitch-line:nth-child(4) { animation-delay: 6s; top: 80%; }
+        .glitch-line:nth-child(1) {
+            animation-delay: 0s;
+            top: 20%;
+        }
+
+        .glitch-line:nth-child(2) {
+            animation-delay: 2s;
+            top: 40%;
+        }
+
+        .glitch-line:nth-child(3) {
+            animation-delay: 4s;
+            top: 60%;
+        }
+
+        .glitch-line:nth-child(4) {
+            animation-delay: 6s;
+            top: 80%;
+        }
 
         @keyframes glitchLine {
-            0%, 90%, 100% {
+
+            0%,
+            90%,
+            100% {
                 opacity: 0;
                 transform: scaleX(0);
             }
-            92%, 98% {
+
+            92%,
+            98% {
                 opacity: 0.8;
                 transform: scaleX(1);
             }
@@ -109,20 +130,26 @@
         }
 
         @keyframes glitchText {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0);
                 filter: hue-rotate(0deg);
             }
+
             20% {
                 transform: translate(-3px, 3px);
             }
+
             40% {
                 transform: translate(3px, -3px);
             }
+
             60% {
                 transform: translate(-3px, -3px);
                 filter: hue-rotate(90deg);
             }
+
             80% {
                 transform: translate(3px, 3px);
             }
@@ -138,13 +165,24 @@
         }
 
         @keyframes serverShake {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: rotate(0deg);
             }
-            10%, 30%, 50%, 70%, 90% {
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
                 transform: rotate(-2deg);
             }
-            20%, 40%, 60%, 80% {
+
+            20%,
+            40%,
+            60%,
+            80% {
                 transform: rotate(2deg);
             }
         }
@@ -152,7 +190,7 @@
         .server-icon svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 10px 40px rgba(248,113,113,0.4));
+            filter: drop-shadow(0 10px 40px rgba(248, 113, 113, 0.4));
         }
 
         .server-body {
@@ -180,9 +218,12 @@
         }
 
         @keyframes blink {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 1;
             }
+
             50% {
                 opacity: 0.3;
             }
@@ -193,10 +234,13 @@
         }
 
         @keyframes sparkFloat {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) scale(1);
                 opacity: 0;
             }
+
             50% {
                 transform: translate(-20px, -20px) scale(1.5);
                 opacity: 1;
@@ -223,6 +267,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -231,7 +276,7 @@
         /* Error Details */
         .error-details {
             background: var(--bg-card);
-            border: 1px solid rgba(248,113,113,0.2);
+            border: 1px solid rgba(248, 113, 113, 0.2);
             border-left: 4px solid var(--error);
             border-radius: 12px;
             padding: 20px;
@@ -245,6 +290,7 @@
                 opacity: 0;
                 transform: translateX(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -317,7 +363,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(248,113,113,0.4);
+            box-shadow: 0 10px 30px rgba(248, 113, 113, 0.4);
         }
 
         .btn-secondary {
@@ -327,7 +373,7 @@
         }
 
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             transform: translateY(-2px);
         }
 
@@ -340,7 +386,7 @@
         .terminal-footer {
             margin-top: 40px;
             padding: 16px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             font-family: 'Courier New', monospace;
             font-size: 12px;
@@ -411,6 +457,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Glitch Background -->
     <div class="bg-glitch">
@@ -426,34 +473,38 @@
         <div class="server-icon">
             <svg viewBox="0 0 200 200">
                 <!-- Server Body -->
-                <rect class="server-body" x="40" y="40" width="120" height="120" rx="8"/>
-                
+                <rect class="server-body" x="40" y="40" width="120" height="120" rx="8" />
+
                 <!-- Server Sections -->
-                <line x1="40" y1="80" x2="160" y2="80" stroke="var(--error)" stroke-width="2"/>
-                <line x1="40" y1="120" x2="160" y2="120" stroke="var(--error)" stroke-width="2"/>
-                
+                <line x1="40" y1="80" x2="160" y2="80" stroke="var(--error)"
+                    stroke-width="2" />
+                <line x1="40" y1="120" x2="160" y2="120" stroke="var(--error)"
+                    stroke-width="2" />
+
                 <!-- Server Lights -->
-                <circle class="server-light red" cx="60" cy="60" r="5"/>
-                <circle class="server-light yellow" cx="75" cy="60" r="5"/>
-                <circle class="server-light green" cx="90" cy="60" r="5"/>
-                
-                <circle class="server-light red" cx="60" cy="100" r="5"/>
-                <circle class="server-light yellow" cx="75" cy="100" r="5"/>
-                <circle class="server-light green" cx="90" cy="100" r="5"/>
-                
-                <circle class="server-light red" cx="60" cy="140" r="5"/>
-                <circle class="server-light yellow" cx="75" cy="140" r="5"/>
-                <circle class="server-light green" cx="90" cy="140" r="5"/>
-                
+                <circle class="server-light red" cx="60" cy="60" r="5" />
+                <circle class="server-light yellow" cx="75" cy="60" r="5" />
+                <circle class="server-light green" cx="90" cy="60" r="5" />
+
+                <circle class="server-light red" cx="60" cy="100" r="5" />
+                <circle class="server-light yellow" cx="75" cy="100" r="5" />
+                <circle class="server-light green" cx="90" cy="100" r="5" />
+
+                <circle class="server-light red" cx="60" cy="140" r="5" />
+                <circle class="server-light yellow" cx="75" cy="140" r="5" />
+                <circle class="server-light green" cx="90" cy="140" r="5" />
+
                 <!-- Error Symbol -->
                 <text x="130" y="70" font-size="24" fill="var(--error)" font-weight="bold">✕</text>
                 <text x="130" y="110" font-size="24" fill="var(--error)" font-weight="bold">✕</text>
                 <text x="130" y="150" font-size="24" fill="var(--error)" font-weight="bold">✕</text>
-                
+
                 <!-- Sparks -->
-                <circle class="spark" cx="170" cy="50" r="3" fill="var(--warning)" opacity="0"/>
-                <circle class="spark" cx="165" cy="45" r="2" fill="var(--error)" opacity="0" style="animation-delay: 0.5s"/>
-                <circle class="spark" cx="175" cy="55" r="2" fill="var(--accent)" opacity="0" style="animation-delay: 1s"/>
+                <circle class="spark" cx="170" cy="50" r="3" fill="var(--warning)" opacity="0" />
+                <circle class="spark" cx="165" cy="45" r="2" fill="var(--error)" opacity="0"
+                    style="animation-delay: 0.5s" />
+                <circle class="spark" cx="175" cy="55" r="2" fill="var(--accent)" opacity="0"
+                    style="animation-delay: 1s" />
             </svg>
         </div>
 
@@ -463,17 +514,19 @@
         <!-- Content -->
         <h1 class="error-title">Internal Server Error</h1>
         <p class="error-message">
-            Oops! Something went wrong on our end. 
+            Oops! Something went wrong on our end.
             Our servers encountered an unexpected error and couldn't complete your request.
         </p>
 
         <!-- Error Details -->
         <div class="error-details">
             <h3>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path
+                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
                 What happened?
             </h3>
@@ -490,16 +543,16 @@
         <div class="error-actions">
             <button onclick="location.reload()" class="btn btn-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23 4 23 10 17 10"/>
-                    <polyline points="1 20 1 14 7 14"/>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    <polyline points="23 4 23 10 17 10" />
+                    <polyline points="1 20 1 14 7 14" />
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                 </svg>
                 Refresh Page
             </button>
-            <a href="/" class="btn btn-secondary">
+            <a href="{{ url('/') }}" class="btn btn-secondary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    <polyline points="9 22 9 12 15 12 15 22"/>
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
                 Back to Home
             </a>
@@ -511,4 +564,5 @@
         </div>
     </div>
 </body>
+
 </html>
