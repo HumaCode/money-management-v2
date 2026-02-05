@@ -79,7 +79,9 @@ class CategoryRepository implements CategoryRepositoryInterface
             $category->type         = $data['type'];
             $category->icon         = $data['icon'] ?? null;
             $category->color        = $data['color'] ?? null;
+            $category->description  = $data['description'] ?? null;
             $category->is_active    = '1';
+
             $category->save();
 
             DB::commit();
@@ -106,6 +108,7 @@ class CategoryRepository implements CategoryRepositoryInterface
             $category->icon         = $data['icon'] ?? null;
             $category->color        = $data['color'] ?? null;
             $category->is_active    = $data['is_active'] ?? 0;
+            $category->description  = $data['description'] ?? null;
             $category->save();
 
             DB::commit();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\AccountMessage;
+use App\Constants\GlobalMessage;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\Account\AccountStoreRequest;
 use App\Http\Requests\Account\AccountUpdateRequest;
@@ -103,6 +104,14 @@ class AccountController extends Controller
         }
     }
 
+    public function show(Account $account)
+    {
+        return view($this->formView, [
+            'type'      => 'show',
+            'data'      => $account,
+        ]);
+    }
+
     public function edit(Account $account)
     {
         return view($this->formView, [
@@ -121,6 +130,23 @@ class AccountController extends Controller
             $account = $this->accountRepository->update($account->id, $request);
 
             return ResponseHelper::jsonResponse(true, AccountMessage::ACCOUNT_UPDATED_SUCCESS, new AccountResource($account), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function destroy(Account $account)
+    {
+
+        try {
+            $account = $this->accountRepository->getById($account->id);
+            if (!$account) {
+                return ResponseHelper::jsonResponse(false, GlobalMessage::NOT_FOUND, null, 404);
+            }
+
+            $this->accountRepository->delete($account->id);
+
+            return ResponseHelper::jsonResponse(true, AccountMessage::ACCOUNT_DELETED_SUCCESS, null, 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

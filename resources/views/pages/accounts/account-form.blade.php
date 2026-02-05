@@ -141,41 +141,8 @@
             <table>
                 <tbody>
                     <tr>
-                        <th width="30%">Icon</th>
-                        <td>
-                            <div class="category-icon"
-                                style="background: {{ $data->color_bg ?? 'rgba(125,211,168,0.15)' }}">
-                                {{ $data->icon ?? '—' }}
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Name</th>
-                        <td>{{ $data->name }}</td>
-                    </tr>
-
-                    <tr>
-                        <th>Type</th>
-                        <td>
-                            <span class="badge {{ $data->type }}">
-                                {{ ucfirst($data->type) }}
-                            </span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Parent Category</th>
-                        <td>{{ $data->parent?->name ?? '—' }}</td>
-                    </tr>
-
-                    <tr>
-                        <th>Status</th>
-                        <td>
-                            <span class="badge {{ $data->is_active ? 'success' : 'danger' }}">
-                                {{ $data->is_active ? 'Active' : 'Inactive' }}
-                            </span>
-                        </td>
+                        <th>Note</th>
+                        <td>{{ $data->notes ?? '—' }}</td>
                     </tr>
 
                     <tr>
