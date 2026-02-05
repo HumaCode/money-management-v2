@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants\AccountMessage;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\Account\AccountStoreRequest;
+use App\Http\Requests\Account\AccountUpdateRequest;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\PaginateResource;
 use App\Interface\AccountRepositoryInterface;
@@ -97,6 +98,29 @@ class AccountController extends Controller
             $account = $this->accountRepository->create($request);
 
             return ResponseHelper::jsonResponse(true, AccountMessage::ACCOUNT_CREATED_SUCCESS, new AccountResource($account), 201);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function edit(Account $account)
+    {
+        return view($this->formView, [
+            'action'            => route($this->updateUrl, ['account' => $account->id]),
+            'data'              => $account,
+            'CurrencyList'      => $this->accountRepository->getCurrencyList(),
+            'AccountTypeList'   => $this->accountRepository->getAccountTypeList(),
+        ]);
+    }
+
+    public function update(AccountUpdateRequest $request, Account $account)
+    {
+        $request = $request->validated();
+
+        try {
+            $account = $this->accountRepository->update($account->id, $request);
+
+            return ResponseHelper::jsonResponse(true, AccountMessage::ACCOUNT_UPDATED_SUCCESS, new AccountResource($account), 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

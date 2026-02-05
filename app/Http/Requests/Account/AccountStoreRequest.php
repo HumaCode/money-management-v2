@@ -69,7 +69,6 @@ class AccountStoreRequest extends FormRequest
             'icon' => [
                 'nullable',
                 'string',
-                'max:10',
             ],
             'color' => [
                 'nullable',

@@ -148,7 +148,6 @@
                 let html = '';
 
                 rows.forEach(row => {
-                    console.log(row);
 
                     const finalEditUrl = window.urlEdit.replace('__ID__', row.id);
                     const finalShowUrl = window.urlShow.replace('__ID__', row.id);
@@ -158,7 +157,7 @@
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 12px;">
-                            <div class="account-icon" style="background: ${row.icon_color ?? 'rgba(125,211,168,0.15)'};">${row.icon}</div>
+                            <div class="account-icon" style="background: ${row.color ?? 'rgba(125,211,168,0.15)'};">${row.icon}</div>
                             <div>
                                 <div style="font-weight: 500;">${row.name}</div>
                                 <div style="font-size: 11px; color: var(--text-secondary);">${row.masked_account_number}</div>

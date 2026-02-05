@@ -8,7 +8,8 @@
     @if ($action ?? null)
         <div class="form-group">
             <label for="accountName">Account Name <span class="required">*</span></label>
-            <input type="text" id="accountName" name="name" placeholder="e.g., BCA Savings" required />
+            <input type="text" id="accountName" name="name" placeholder="e.g., BCA Savings" value="{{ $data->name }}"
+                required />
         </div>
 
         <div class="form-row">
@@ -19,7 +20,10 @@
                     <option value="">Select Type</option>
 
                     @foreach ($AccountTypeList as $key => $item)
-                        <option value="{{ $key }}">{{ $item }}</option>
+                        <option value="{{ $key }}"
+                            {{ isset($data->account_type_id) && $data->account_type_id == $key ? 'selected' : '' }}>
+                            {{ $item }}
+                        </option>
                     @endforeach
 
                 </select>
@@ -31,7 +35,10 @@
 
                     <option value="">Select Currency</option>
                     @foreach ($CurrencyList as $key => $item)
-                        <option value="{{ $key }}">{{ $item }}</option>
+                        <option value="{{ $key }}"
+                            {{ isset($data->currency_id) && $data->currency_id == $key ? 'selected' : '' }}>
+                            {{ $item }}
+                        </option>
                     @endforeach
 
                 </select>
@@ -40,71 +47,75 @@
 
         <div class="form-group">
             <label for="accountInstitution">Institution Name</label>
-            <input type="text" name="institution_name" id="accountInstitution"
-                placeholder="e.g., Bank Central Asia" />
+            <input type="text" name="institution_name" id="accountInstitution" placeholder="e.g., Bank Central Asia"
+                value="{{ $data->institution_name ?? '' }}" />
         </div>
 
         <div class="form-group">
             <label for="accountNumber">Account Number</label>
-            <input type="text" name="account_number" id="accountNumber"
-                placeholder="Last 4 digits or masked number" />
+            <input type="text" name="account_number" id="accountNumber" placeholder="Last 4 digits or masked number"
+                value="{{ $data->account_number ?? '' }}" />
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="accountBalance">Balance <span class="required">*</span></label>
                 <input type="number" name="balance" min="0" id="accountBalance" placeholder="0" step="0.01"
-                    required />
+                    value="{{ $data->balance ?? 0 }}" required />
             </div>
 
             <div class="form-group">
                 <label for="accountCreditLimit">Credit Limit</label>
                 <input type="number" name="credit_limit" min="0" id="accountCreditLimit"
-                    placeholder="0 (for credit cards)" step="0.01" />
+                    placeholder="0 (for credit cards)" step="0.01" value="{{ $data->credit_limit ?? 0 }}" />
             </div>
         </div>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label for="categoryIcon">Icon</label>
 
-                <input type="text" id="categoryIcon" name="icon" value="{{ old('icon', $data->icon) }}"
-                    placeholder="🍔" maxlength="10" />
-                <small class="text-muted">
-                    Press <b>Win + .</b> (Windows) or <b>Ctrl + Cmd + Space</b> (Mac)
-                </small>
-            </div>
+        @if (!$isEdit)
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="categoryIcon">Icon</label>
 
-            <div class="form-group">
-                <label for="inputRgba">Color (RGBA)</label>
-
-                <div class="color-picker-wrapper" style="display:flex; gap:8px; align-items:center;">
-                    <!-- base color -->
-                    <input type="color" name="color" id="rgbaColorPicker" value="#3b82f6">
-
-                    <!-- alpha -->
-                    <input type="range" id="rgbaAlpha" min="0" max="1" step="0.01" value="0.15">
-
-                    <!-- final value -->
-                    <input type="text" id="inputRgba" name="color_rgba" value="rgba(59,130,246,0.15)" readonly>
+                    <input type="text" id="categoryIcon" name="icon" value="{{ old('icon', $data->icon) }}"
+                        placeholder="🍔" maxlength="10" />
+                    <small class="text-muted">
+                        Press <b>Win + .</b> (Windows) or <b>Ctrl + Cmd + Space</b> (Mac)
+                    </small>
                 </div>
 
-                <small class="text-muted">Format: rgba(r,g,b,a)</small>
-            </div>
-        </div>
+                <div class="form-group">
+                    <label for="inputRgba">Color (RGBA)</label>
 
+                    <div class="color-picker-wrapper" style="display:flex; gap:8px; align-items:center;">
+                        <!-- base color -->
+                        <input type="color" name="color" id="rgbaColorPicker" value="#3b82f6">
+
+                        <!-- alpha -->
+                        <input type="range" id="rgbaAlpha" min="0" max="1" step="0.01"
+                            value="0.15">
+
+                        <!-- final value -->
+                        <input type="text" id="inputRgba" name="color" value="{{ $data->color ?? '' }}" readonly>
+                    </div>
+
+                    <small class="text-muted">Format: rgba(r,g,b,a)</small>
+                </div>
+            </div>
+        @endif
 
         <div class="form-group">
             <div class="checkbox-group">
                 <input type="hidden" name="is_default" value="0">
-                <input type="checkbox" name="is_default" id="accountDefault" value="1" />
+                <input type="checkbox" name="is_default" id="accountDefault" value="1"
+                    {{ old('is_default', $data->is_default) ? 'checked' : '' }} />
                 <label for="accountDefault" style="margin-top: 10px;">Set as default account</label>
             </div>
         </div>
 
         <div class="form-group">
             <label for="accountNotes">Notes</label>
-            <textarea id="accountNotes" name="notes" placeholder="Optional notes about this account"></textarea>
+            <textarea id="accountNotes" name="notes" placeholder="Optional notes about this account">{{ old('notes', $data->notes) }}</textarea>
         </div>
 
         @if ($isEdit)

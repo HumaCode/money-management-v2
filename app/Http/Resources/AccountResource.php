@@ -32,7 +32,7 @@ class AccountResource extends JsonResource
             'balance_formatted'     => $this->balance_formatted,
 
             'credit_limit'          => number_format($this->credit_limit, 2, '.', ''),
-            'credit_limit_formatted'=> $this->formatCurrency($this->credit_limit),
+            'credit_limit_formatted' => $this->formatCurrency($this->credit_limit),
 
             'icon'              => $this->icon,
             'color'             => $this->color,
@@ -48,6 +48,11 @@ class AccountResource extends JsonResource
             'created_at'        => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at'        => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
+    }
+
+    private function formatCurrency($amount)
+    {
+        return number_format($amount, 2, '.', ',');
     }
 
     /**

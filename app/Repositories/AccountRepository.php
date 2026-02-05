@@ -108,15 +108,15 @@ class AccountRepository implements AccountRepositoryInterface
                 throw new \Exception('Account not found');
             }
 
-            $account->account_type_id   = $data['account_type_id'] ?? $account->account_type_id;
-            $account->currency_id       = $data['currency_id'] ?? $account->currency_id;
-            $account->name              = $data['name'] ?? $account->name;
-            $account->institution_name  = $data['institution_name'] ?? $account->institution_name;
-            $account->account_number    = $data['account_number'] ?? $account->account_number;
-            $account->notes             = $data['notes'] ?? $account->notes;
-            $account->icon              = $data['icon'] ?? $account->icon;
-            $account->color             = $data['color'] ?? $account->color;
-            $account->is_active         = $data['is_active'] ?? $account->is_active;
+            $account->account_type_id           = $data['account_type_id'] ?? null;
+            $account->currency_id               = $data['currency_id'];
+            $account->name                      = $data['name'];
+            $account->institution_name          = $data['institution_name'] ?? null;
+            $account->account_number            = $data['account_number'] ?? null;
+            $account->current_balance           = $data['balance'] ?? 0;
+            $account->notes                     = $data['notes'] ?? null;
+            $account->is_active                 = $data['is_active'] ?? '1';
+            $account->is_default                = $data['is_default'] ?? '0';
 
             // Only update balance and credit_limit if provided
             if (isset($data['balance'])) {
@@ -134,7 +134,7 @@ class AccountRepository implements AccountRepositoryInterface
             return $account;
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new \Exception('Error updating account: ' . $e->getMessage());
+            throw new \Exception(GlobalMessage::ERROR_UPDATING . $e->getMessage());
         }
     }
 
