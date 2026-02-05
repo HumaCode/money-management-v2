@@ -148,7 +148,7 @@
                 let html = '';
 
                 rows.forEach(row => {
-
+                    console.log(row);
 
                     const finalEditUrl = window.urlEdit.replace('__ID__', row.id);
                     const finalShowUrl = window.urlShow.replace('__ID__', row.id);
@@ -156,11 +156,19 @@
 
                     html += `
                     <tr>
-                        <td>${row.name}</td>
-                        <td>${row.type}</td>
-                        <td>${row.institution ?? '-'}</td>
-                        <td>${row.currency}</td>
-                        <td>${row.balance}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="account-icon" style="background: ${row.icon_color ?? 'rgba(125,211,168,0.15)'};">${row.icon}</div>
+                            <div>
+                                <div style="font-weight: 500;">${row.name}</div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">${row.masked_account_number}</div>
+                            </div>
+                            </div>
+                        </td>
+                        <td>${row.account_type?.name ?? '-'}</td>
+                        <td>${row.institution_name ?? '-'}</td>
+                        <td>${row.currency?.code ?? '-'}</td>
+                        <td>${row.balance_formatted ?? '-'}</td>
                         
                         <td>
                             <span class="badge ${row.is_active ? 'success' : 'danger'}">

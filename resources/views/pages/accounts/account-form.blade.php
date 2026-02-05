@@ -80,7 +80,7 @@
 
                 <div class="color-picker-wrapper" style="display:flex; gap:8px; align-items:center;">
                     <!-- base color -->
-                    <input type="color" id="rgbaColorPicker" value="#3b82f6">
+                    <input type="color" name="color" id="rgbaColorPicker" value="#3b82f6">
 
                     <!-- alpha -->
                     <input type="range" id="rgbaAlpha" min="0" max="1" step="0.01" value="0.15">
