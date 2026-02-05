@@ -1,6 +1,34 @@
 <x-master-layout>
 
     @push('css')
+        <style>
+            .color-picker-wrapper {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+
+            .color-picker-wrapper input[type="color"] {
+                width: 44px;
+                height: 36px;
+                padding: 0;
+                border-radius: 6px;
+                flex-shrink: 0;
+                /* PENTING */
+                cursor: pointer;
+            }
+
+            .color-picker-wrapper input[type="range"] {
+                flex: 1;
+                /* biar slider fleksibel */
+            }
+
+            .color-picker-wrapper input[type="text"] {
+                width: 150px;
+                /* pastikan RGBA kebaca penuh */
+                flex-shrink: 0;
+            }
+        </style>
     @endpush
 
     @push('js')
@@ -10,7 +38,8 @@
             const dataTableId = '{{ $dataTableId }}';
 
             handleAction(dataTableId, function() {
-                initColorPicker(); // 🔴 INI WAJIB
+                initColorPicker();
+                initRgbaPicker();
 
                 $('#name')?.focus();
             });
@@ -30,7 +59,7 @@
             const tableState = {
                 search: null,
                 status: null,
-                type: null,
+                period: null,
                 per_page: 10,
                 page: 1
             };
@@ -75,7 +104,7 @@
                     data: {
                         search: tableState.search,
                         status: tableState.status,
-                        type: tableState.type,
+                        period: tableState.period,
                         row_per_page: tableState.per_page,
                         page: tableState.page
                     },
@@ -118,25 +147,18 @@
 
                 rows.forEach(row => {
 
-
                     const finalEditUrl = window.urlEdit.replace('__ID__', row.id);
                     const finalShowUrl = window.urlShow.replace('__ID__', row.id);
                     const finalDestroyUrl = window.urlDestroy.replace('__ID__', row.id);
 
                     html += `
                     <tr>
-                        <td>
-                            <div class="category-icon" style="background:${row.color_bg ?? 'rgba(125,211,168,0.15)'}">
-                                ${row.icon ?? '—'}
-                            </div>
-                        </td>
                         <td>${row.name}</td>
-                        <td>
-                            <span class="badge ${row.type}">
-                                ${row.type}
-                            </span>
-                        </td>
-                        <td>${row.parent?.name ?? '—'}</td>
+                        <td>${row.period}</td>
+                        <td>${row.total_amount}</td>
+                        <td>${row.spent_amount} / ${row.progress_percentage}%</td>
+
+                        
                         <td>
                             <span class="badge ${row.is_active ? 'success' : 'danger'}">
                                 ${row.is_active ? 'Active' : 'Inactive'}
@@ -146,10 +168,6 @@
                             <div class="action-buttons">
                                 ${row.actions ?? ''}
 
-                                <a href="${finalShowUrl}" class="btn-action view action" title="Show"> 
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye">
-                                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> 
-                                </a> 
                                 
                                 <a href="${finalEditUrl}" class="btn-action edit action" title="Edit"> 
                                     <svg viewBox="0 0 24 24"> <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /> 
@@ -291,8 +309,8 @@
                 debouncedReload();
             });
 
-            $('#typeFilter').on('change', function() {
-                tableState.type = this.value === 'all' ? null : this.value;
+            $('#periodFilter').on('change', function() {
+                tableState.period = this.value === 'all' ? null : this.value;
                 debouncedReload();
             });
 
@@ -307,12 +325,12 @@
                 // reset filter state
                 tableState.search = null;
                 tableState.status = null;
-                tableState.type = null;
+                tableState.period = null;
                 tableState.page = 1;
 
                 // reset UI select
                 $('#statusFilter').val('all').trigger('change');
-                $('#typeFilter').val('all').trigger('change');
+                $('#periodFilter').val('all').trigger('change');
 
                 $('#searchInput').val('');
 
@@ -350,7 +368,7 @@
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            Add Category
+            Add Data
         </a>
 
     </div>
@@ -378,10 +396,14 @@
                 </div>
 
                 <div class="custom-select">
-                    <select id="typeFilter" name="type">
-                        <option value="all">All Types</option>
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
+                    <select id="periodFilter" name="period">
+                        <option value="all">All Periods</option>
+
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="yearly">Yearly</option>
+
                     </select>
                 </div>
 
@@ -411,10 +433,10 @@
             <table id="{{ $dataTableId }}">
                 <thead>
                     <tr>
-                        <th>Icon</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Parent</th>
+                        <th>Budget Name</th>
+                        <th>Period</th>
+                        <th>Total Amount</th>
+                        <th>Spent / Progress</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>

@@ -1,11 +1,11 @@
 <x-master-layout>
 
     @push('css')
-    {{--  <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/dashboard.css">  --}}
+        {{--  <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/dashboard.css">  --}}
     @endpush
 
     @push('js')
-    {{--  <script src="{{ asset('assets/backend/js/dashboard.js') }}"></script>  --}}
+        {{--  <script src="{{ asset('assets/backend/js/dashboard.js') }}"></script>  --}}
     @endpush
 
     <!-- Welcome Banner -->
@@ -88,8 +88,10 @@
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 32px;
-          " data-aos="fade-up">
-        <h3 style="
+          "
+        data-aos="fade-up">
+        <h3
+            style="
               font-family: &quot;Cormorant Garamond&quot;, serif;
               font-size: 20px;
               margin-bottom: 16px;

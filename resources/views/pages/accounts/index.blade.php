@@ -1,8 +1,6 @@
 <x-master-layout>
 
     @push('css')
-        <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/category.css">
-
         <style>
             .color-picker-wrapper {
                 display: flex;
@@ -341,6 +339,12 @@
                 tableState.status = null;
                 tableState.type = null;
                 tableState.page = 1;
+
+                // reset UI select
+                $('#statusFilter').val('all').trigger('change');
+                $('#typeFilter').val('all').trigger('change');
+
+                $('#searchInput').val('');
 
                 loadData();
 

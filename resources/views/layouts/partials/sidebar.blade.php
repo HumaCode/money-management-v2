@@ -39,7 +39,7 @@
                 </svg>
                 Accounts
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('budget.index') }}" class="nav-item {{ active_route('budget.index') }}">
                 <svg viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 6v6l4 2" />

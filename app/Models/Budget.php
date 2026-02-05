@@ -53,6 +53,13 @@ class Budget extends Model
         return $query->where('is_active', true);
     }
 
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        });
+    }
+
     public function scopePeriod($query, $period)
     {
         return $query->where('period', $period);
@@ -62,7 +69,7 @@ class Budget extends Model
     {
         $today = now()->toDateString();
         return $query->where('start_date', '<=', $today)
-                     ->where('end_date', '>=', $today);
+            ->where('end_date', '>=', $today);
     }
 
     // Accessors
