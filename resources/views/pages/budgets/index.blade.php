@@ -38,8 +38,7 @@
             const dataTableId = '{{ $dataTableId }}';
 
             handleAction(dataTableId, function() {
-                initColorPicker();
-                initRgbaPicker();
+
 
                 $('#name')?.focus();
             });
@@ -130,6 +129,61 @@
                 });
             }
 
+            function formatDateRange(startDate, endDate) {
+                if (!startDate || !endDate) return '-';
+
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
+                    'Dec'
+                ];
+
+                const sameYear = start.getFullYear() === end.getFullYear();
+
+                if (sameYear) {
+                    return `${months[start.getMonth()]} ${start.getDate()} - ` +
+                        `${months[end.getMonth()]} ${end.getDate()}, ${start.getFullYear()}`;
+                }
+
+                return `${months[start.getMonth()]} ${start.getDate()}, ${start.getFullYear()} - ` +
+                    `${months[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
+            }
+
+            function formatCurrency(amount, currency = 'IDR') {
+                if (amount === null || amount === undefined || isNaN(amount)) {
+                    return '-';
+                }
+
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                }).format(amount);
+            }
+
+            function normalizePercentage(value) {
+                if (value === null || value === undefined || isNaN(value)) {
+                    return 0;
+                }
+
+                return Math.min(Math.max(value, 0), 100);
+            }
+
+            function renderProgress(spent, percentage) {
+                const percent = normalizePercentage(percentage);
+
+                return `
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percent}%;"></div>
+                            </div>
+                            <div class="progress-text">
+                                ${formatCurrency(spent)} (${Math.round(percent)}%)
+                            </div>
+                        `;
+            }
+
             /* =========================================================
              | TABLE RENDER
              ========================================================= */
@@ -147,16 +201,35 @@
 
                 rows.forEach(row => {
 
+
                     const finalEditUrl = window.urlEdit.replace('__ID__', row.id);
                     const finalShowUrl = window.urlShow.replace('__ID__', row.id);
                     const finalDestroyUrl = window.urlDestroy.replace('__ID__', row.id);
 
+
+
                     html += `
                     <tr>
-                        <td>${row.name}</td>
-                        <td>${row.period}</td>
-                        <td>${row.total_amount}</td>
-                        <td>${row.spent_amount} / ${row.progress_percentage}%</td>
+                        <td>
+                            <div style="font-weight: 500;">${row.name}</div>
+                            <div style="font-size: 11px; color: var(--text-secondary);">
+                               ${formatDateRange(row.start_date, row.end_date)}
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="badge info">
+                                ${row.period}
+                            </span>
+                        </td>
+
+                        <td>
+                            ${formatCurrency(row.total_amount)}
+                        </td>
+
+                        <td>
+                            ${renderProgress(row.spent_amount, row.progress_percentage)}
+                        </td>
 
                         
                         <td>

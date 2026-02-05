@@ -136,19 +136,17 @@ class BudgetRepository implements BudgetRepositoryInterface
         return $budget->delete();
     }
 
-    public function getAccountTypeList()
+    public function getPeriodList()
     {
-        return AccountType::select('name', 'id')
-            ->distinct()
-            ->pluck('name', 'id')
-            ->toArray();
+        return  ['weekly', 'monthly', 'quarterly', 'yearly'];
     }
 
     public function getCurrencyList()
     {
-        return Currency::select('name', 'id')
+        return Currency::select('name', 'code', 'id')
             ->distinct()
-            ->pluck('name', 'id')
+            ->orderBy('name', 'asc')
+            ->get()
             ->toArray();
     }
 }

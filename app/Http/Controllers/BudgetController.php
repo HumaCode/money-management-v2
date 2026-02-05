@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Constants\BudgetMessage;
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\Budget\BudgetStoreRequest;
 use App\Http\Resources\BudgetResource;
 use App\Http\Resources\PaginateResource;
 use App\Interface\BudgetRepositoryInterface;
+use App\Models\Budget;
 use Illuminate\Http\Request;
 
 class BudgetController extends Controller
@@ -71,6 +73,29 @@ class BudgetController extends Controller
             );
 
             return ResponseHelper::jsonResponse(true, BudgetMessage::BUDGET_RETRIEVED_SUCCESS, PaginateResource::make($accounts, BudgetResource::class), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function create(Budget $budget)
+    {
+        return view($this->formView, [
+            'action'            => route($this->storeUrl),
+            'data'              => $budget,
+            'CurrencyList'      => $this->budgetRepository->getCurrencyList(),
+            'PeriodList'        => $this->budgetRepository->getPeriodList(),
+        ]);
+    }
+
+    public function store(BudgetStoreRequest $request)
+    {
+        $request = $request->validated();
+
+        try {
+            $budget = $this->budgetRepository->create($request);
+
+            return ResponseHelper::jsonResponse(true, BudgetMessage::BUDGET_CREATED_SUCCESS, new BudgetResource($budget), 201);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

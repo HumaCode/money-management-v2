@@ -259,6 +259,20 @@ function initRgbaPicker() {
     update(); // init
 }
 
+// Category chip toggle
+const selectedCategories = [];
+
+function toggleCategory(chip, categoryId) {
+    chip.classList.toggle("selected");
+
+    const index = selectedCategories.indexOf(categoryId);
+    if (index > -1) {
+        selectedCategories.splice(index, 1);
+    } else {
+        selectedCategories.push(categoryId);
+    }
+}
+
 function handleDelete(dataTableId, onSuccess) {
     $(document).on("click", `#${dataTableId} .delete`, function (e) {
         e.preventDefault();
