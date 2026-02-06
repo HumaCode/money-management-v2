@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\BudgetMessage;
+use App\Constants\GlobalMessage;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\Budget\BudgetStoreRequest;
 use App\Http\Requests\Budget\BudgetUpdateRequest;
@@ -120,6 +121,23 @@ class BudgetController extends Controller
             $budget = $this->budgetRepository->update($budget->id, $request);
 
             return ResponseHelper::jsonResponse(true, BudgetMessage::BUDGET_UPDATED_SUCCESS, new BudgetResource($budget), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function destroy(Budget $budget)
+    {
+
+        try {
+            $budget = $this->budgetRepository->getById($budget->id);
+            if (!$budget) {
+                return ResponseHelper::jsonResponse(false, GlobalMessage::NOT_FOUND, null, 404);
+            }
+
+            $this->budgetRepository->delete($budget->id);
+
+            return ResponseHelper::jsonResponse(true, BudgetMessage::BUDGET_DELETED_SUCCESS, null, 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
