@@ -61,13 +61,13 @@
             <div class="form-group">
                 <label for="accountBalance">Balance <span class="required">*</span></label>
                 <input type="number" name="balance" min="0" id="accountBalance" placeholder="0" step="0.01"
-                    value="{{ $data->balance ?? 0 }}" required />
+                    value="{{ $data->balance }}" required />
             </div>
 
             <div class="form-group">
                 <label for="accountCreditLimit">Credit Limit</label>
                 <input type="number" name="credit_limit" min="0" id="accountCreditLimit"
-                    placeholder="0 (for credit cards)" step="0.01" value="{{ $data->credit_limit ?? 0 }}" />
+                    placeholder="0 (for credit cards)" step="0.01" value="{{ $data->credit_limit }}" />
             </div>
         </div>
 

@@ -24,6 +24,8 @@ class BudgetResource extends JsonResource
             'period'            => ucfirst($this->period),
 
             'total_amount'      => (float) $this->total_amount,
+            'total_amount_formatted' => $this->total_amount_formatted,
+            'date_range_formatted'   => $this->date_range_formatted,
 
             'start_date'        => $this->start_date?->format('Y-m-d'),
             'end_date'          => $this->end_date?->format('Y-m-d'),

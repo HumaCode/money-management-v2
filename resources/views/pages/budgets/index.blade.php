@@ -129,61 +129,6 @@
                 });
             }
 
-            function formatDateRange(startDate, endDate) {
-                if (!startDate || !endDate) return '-';
-
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
-                    'Dec'
-                ];
-
-                const sameYear = start.getFullYear() === end.getFullYear();
-
-                if (sameYear) {
-                    return `${months[start.getMonth()]} ${start.getDate()} - ` +
-                        `${months[end.getMonth()]} ${end.getDate()}, ${start.getFullYear()}`;
-                }
-
-                return `${months[start.getMonth()]} ${start.getDate()}, ${start.getFullYear()} - ` +
-                    `${months[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
-            }
-
-            function formatCurrency(amount, currency = 'IDR') {
-                if (amount === null || amount === undefined || isNaN(amount)) {
-                    return '-';
-                }
-
-                return new Intl.NumberFormat('id-ID', {
-                    style: 'currency',
-                    currency: currency,
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                }).format(amount);
-            }
-
-            function normalizePercentage(value) {
-                if (value === null || value === undefined || isNaN(value)) {
-                    return 0;
-                }
-
-                return Math.min(Math.max(value, 0), 100);
-            }
-
-            function renderProgress(spent, percentage) {
-                const percent = normalizePercentage(percentage);
-
-                return `
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${percent}%;"></div>
-                            </div>
-                            <div class="progress-text">
-                                ${formatCurrency(spent)} (${Math.round(percent)}%)
-                            </div>
-                        `;
-            }
-
             /* =========================================================
              | TABLE RENDER
              ========================================================= */
@@ -213,7 +158,7 @@
                         <td>
                             <div style="font-weight: 500;">${row.name}</div>
                             <div style="font-size: 11px; color: var(--text-secondary);">
-                               ${formatDateRange(row.start_date, row.end_date)}
+                                ${row.date_range_formatted}
                             </div>
                         </td>
 
@@ -224,11 +169,20 @@
                         </td>
 
                         <td>
-                            ${formatCurrency(row.total_amount)}
+                            ${row.total_amount_formatted}
                         </td>
 
                         <td>
-                            ${renderProgress(row.spent_amount, row.progress_percentage)}
+                            <div class="progress-bar">
+                                <div
+                                    class="progress-fill"
+                                    style="width: ${row.progress_percentage_normalized}%;"
+                                ></div>
+                            </div>
+                            <div class="progress-text">
+                                ${row.spent_amount_formatted}
+                                (${Math.round(row.progress_percentage_normalized)}%)
+                            </div>
                         </td>
 
                         

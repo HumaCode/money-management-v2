@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +33,8 @@ class Budget extends Model
         'rollover_unused' => 'boolean',
     ];
 
+    protected $appends = ['total_amount_formatted', 'date_range_formatted', 'progress_percentage_normalized', 'spent_amount_formatted'];
+
     // Relationships
     public function user()
     {
@@ -45,6 +49,82 @@ class Budget extends Model
     public function budgetCategories()
     {
         return $this->hasMany(BudgetCategory::class);
+    }
+
+    protected function totalAmountFormatted(): Attribute
+    {
+        return Attribute::get(function () {
+            $amount = (float) $this->total_amount;
+            $formatted = number_format($amount, 2, '.', ',');
+
+            if ($this->relationLoaded('currency') && $this->currency) {
+                return trim($this->currency->symbol . ' ' . $formatted);
+            }
+
+            return $formatted;
+        });
+    }
+
+    protected function dateRangeFormatted(): Attribute
+    {
+        return Attribute::get(function () {
+            if (!$this->start_date || !$this->end_date) {
+                return '-';
+            }
+
+            $start = Carbon::parse($this->start_date);
+            $end   = Carbon::parse($this->end_date);
+
+            // Tahun sama → Jan 1 - Jan 31, 2025
+            if ($start->year === $end->year) {
+                return sprintf(
+                    '%s %d - %s %d, %d',
+                    $start->format('M'),
+                    $start->day,
+                    $end->format('M'),
+                    $end->day,
+                    $start->year
+                );
+            }
+
+            // Tahun beda → Jan 1, 2024 - Jan 31, 2025
+            return sprintf(
+                '%s %d, %d - %s %d, %d',
+                $start->format('M'),
+                $start->day,
+                $start->year,
+                $end->format('M'),
+                $end->day,
+                $end->year
+            );
+        });
+    }
+
+    protected function progressPercentageNormalized(): Attribute
+    {
+        return Attribute::get(function () {
+            $value = (float) $this->progress_percentage;
+
+            if (!is_numeric($value)) {
+                return 0;
+            }
+
+            return max(0, min($value, 100));
+        });
+    }
+
+    protected function spentAmountFormatted(): Attribute
+    {
+        return Attribute::get(function () {
+            $amount = (float) $this->total_spent;
+            $formatted = number_format($amount, 2, '.', ',');
+
+            if ($this->relationLoaded('currency') && $this->currency) {
+                return trim($this->currency->symbol . ' ' . $formatted);
+            }
+
+            return $formatted;
+        });
     }
 
     // Scopes

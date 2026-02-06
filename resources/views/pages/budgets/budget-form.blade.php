@@ -21,7 +21,7 @@
 
                     @foreach ($PeriodList as $key => $item)
                         <option value="{{ $item }}"
-                            {{ old('period', $data->period ?? '') == $key ? 'selected' : '' }}>{{ ucfirst($item) }}
+                            {{ old('period', $data->period ?? '') == $item ? 'selected' : '' }}>{{ ucfirst($item) }} 
                         </option>
                     @endforeach
 
@@ -46,14 +46,20 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="budgetStartDate">Start Date <span class="required">*</span></label>
-                <input type="date" id="budgetStartDate" name="start_date"
-                    value="{{ old('start_date', $data->start_date ?? '') }}" required />
+                <input
+                    type="date"
+                    id="budgetStartDate"
+                    name="start_date"
+                    value="{{ old('start_date', optional($data->start_date)->format('Y-m-d')) }}"
+                    required
+                />
+
             </div>
 
             <div class="form-group">
                 <label for="budgetEndDate">End Date <span class="required">*</span></label>
                 <input type="date" id="budgetEndDate" name="end_date"
-                    value="{{ old('end_date', $data->end_date ?? '') }}" required />
+                    value="{{ old('end_date', optional($data->end_date)->format('Y-m-d')) }}" required />
             </div>
         </div>
 
@@ -94,24 +100,6 @@
             <label for="accountNotes">Notes</label>
             <textarea id="accountNotes" name="notes" placeholder="Optional notes about this budget">{{ old('notes', $data->notes) }}</textarea>
         </div>
-
-        @if ($isEdit)
-            <div class="form-group">
-                <label for="categoryStatus">
-                    Status <span class="required">*</span>
-                </label>
-
-                <select id="categoryStatus" name="is_active" required>
-                    <option value="1" {{ old('is_active', $data->is_active) == 1 ? 'selected' : '' }}>
-                        Active
-                    </option>
-
-                    <option value="0" {{ old('is_active', $data->is_active) == 0 ? 'selected' : '' }}>
-                        Inactive
-                    </option>
-                </select>
-            </div>
-        @endif
     @else
         {{-- DETAIL VIEW --}}
         <div class="table-wrapper">

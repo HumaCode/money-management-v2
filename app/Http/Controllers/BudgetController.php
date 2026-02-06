@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants\BudgetMessage;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\Budget\BudgetStoreRequest;
+use App\Http\Requests\Budget\BudgetUpdateRequest;
 use App\Http\Resources\BudgetResource;
 use App\Http\Resources\PaginateResource;
 use App\Interface\BudgetRepositoryInterface;
@@ -96,6 +97,29 @@ class BudgetController extends Controller
             $budget = $this->budgetRepository->create($request);
 
             return ResponseHelper::jsonResponse(true, BudgetMessage::BUDGET_CREATED_SUCCESS, new BudgetResource($budget), 201);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function edit(Budget $budget)
+    {
+        return view($this->formView, [
+            'action'            => route($this->updateUrl, ['budget' => $budget->id]),
+            'data'              => $budget,
+            'CurrencyList'      => $this->budgetRepository->getCurrencyList(),
+            'PeriodList'        => $this->budgetRepository->getPeriodList(),
+        ]);
+    }
+
+    public function update(BudgetUpdateRequest $request, Budget $budget)
+    {
+        $request = $request->validated();
+
+        try {
+            $budget = $this->budgetRepository->update($budget->id, $request);
+
+            return ResponseHelper::jsonResponse(true, BudgetMessage::BUDGET_UPDATED_SUCCESS, new BudgetResource($budget), 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

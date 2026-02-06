@@ -4,7 +4,7 @@ namespace App\Http\Requests\Budget;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BudgetStoreRequest extends FormRequest
+class BudgetUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -53,6 +53,11 @@ class BudgetStoreRequest extends FormRequest
                 'nullable',
                 'date',
                 'after_or_equal:start_date',
+            ],
+
+            'is_active' => [
+                'nullable',
+                'boolean',
             ],
 
             'rollover_unused' => [

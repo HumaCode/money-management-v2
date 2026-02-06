@@ -79,7 +79,7 @@ class BudgetRepository implements BudgetRepositoryInterface
             $budget->start_date                 = $data['start_date'] ?? null;
             $budget->end_date                   = $data['end_date'] ?? null;
             $budget->is_active                  = '1';
-            $budget->rollover_unused            = '0';
+            $budget->rollover_unused            = $data['rollover_unused'] ?? 0;
             $budget->notes                      = $data['notes'] ?? null;
             $budget->save();
 
@@ -103,15 +103,15 @@ class BudgetRepository implements BudgetRepositoryInterface
                 throw new \Exception('Budget not found');
             }
 
-            $budget->currency_id               = $data['currency_id'];
-            $budget->name                      = $data['name'];
-            $budget->institution_name          = $data['institution_name'] ?? null;
-            $budget->account_number            = $data['account_number'] ?? null;
-            $budget->current_balance           = $data['balance'] ?? 0;
-            $budget->notes                     = $data['notes'] ?? null;
-            $budget->period                    = $data['period'] ?? null;
-            $budget->is_active                 = $data['is_active'] ?? '1';
-            $budget->is_default                = $data['is_default'] ?? '0';
+            $budget->name                       = $data['name'];
+            $budget->currency_id                = $data['currency_id'];
+            $budget->total_amount               = $data['total_amount'] ?? 0;
+            $budget->period                     = $data['period'] ?? null;
+            $budget->start_date                 = $data['start_date'] ?? null;
+            $budget->end_date                   = $data['end_date'] ?? null;
+            $budget->is_active                  = $data['is_active'] ?? 0;
+            $budget->rollover_unused            = $data['rollover_unused'] ?? 0;
+            $budget->notes                      = $data['notes'] ?? null;
 
 
             $budget->save();
