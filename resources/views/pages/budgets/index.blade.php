@@ -48,7 +48,7 @@
             window.dataTableId = @json($dataTableId);
             window.urlData = @json($dataUrl);
             window.urlEdit = @json($editUrl);
-            window.urlShow = @json($showUrl);
+            window.addExpensesUrl = @json($addExpensesUrl);
             window.urlDestroy = @json($destroyUrl);
         </script>
 
@@ -148,7 +148,7 @@
 
 
                     const finalEditUrl = window.urlEdit.replace('__ID__', row.id);
-                    const finalShowUrl = window.urlShow.replace('__ID__', row.id);
+                    const finalAddExpensesUrl = window.addExpensesUrl.replace('__ID__', row.id);
                     const finalDestroyUrl = window.urlDestroy.replace('__ID__', row.id);
 
 
@@ -195,6 +195,9 @@
                             <div class="action-buttons">
                                 ${row.actions ?? ''}
 
+                                <a href="${finalAddExpensesUrl}" class="btn-action view action" title="Add Expenses"> 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus-icon lucide-circle-plus"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+                                </a> 
                                 
                                 <a href="${finalEditUrl}" class="btn-action edit action" title="Edit"> 
                                     <svg viewBox="0 0 24 24"> <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /> 

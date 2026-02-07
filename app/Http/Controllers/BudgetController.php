@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants\BudgetMessage;
 use App\Constants\GlobalMessage;
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\Budget\BudgetStoreExpenseRequest;
 use App\Http\Requests\Budget\BudgetStoreRequest;
 use App\Http\Requests\Budget\BudgetUpdateRequest;
 use App\Http\Resources\BudgetResource;
@@ -18,11 +19,13 @@ class BudgetController extends Controller
     private string $title               = BudgetMessage::TITLE;
     private string $subtitle            = BudgetMessage::SUBTITLE;
     private string $formView            = BudgetMessage::FORMVIEW;
+    private string $formViewAddExpenses = BudgetMessage::FORMVIEW_ADD_EXPENSES;
     private string $indexView           = BudgetMessage::INDEXVIEW;
 
     private string $createUrl           = BudgetMessage::CREATEURL;
     private string $editUrl             = BudgetMessage::EDITURL;
-    private string $showUrl             = BudgetMessage::SHOWURL;
+    private string $addExpensesUrl      = BudgetMessage::ADDEXPENSESURL;
+    private string $storeExpensesUrl    = BudgetMessage::STOREEXPENSESURL;
     private string $storeUrl            = BudgetMessage::STOREURL;
     private string $updateUrl           = BudgetMessage::UPDATEURL;
     private string $destroyUrl          = BudgetMessage::DESTROYURL;
@@ -47,7 +50,7 @@ class BudgetController extends Controller
             'subtitle'          => $this->subtitle,
             'createUrl'         => route($this->createUrl),
             'editUrl'           => route($this->editUrl, ['budget' => '__ID__']),
-            'showUrl'           => route($this->showUrl, ['budget' => '__ID__']),
+            'addExpensesUrl'    => route($this->addExpensesUrl, ['budget' => '__ID__']),
             'destroyUrl'        => route($this->destroyUrl, ['budget' => '__ID__']),
             'dataUrl'           => route($this->dataUrl),
             'dataTableId'       => $this->dataTableId,
@@ -98,6 +101,28 @@ class BudgetController extends Controller
             $budget = $this->budgetRepository->create($request);
 
             return ResponseHelper::jsonResponse(true, BudgetMessage::BUDGET_CREATED_SUCCESS, new BudgetResource($budget), 201);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function addExpenses(Budget $budget)
+    {
+        return view($this->formViewAddExpenses, [
+            'action'            => route($this->storeExpensesUrl, ['budget' => $budget->id]),
+            'data'              => $budget,
+            'categories'        => $this->budgetRepository->getCategoryList(),
+        ]);
+    }
+
+    public function storeExpenses(BudgetStoreExpenseRequest $request, Budget $budget)
+    {
+        $request =  $request->validated();
+
+        try {
+            $budgetexpense = $this->budgetRepository->budgetExpenses($budget->id, $request);
+
+            return ResponseHelper::jsonResponse(true, BudgetMessage::BUDGET_EXPENSE_ADDED_SUCCESS, new BudgetResource($budgetexpense), 201);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

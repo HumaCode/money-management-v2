@@ -25,5 +25,7 @@ interface BudgetRepositoryInterface
 
     public function getById(string $id);
 
+    public function budgetExpenses(string $id, array $data);
+
     public function delete(string $id);
 }

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Constants\GlobalMessage;
 use App\Interface\BudgetRepositoryInterface;
 use App\Models\Budget;
+use App\Models\Category;
 use App\Models\Currency;
 use Illuminate\Support\Facades\DB;
 
@@ -136,6 +137,51 @@ class BudgetRepository implements BudgetRepositoryInterface
         return $budget->delete();
     }
 
+    public function budgetExpenses(string $id, array $data)
+    {
+        DB::beginTransaction();
+
+        try {
+            $budget = Budget::with('budgetCategories')->find($id);
+
+            if (!$budget) {
+                throw new \Exception('Budget not found');
+            }
+
+            // 1️⃣ Create / Update category expense
+            $budget->budgetCategories()->updateOrCreate(
+                [
+                    'category_id' => $data['category_id'],
+                ],
+                [
+                    'allocated_amount' => $data['allocated_amount'] ?? 0,
+                    'spent_amount'     => $data['spent_amount'] ?? 0,
+                ]
+            );
+
+            // 2️⃣ Recalculate budget totals
+            $totalSpent = $budget->budgetCategories()->sum('spent_amount');
+
+            $progressPercentage = $budget->total_amount > 0
+                ? ($totalSpent / $budget->total_amount) * 100
+                : 0;
+
+            // 3️⃣ Update budget aggregate columns
+            $budget->update([
+                'total_spent'         => $totalSpent,
+                'progress_percentage' => round($progressPercentage, 2),
+            ]);
+
+            DB::commit();
+
+            return $budget->fresh(['currency', 'budgetCategories']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception(GlobalMessage::ERROR_UPDATING . $e->getMessage());
+        }
+    }
+
+
     public function getPeriodList()
     {
         return  ['weekly', 'monthly', 'quarterly', 'yearly'];
@@ -145,6 +191,17 @@ class BudgetRepository implements BudgetRepositoryInterface
     {
         return Currency::select('name', 'code', 'id')
             ->distinct()
+            ->orderBy('name', 'asc')
+            ->get()
+            ->toArray();
+    }
+
+    public function getCategoryList()
+    {
+        // Assuming there's a Category model
+        return Category::select('name', 'icon', 'id')
+            ->distinct()
+            ->where('type', 'expense')
             ->orderBy('name', 'asc')
             ->get()
             ->toArray();

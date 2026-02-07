@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\BudgetCategory;
+use App\Observers\BudgetCategoryObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
