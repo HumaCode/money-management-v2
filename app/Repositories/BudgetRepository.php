@@ -137,49 +137,38 @@ class BudgetRepository implements BudgetRepositoryInterface
         return $budget->delete();
     }
 
-    public function budgetExpenses(string $id, array $data)
+    public function budgetExpenses(string $id, array $data): Budget
     {
-        DB::beginTransaction();
+        return DB::transaction(function () use ($id, $data) {
+            
+            $budget = Budget::with('budgetCategories')->findOrFail($id);
 
-        try {
-            $budget = Budget::with('budgetCategories')->find($id);
+            // 1️⃣ Tambah record baru (ledger)
+            $budget->budgetCategories()->create([
+                'category_id'  => $data['category_id'],
+                'allocated_amount' => $data['allocated_amount'],
+                'spent_amount' => $data['spent_amount'],
+                'spent_date'   => $data['spent_date'] ?? now(),
+                'notes'        => $data['notes'] ?? null,
+            ]);
 
-            if (!$budget) {
-                throw new \Exception('Budget not found');
-            }
-
-            // 1️⃣ Create / Update category expense
-            $budget->budgetCategories()->updateOrCreate(
-                [
-                    'category_id' => $data['category_id'],
-                ],
-                [
-                    'allocated_amount' => $data['allocated_amount'] ?? 0,
-                    'spent_amount'     => $data['spent_amount'] ?? 0,
-                ]
-            );
-
-            // 2️⃣ Recalculate budget totals
+            // 2️⃣ Hitung ulang agregat
             $totalSpent = $budget->budgetCategories()->sum('spent_amount');
 
-            $progressPercentage = $budget->total_amount > 0
+            $progress = $budget->total_amount > 0
                 ? ($totalSpent / $budget->total_amount) * 100
                 : 0;
 
-            // 3️⃣ Update budget aggregate columns
-            $budget->update([
+            // 3️⃣ Simpan hasil ke budget
+            $budget->forceFill([
                 'total_spent'         => $totalSpent,
-                'progress_percentage' => round($progressPercentage, 2),
-            ]);
+                'progress_percentage' => round($progress, 2),
+            ])->save();
 
-            DB::commit();
-
-            return $budget->fresh(['currency', 'budgetCategories']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            throw new \Exception(GlobalMessage::ERROR_UPDATING . $e->getMessage());
-        }
+            return $budget->fresh(['currency', 'budgetCategories.category']);
+        });
     }
+
 
 
     public function getPeriodList()

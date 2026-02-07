@@ -18,7 +18,6 @@ return new class extends Migration
             $table->decimal('allocated_amount', 20, 2);
             $table->decimal('spent_amount', 20, 2)->default(0);
 
-            $table->unique(['budget_id', 'category_id']);
             $table->index('budget_id');
             $table->index('category_id');
             $table->timestamps();

@@ -40,8 +40,11 @@ class Budget extends Model
     protected $appends = [
         'total_amount_formatted',
         'spent_amount_formatted',
+        'remaining_amount',
+        'remaining_amount_formatted',
         'date_range_formatted',
         'progress_percentage_normalized',
+        'status',
     ];
 
     /* =========================
@@ -76,12 +79,36 @@ class Budget extends Model
         return Attribute::get(fn() => $this->formatCurrency($this->total_spent));
     }
 
+    protected function remainingAmount(): Attribute
+    {
+        return Attribute::get(fn() => $this->total_amount - $this->total_spent);
+    }
+
+    protected function remainingAmountFormatted(): Attribute
+    {
+        return Attribute::get(fn() => $this->formatCurrency($this->remaining_amount));
+    }
+
     protected function progressPercentageNormalized(): Attribute
     {
         return Attribute::get(
-            fn() =>
-            max(0, min((float) $this->progress_percentage, 100))
+            fn() => max(0, min((float) $this->progress_percentage, 100))
         );
+    }
+
+    protected function status(): Attribute
+    {
+        return Attribute::get(function () {
+            $percentage = (float) $this->progress_percentage;
+            
+            if ($percentage >= 100) {
+                return 'over_budget';
+            } elseif ($percentage >= 80) {
+                return 'near_limit';
+            } else {
+                return 'on_track';
+            }
+        });
     }
 
     protected function dateRangeFormatted(): Attribute
@@ -132,12 +159,35 @@ class Budget extends Model
         return $formatted;
     }
 
+    /**
+     * Recalculate total_spent and progress_percentage
+     * Call this after adding, updating, or deleting budget categories
+     */
+    public function recalculateSpent(): void
+    {
+        $totalSpent = $this->budgetCategories()->sum('spent_amount');
+        
+        $progress = $this->total_amount > 0
+            ? ($totalSpent / $this->total_amount) * 100
+            : 0;
+
+        $this->forceFill([
+            'total_spent'         => $totalSpent,
+            'progress_percentage' => round($progress, 2),
+        ])->save();
+    }
+
     /* =========================
      |  Scopes
      ========================= */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
     }
 
     public function scopeSearch($query, $search)
@@ -148,5 +198,20 @@ class Budget extends Model
     public function scopePeriod($query, $period)
     {
         return $query->where('period', $period);
+    }
+
+    public function scopeOverBudget($query)
+    {
+        return $query->where('progress_percentage', '>', 100);
+    }
+
+    public function scopeNearLimit($query)
+    {
+        return $query->whereBetween('progress_percentage', [80, 100]);
+    }
+
+    public function scopeOnTrack($query)
+    {
+        return $query->where('progress_percentage', '<', 80);
     }
 }

@@ -18,6 +18,18 @@
             </select>
         </div>
 
+        <div class="form-group">
+                <label for="budgetStartDate">Spent Date <span class="required">*</span></label>
+                <input
+                    type="date"
+                    id="budgetStartDate"
+                    name="spent_date"
+                    value="{{ old('spent_date', optional($data->spent_date)->format('Y-m-d')) }}"
+                    required
+                />
+
+        </div>
+
         <div class="form-row">
             <div class="form-group">
                 <label for="allocatedAmount">Allocated Amount *</label>

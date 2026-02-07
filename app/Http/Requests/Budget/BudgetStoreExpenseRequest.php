@@ -23,6 +23,8 @@ class BudgetStoreExpenseRequest extends FormRequest
     {
         return [
             'category_id'       => ['required', 'exists:categories,id'],
+            'notes'             => ['nullable', 'string', 'max:1000'],
+            'spent_date'        => ['required', 'date'],
             'allocated_amount'  => ['required', 'numeric', 'min:0'],
             'spent_amount'      => ['nullable', 'numeric', 'min:0'],
         ];
