@@ -377,21 +377,101 @@
 }
 
 .progress-fill {
-    height: 100%;
     background: var(--accent);
-    border-radius: 4px;
-    transition: width 0.3s;
-}
-
-.progress-fill.danger {
-    background: var(--error);
+    transition: all 0.3s ease;
 }
 
 .progress-fill.warning {
     background: var(--warning);
 }
 
+.progress-fill.error {
+    background: var(--error);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
 .progress-text {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
+}
+
+/* Over budget text color */
+.over-budget .progress-text {
+    color: var(--error);
+    font-weight: 600;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-input);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.progress-fill.warning {
+    background: var(--warning);
+}
+
+.progress-fill.error {
+    background: var(--error);
+    animation: pulse-error 2s infinite;
+}
+
+@keyframes pulse-error {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.progress-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.progress-text.text-error {
+    color: var(--error);
+    font-weight: 600;
+}
+
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge.success {
+    background: rgba(16,185,129,0.1);
+    color: var(--success);
+}
+
+.badge.warning {
+    background: rgba(245,158,11,0.1);
+    color: var(--warning);
+}
+
+.badge.error {
+    background: rgba(248,113,113,0.1);
+    color: var(--error);
 }

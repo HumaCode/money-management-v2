@@ -44,6 +44,7 @@ class Budget extends Model
         'remaining_amount_formatted',
         'date_range_formatted',
         'progress_percentage_normalized',
+        'progress_bar_width',
         'status',
     ];
 
@@ -92,7 +93,18 @@ class Budget extends Model
     protected function progressPercentageNormalized(): Attribute
     {
         return Attribute::get(
+            fn() => max(0, (float) $this->progress_percentage)
+            // Removed min(100) cap to allow over budget percentage display
+            // Can now show 110%, 150%, etc.
+        );
+    }
+
+    protected function progressBarWidth(): Attribute
+    {
+        return Attribute::get(
             fn() => max(0, min((float) $this->progress_percentage, 100))
+            // Capped at 100% for visual progress bar width
+            // Even if over budget (110%), bar stays at 100% but shows 110% text
         );
     }
 

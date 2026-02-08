@@ -145,13 +145,21 @@
                 let html = '';
 
                 rows.forEach(row => {
-
-
                     const finalEditUrl = window.urlEdit.replace('__ID__', row.id);
                     const finalAddExpensesUrl = window.addExpensesUrl.replace('__ID__', row.id);
                     const finalDestroyUrl = window.urlDestroy.replace('__ID__', row.id);
 
-
+                    // Determine progress color class
+                    let progressColorClass = '';
+                    let progressTextStyle = '';
+                    
+                    if (row.progress_percentage_normalized >= 100) {
+                        progressColorClass = 'error';
+                        progressTextStyle = 'color: var(--error); font-weight: 600;';
+                    } else if (row.progress_percentage_normalized >= 80) {
+                        progressColorClass = 'warning';
+                        progressTextStyle = 'color: var(--warning); font-weight: 600;';
+                    }
 
                     html += `
                     <tr>
@@ -174,13 +182,13 @@
 
                         <td>
                             <div class="progress-bar">
-                                <div
-                                    class="progress-fill"
-                                    style="width: ${row.progress_percentage_normalized}%;"
-                                ></div>
+                                <div class="progress-fill ${progressColorClass}" 
+                                    style="width: ${row.progress_bar_width}%;">
+                                </div>
                             </div>
-                            <div class="progress-text">
-                                ${row.spent_amount_formatted}
+                            
+                            <div class="progress-text" style="${progressTextStyle}">
+                                ${row.spent_amount_formatted} of ${row.total_amount_formatted}
                                 (${Math.round(row.progress_percentage_normalized)}%)
                             </div>
                         </td>
@@ -211,9 +219,8 @@
                             </div>
                         </td>
                     </tr>
-                `;
+                    `;
                 });
-
                 $tbody.html(html);
             }
 
