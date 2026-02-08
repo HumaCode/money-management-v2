@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\BudgetExpenseController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -45,6 +46,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/budgets/{budget}/add-expenses', [BudgetController::class, 'addExpenses'])->name('budget.addExpenses');
     Route::put('/budgets/{budget}/add-expenses', [BudgetController::class, 'storeExpenses'])->name('budget.storeExpenses');
     Route::delete('/budgets/{budget}/destroy', [BudgetController::class, 'destroy'])->name('budget.destroy');
+    
+    // budget expenses
+    Route::get('/budget-expenses', [BudgetExpenseController::class, 'index'])->name('budget.expense.index');
+    Route::get('/budget-expenses/getAllPagination', [BudgetExpenseController::class, 'getAllPaginated'])->name('budget.expense.allPagination');
+    Route::get('/budget-expenses/create', [BudgetExpenseController::class, 'create'])->name('budget.expense.create');
+    Route::post('/budget-expenses/store', [BudgetExpenseController::class, 'store'])->name('budget.expense.store');
+    Route::get('/budget-expenses/{budgetExpense}/edit', [BudgetExpenseController::class, 'edit'])->name('budget.expense.edit');
+    Route::put('/budget-expenses/{budgetExpense}/update', [BudgetExpenseController::class, 'update'])->name('budget.expense.update');
+    Route::get('/budget-expenses/{budgetExpense}/add-expenses', [BudgetExpenseController::class, 'addExpenses'])->name('budget.expense.addExpenses');
+    Route::put('/budget-expenses/{budgetExpense}/add-expenses', [BudgetExpenseController::class, 'storeExpenses'])->name('budget.expense.storeExpenses');
+    Route::delete('/budget-expenses/{budgetExpense}/destroy', [BudgetExpenseController::class, 'destroy'])->name('budget.expense.destroy');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
