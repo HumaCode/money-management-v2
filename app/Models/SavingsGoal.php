@@ -69,6 +69,11 @@ class SavingsGoal extends Model
         return $query->where('status', 'paused');
     }
 
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', 'cancelled');
+    }
+
     // Accessors
     public function getRemainingAmountAttribute()
     {

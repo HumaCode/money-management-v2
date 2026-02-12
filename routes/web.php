@@ -6,6 +6,7 @@ use App\Http\Controllers\BudgetExpenseController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SavingGoalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -46,7 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/budgets/{budget}/add-expenses', [BudgetController::class, 'addExpenses'])->name('budget.addExpenses');
     Route::put('/budgets/{budget}/add-expenses', [BudgetController::class, 'storeExpenses'])->name('budget.storeExpenses');
     Route::delete('/budgets/{budget}/destroy', [BudgetController::class, 'destroy'])->name('budget.destroy');
-    
+
     // budget expenses
     Route::get('/budget-expenses', [BudgetExpenseController::class, 'index'])->name('budget.expense.index');
     Route::get('/budget-expenses/getAllPagination', [BudgetExpenseController::class, 'getAllPaginated'])->name('budget.expense.allPagination');
@@ -57,6 +58,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/budget-expenses/{budgetExpense}/add-expenses', [BudgetExpenseController::class, 'addExpenses'])->name('budget.expense.addExpenses');
     Route::put('/budget-expenses/{budgetExpense}/add-expenses', [BudgetExpenseController::class, 'storeExpenses'])->name('budget.expense.storeExpenses');
     Route::delete('/budget-expenses/{budgetExpense}/destroy', [BudgetExpenseController::class, 'destroy'])->name('budget.expense.destroy');
+
+    // saving goal
+    Route::get('/saving-goals', [SavingGoalController::class, 'index'])->name('saving.goals.index');
+    Route::get('/saving-goals/getAllPagination', [SavingGoalController::class, 'getAllPaginated'])->name('saving.goals.allPagination');
+    Route::get('/saving-goals/create', [SavingGoalController::class, 'create'])->name('saving.goals.create');
+    Route::post('/saving-goals/store', [SavingGoalController::class, 'store'])->name('saving.goals.store');
+    Route::get('/saving-goals/{saving}/edit', [SavingGoalController::class, 'edit'])->name('saving.goals.edit');
+    Route::put('/saving-goals/{saving}/update', [SavingGoalController::class, 'update'])->name('saving.goals.update');
+    Route::delete('/saving-goals/{saving}/destroy', [SavingGoalController::class, 'destroy'])->name('saving.goals.destroy');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
