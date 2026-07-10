@@ -183,3 +183,87 @@ if (!function_exists('user_greeting')) {
         }
     }
 }
+
+if (!function_exists('tgl_indo')) {
+    /**
+     * Format tanggal ke format Indonesia.
+     *
+     * @param  mixed       $tanggal   — string tanggal, Carbon, atau timestamp
+     * @param  bool        $hari      — true  → "Rabu, 2 September 2026"
+     *                                  false → "2 September 2026"
+     * @param  string|null $default   — nilai kembalian jika $tanggal kosong
+     * @return string
+     *
+     * Contoh:
+     *   tgl_indo('2026-09-02', true)  → "Rabu, 2 September 2026"
+     *   tgl_indo('2026-09-02', false) → "2 September 2026"
+     */
+    function tgl_indo($tanggal, bool $hari = false, ?string $default = '—'): string
+    {
+        if (empty($tanggal)) {
+            return $default ?? '—';
+        }
+
+        $bulan = [
+            1  => 'Januari',   2  => 'Februari', 3  => 'Maret',
+            4  => 'April',     5  => 'Mei',       6  => 'Juni',
+            7  => 'Juli',      8  => 'Agustus',   9  => 'September',
+            10 => 'Oktober',  11  => 'November', 12  => 'Desember',
+        ];
+
+        $namaHari = [
+            0 => 'Minggu', 1 => 'Senin', 2 => 'Selasa',  3 => 'Rabu',
+            4 => 'Kamis',  5 => 'Jumat', 6 => 'Sabtu',
+        ];
+
+        try {
+            $date = \Carbon\Carbon::parse($tanggal);
+        } catch (\Throwable $e) {
+            return $default ?? '—';
+        }
+
+        $tgl    = (int) $date->format('j');
+        $bln    = $bulan[(int) $date->format('n')];
+        $tahun  = $date->format('Y');
+
+        if ($hari) {
+            $dayIndex = (int) $date->format('w');   // 0 (Minggu) – 6 (Sabtu)
+            return "{$namaHari[$dayIndex]}, {$tgl} {$bln} {$tahun}";
+        }
+
+        return "{$tgl} {$bln} {$tahun}";
+    }
+}
+
+if (!function_exists('tgl_indo_time')) {
+    /**
+     * Format tanggal + jam ke format Indonesia.
+     *
+     * @param  mixed       $tanggal  — string tanggal, Carbon, atau timestamp
+     * @param  bool        $hari     — sertakan nama hari?
+     * @param  string|null $default  — nilai kembalian jika $tanggal kosong
+     * @return string
+     *
+     * Contoh:
+     *   tgl_indo_time('2026-09-02 14:30:00', true)
+     *     → "Rabu, 2 September 2026 14:30"
+     *   tgl_indo_time('2026-09-02 14:30:00', false)
+     *     → "2 September 2026 14:30"
+     */
+    function tgl_indo_time($tanggal, bool $hari = false, ?string $default = '—'): string
+    {
+        if (empty($tanggal)) {
+            return $default ?? '—';
+        }
+
+        try {
+            $date = \Carbon\Carbon::parse($tanggal);
+        } catch (\Throwable $e) {
+            return $default ?? '—';
+        }
+
+        $jam = $date->format('H:i');
+
+        return tgl_indo($tanggal, $hari) . ' ' . $jam;
+    }
+}

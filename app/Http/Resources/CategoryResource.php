@@ -62,8 +62,8 @@ class CategoryResource extends JsonResource
             ),
 
             // Timestamps
-            'created_at'        => $this->created_at?->format('Y-m-d H:i:s'),
-            'updated_at'        => $this->updated_at?->format('Y-m-d H:i:s'),
+            'created_at'        => tgl_indo_time($this->created_at, true),
+            'updated_at'        => tgl_indo_time($this->updated_at, true),
         ];
     }
 }
