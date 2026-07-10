@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import CategoryModal from '../../Components/CategoryModal';
+import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
 import axios from 'axios';
 import { Eye, Edit, Trash2, Search, RotateCcw, Plus, Trash, AlertTriangle } from 'lucide-react';
 
@@ -39,27 +40,10 @@ export default function Index({ title, subtitle, parentCategories }) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [animateDeleteShow, setAnimateDeleteShow] = useState(false);
 
-    // Toast notification state
-    const [toast, setToast] = useState({
-        show: false,
-        message: '',
-        type: 'success'
-    });
+    // Dynamic Island toast
+    const { toast, showToast, dismissToast } = useToast(3500);
 
-    // Show custom toast helper
-    const showToast = useCallback((message, type = 'success') => {
-        setToast({ show: true, message, type });
-    }, []);
 
-    // Dismiss toast after 3 seconds
-    useEffect(() => {
-        if (toast.show) {
-            const timer = setTimeout(() => {
-                setToast(prev => ({ ...prev, show: false }));
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [toast.show]);
 
     // Fetch category data from the API endpoint
     const fetchCategories = useCallback(async () => {
@@ -232,46 +216,7 @@ export default function Index({ title, subtitle, parentCategories }) {
         <AuthenticatedLayout>
             <style>{`
                 /* Custom styling overrides and local transitions */
-                .custom-toast {
-                    position: fixed;
-                    top: 24px;
-                    right: 24px;
-                    padding: 14px 20px;
-                    background: var(--bg-card);
-                    border: 1px solid var(--bg-card-border);
-                    border-radius: 12px;
-                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-                    z-index: 1000;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    animation: toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                }
-                .custom-toast.success {
-                    border-left: 4px solid var(--success);
-                }
-                .custom-toast.error {
-                    border-left: 4px solid var(--error);
-                }
-                .toast-icon {
-                    font-size: 16px;
-                    font-weight: bold;
-                }
-                .custom-toast.success .toast-icon {
-                    color: var(--success);
-                }
-                .custom-toast.error .toast-icon {
-                    color: var(--error);
-                }
-                .toast-message {
-                    color: var(--text-primary);
-                    font-size: 13.5px;
-                    font-weight: 500;
-                }
-                @keyframes toast-slide-in {
-                    from { transform: translateX(120%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
+
                 
                 /* Delete Confirmation Modal styling */
                 .delete-modal-overlay {
@@ -388,15 +333,8 @@ export default function Index({ title, subtitle, parentCategories }) {
                 }
             `}</style>
 
-            {/* Custom Toast Alert */}
-            {toast.show && (
-                <div className={`custom-toast ${toast.type}`}>
-                    <span className="toast-icon">
-                        {toast.type === 'success' ? '✓' : '✗'}
-                    </span>
-                    <span className="toast-message">{toast.message}</span>
-                </div>
-            )}
+            {/* Dynamic Island Toast */}
+            <DynamicToastContainer toast={toast} onDismiss={dismissToast} />
 
             {/* Page Header */}
             <div className="page-header">
