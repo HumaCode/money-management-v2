@@ -52,28 +52,19 @@ export default function Login() {
             <div className="ambient"></div>
             <div className="grid-overlay"></div>
 
-            {/* Spinner Loading Overlay */}
-            {isSubmitting && !isSuccess && (
-                <div className="loading-modal" style={{ display: 'flex' }}>
-                    <div className="loading-box">
-                        <div className="spinner" style={{
-                            width: '40px',
-                            height: '40px',
-                            border: '4px solid #ddd',
-                            borderTop: '4px solid #333',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite',
-                            margin: '0 auto 12px'
-                        }}></div>
-                        <p>Loading, please wait...</p>
-                    </div>
-                </div>
-            )}
-
             {/* Inline Spin Animation keyframes */}
             <style>{`
                 @keyframes spin {
                     to { transform: rotate(360deg); }
+                }
+                .btn-spinner {
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid rgba(10, 14, 26, 0.25);
+                    border-top: 2px solid #0a0e1a;
+                    border-radius: 50%;
+                    animation: spin 0.8s linear infinite;
+                    display: inline-block;
                 }
                 @keyframes fadeScale {
                     from {
@@ -187,6 +178,7 @@ export default function Login() {
                                             onFocus={() => setFocusedField('identity')}
                                             onBlur={() => setFocusedField(null)}
                                             autoComplete="off" 
+                                            disabled={isSubmitting}
                                         />
                                     </div>
                                 </div>
@@ -208,12 +200,14 @@ export default function Login() {
                                             onFocus={() => setFocusedField('password')}
                                             onBlur={() => setFocusedField(null)}
                                             autoComplete="off" 
+                                            disabled={isSubmitting}
                                         />
                                         <button 
                                             className="toggle-password" 
                                             type="button" 
                                             onClick={() => setPasswordVisible(!passwordVisible)}
                                             aria-label="Toggle password visibility"
+                                            disabled={isSubmitting}
                                         >
                                             {passwordVisible ? (
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
@@ -239,12 +233,32 @@ export default function Login() {
                                             id="rememberMe" 
                                             checked={remember}
                                             onChange={(e) => setRemember(e.target.checked)}
+                                            disabled={isSubmitting}
                                         />
                                         <span>Remember me</span>
                                     </label>
                                     <a href="#" className="forgot-link">Forgot password?</a>
                                 </div>
-                                <button type="submit" className="btn-login" disabled={isSubmitting}>Sign In</button>
+                                <button 
+                                    type="submit" 
+                                    className="btn-login" 
+                                    disabled={isSubmitting}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <span className="btn-spinner"></span>
+                                            Mohon tunggu sebentar...
+                                        </>
+                                    ) : (
+                                        'Sign In'
+                                    )}
+                                </button>
                             </form>
                             <div className="signup-link" id="link">
                                 Don't have an account? <a href="#">Sign up</a>
