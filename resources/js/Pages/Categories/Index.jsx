@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import CategoryModal from '../../Components/CategoryModal';
 import ConfirmModal from '../../Components/ConfirmModal';
@@ -137,12 +137,12 @@ export default function Index({ title, subtitle, parentCategories }) {
         if (typeof AOS !== 'undefined') AOS.init({ duration: 800, once: true });
     }, []);
 
-    // ── Render ────────────────────────────────────────────────────
-    const breadcrumbs = [
+    // ── Breadcrumbs ─────────────────────────────────────────────────
+    const breadcrumbs = useMemo(() => [
         { label: 'Dashboard', href: route('dashboard'), icon: <LayoutDashboard size={13} /> },
         { label: 'Master' },
         { label: 'Categories', icon: <FolderTree size={13} /> },
-    ];
+    ], []);
 
     return (
         <AuthenticatedLayout breadcrumbs={breadcrumbs}>
