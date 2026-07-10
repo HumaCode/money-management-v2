@@ -95,11 +95,35 @@ export default function ConfirmModal({
                     align-items: center;
                     justify-content: center;
                     margin: 0 auto 18px;
-                    animation: cm-icon-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+                    position: relative;
+                    animation: cm-icon-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+                }
+                .cm-icon-wrap::before {
+                    content: '';
+                    position: absolute;
+                    inset: -8px;
+                    border-radius: 50%;
+                    background: currentColor;
+                    opacity: 0.12;
+                    animation: cm-pulse-ring 2s infinite ease-in-out;
+                }
+                .cm-icon-wrap svg {
+                    animation: cm-trash-wiggle 3s infinite ease-in-out;
                 }
                 @keyframes cm-icon-pop {
                     from { transform: scale(0.5) rotate(-15deg); opacity: 0; }
                     to   { transform: scale(1) rotate(0deg);   opacity: 1; }
+                }
+                @keyframes cm-pulse-ring {
+                    0% { transform: scale(0.9); opacity: 0.18; }
+                    50% { transform: scale(1.15); opacity: 0.05; }
+                    100% { transform: scale(0.9); opacity: 0.18; }
+                }
+                @keyframes cm-trash-wiggle {
+                    0%, 100% { transform: rotate(0deg) scale(1); }
+                    12%, 36% { transform: rotate(-8deg) scale(1.06); }
+                    24%, 48% { transform: rotate(8deg) scale(1.06); }
+                    60% { transform: rotate(0deg) scale(1); }
                 }
                 .cm-title {
                     font-family: 'Cormorant Garamond', serif;
@@ -131,6 +155,7 @@ export default function ConfirmModal({
             <BaseModal
                 isOpen={isOpen}
                 onClose={onClose}
+                title={variant === 'danger' ? 'Confirm Delete' : (variant === 'warning' ? 'Warning' : 'Confirmation')}
                 size="sm"
                 footer={footer}
             >
