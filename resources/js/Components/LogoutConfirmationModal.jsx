@@ -216,6 +216,43 @@ export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }) 
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                 }
+
+                /* Light mode adjustments */
+                html.light .logout-modal-card {
+                    background: rgba(255, 255, 255, 0.95);
+                    border: 1px solid rgba(0, 0, 0, 0.08);
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 
+                                0 0 40px rgba(5, 150, 105, 0.04);
+                }
+                
+                html.light .logout-modal-title {
+                    color: #1f2937;
+                }
+                
+                html.light .logout-modal-text {
+                    color: #4b5563;
+                }
+                
+                html.light .btn-logout-cancel {
+                    background: rgba(0, 0, 0, 0.02);
+                    border: 1px solid rgba(0, 0, 0, 0.08);
+                    color: #1f2937;
+                }
+                
+                html.light .btn-logout-cancel:hover:not(:disabled) {
+                    background: rgba(0, 0, 0, 0.05);
+                    border-color: rgba(0, 0, 0, 0.15);
+                }
+                
+                html.light .btn-logout-confirm {
+                    color: #ffffff;
+                    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.2);
+                }
+                
+                html.light .btn-spinner {
+                    border-color: rgba(255, 255, 255, 0.25);
+                    border-top-color: #ffffff;
+                }
             `}</style>
             
             <div 
