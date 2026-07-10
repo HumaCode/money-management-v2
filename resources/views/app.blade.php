@@ -76,6 +76,19 @@
                 linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
         }
+        html.light .welcome-banner {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            border: 1px solid #cbd5e1;
+        }
+        html.light .welcome-banner::before {
+            border-color: rgba(5, 150, 105, 0.15);
+        }
+        html.light .welcome-banner h2 {
+            color: #1f2937;
+        }
+        html.light .welcome-banner p {
+            color: #4b5563;
+        }
         html.light .panel-brand {
             background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 100%);
         }
