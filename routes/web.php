@@ -18,11 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // category
     Route::get('/categories', [CategoryController::class, 'index'])->name('category.index');
     Route::get('/categories/getAllPagination', [CategoryController::class, 'getAllPaginated'])->name('category.allPagination');
-    Route::get('/categories/create', [CategoryController::class, 'create'])->name('category.create');
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('category.store');
-    Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
     Route::put('/categories/{category}/update', [CategoryController::class, 'update'])->name('category.update');
-    Route::get('/categories/{category}/show', [CategoryController::class, 'show'])->name('category.show');
     Route::delete('/categories/{category}/destroy', [CategoryController::class, 'destroy'])->name('category.destroy');
 
     // account

@@ -26,4 +26,6 @@ interface CategoryRepositoryInterface
     public function getById(string $id);
 
     public function delete(string $id);
+
+    public function getCategoriesWithoutParentId();
 }

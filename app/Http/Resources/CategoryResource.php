@@ -22,6 +22,7 @@ class CategoryResource extends JsonResource
             'type'              => $this->type,
             'icon'              => $this->icon,
             'color'             => $this->color,
+            'description'       => $this->description,
             'is_active'         => $this->is_active,
             'is_system'         => $this->is_system,
             'is_custom'         => $this->is_custom,
