@@ -209,10 +209,26 @@ export default function Index({ title, subtitle, parentCategories }) {
             <DynamicToastContainer toast={toast} onDismiss={dismissToast} />
 
             {/* ── Page Header ── */}
-            <div className="page-header">
-                <div className="page-title">
-                    <h2>{title}</h2>
-                    <p>{subtitle}</p>
+            <div className="page-header" style={{ marginBottom: '28px' }}>
+                <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '10px',
+                        background: 'var(--accent-dim)',
+                        border: '1px solid var(--bg-card-border)',
+                        color: 'var(--accent)',
+                        flexShrink: 0
+                    }}>
+                        <FolderTree size={20} />
+                    </div>
+                    <div>
+                        <h2 style={{ margin: 0, lineHeight: 1.25, fontSize: '26px' }}>{title}</h2>
+                        <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: '13px' }}>{subtitle}</p>
+                    </div>
                 </div>
                 <button
                     onClick={handleOpenCreate}
