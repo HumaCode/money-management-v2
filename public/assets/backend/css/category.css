@@ -1055,10 +1055,15 @@ tbody tr:hover {
     }
 
     .search-box {
+        width: 100%;
         max-width: 100%;
     }
 
     .custom-select {
+        width: 100%;
+    }
+
+    .table-controls-right {
         width: 100%;
     }
 
