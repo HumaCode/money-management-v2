@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
+import LogoutConfirmationModal from '../Components/LogoutConfirmationModal';
 import { 
     LayoutDashboard, 
     FolderTree, 
@@ -24,6 +25,7 @@ export default function AuthenticatedLayout({ children }) {
     const { auth } = usePage().props;
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     // Calculate user initials
     const getInitials = (name) => {
@@ -37,22 +39,11 @@ export default function AuthenticatedLayout({ children }) {
 
     const handleLogout = (e) => {
         e.preventDefault();
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Anda akan keluar dari aplikasi!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#7dd3a8',
-            cancelButtonColor: '#f87171',
-            confirmButtonText: 'Ya, keluar!',
-            cancelButtonText: 'Batal',
-            background: '#111827',
-            color: '#f0f2f5'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.post(route('logout'));
-            }
-        });
+        setIsLogoutModalOpen(true);
+    };
+
+    const handleConfirmLogout = () => {
+        router.post(route('logout'));
     };
 
     const toggleSidebar = () => {
@@ -231,6 +222,13 @@ export default function AuthenticatedLayout({ children }) {
                     {children}
                 </main>
             </div>
+
+            {/* Custom Logout Confirmation Modal */}
+            <LogoutConfirmationModal 
+                isOpen={isLogoutModalOpen}
+                onClose={() => setIsLogoutModalOpen(false)}
+                onConfirm={handleConfirmLogout}
+            />
         </div>
     );
 }
