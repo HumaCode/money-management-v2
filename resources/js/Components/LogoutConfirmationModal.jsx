@@ -4,6 +4,7 @@ import { AlertCircle } from 'lucide-react';
 export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }) {
     const [shouldRender, setShouldRender] = useState(isOpen);
     const [animateShow, setAnimateShow] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -16,17 +17,23 @@ export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }) 
             setAnimateShow(false);
             const timer = setTimeout(() => {
                 setShouldRender(false);
+                setIsProcessing(false); // Reset processing state when closed
             }, 300);
             return () => clearTimeout(timer);
         }
     }, [isOpen]);
+
+    const handleConfirm = () => {
+        setIsProcessing(true);
+        onConfirm();
+    };
 
     if (!shouldRender) return null;
 
     return (
         <div 
             className={`logout-modal-overlay ${animateShow ? 'show' : ''}`}
-            onClick={onClose}
+            onClick={isProcessing ? null : onClose}
         >
             <style>{`
                 .logout-modal-overlay {
@@ -145,15 +152,25 @@ export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }) 
                     cursor: pointer;
                     box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
                     transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
                 }
                 
-                .btn-logout-confirm:hover {
+                .btn-logout-confirm:hover:not(:disabled) {
                     transform: translateY(-1px);
                     box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
                 }
                 
-                .btn-logout-confirm:active {
+                .btn-logout-confirm:active:not(:disabled) {
                     transform: translateY(1px);
+                }
+
+                .btn-logout-confirm:disabled {
+                    opacity: 0.8;
+                    cursor: not-allowed;
+                    background: #f87171;
                 }
                 
                 .btn-logout-cancel {
@@ -170,14 +187,34 @@ export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }) 
                     transition: background 0.2s, border-color 0.2s, transform 0.2s;
                 }
                 
-                .btn-logout-cancel:hover {
+                .btn-logout-cancel:hover:not(:disabled) {
                     background: rgba(255, 255, 255, 0.06);
                     border-color: rgba(255, 255, 255, 0.15);
                     transform: translateY(-1px);
                 }
                 
-                .btn-logout-cancel:active {
+                .btn-logout-cancel:active:not(:disabled) {
                     transform: translateY(1px);
+                }
+
+                .btn-logout-cancel:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                .btn-spinner {
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid rgba(10, 14, 26, 0.25);
+                    border-top: 2px solid #0a0e1a;
+                    border-radius: 50%;
+                    animation: btn-spin 0.8s linear infinite;
+                    display: inline-block;
+                }
+
+                @keyframes btn-spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
                 }
             `}</style>
             
@@ -204,13 +241,22 @@ export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }) 
                 <div className="logout-modal-buttons">
                     <button 
                         className="btn-logout-confirm" 
-                        onClick={onConfirm}
+                        onClick={handleConfirm}
+                        disabled={isProcessing}
                     >
-                        Ya, keluar!
+                        {isProcessing ? (
+                            <>
+                                <span className="btn-spinner"></span>
+                                Sedang proses...
+                            </>
+                        ) : (
+                            'Ya, keluar!'
+                        )}
                     </button>
                     <button 
                         className="btn-logout-cancel" 
                         onClick={onClose}
+                        disabled={isProcessing}
                     >
                         Batal
                     </button>
