@@ -137,15 +137,9 @@ export default function Index({ title, subtitle, parentCategories }) {
         if (typeof AOS !== 'undefined') AOS.init({ duration: 800, once: true });
     }, []);
 
-    // ── Breadcrumbs ─────────────────────────────────────────────────
-    const breadcrumbs = useMemo(() => [
-        { label: 'Dashboard', href: route('dashboard'), icon: <LayoutDashboard size={13} /> },
-        { label: 'Master' },
-        { label: 'Categories', icon: <FolderTree size={13} /> },
-    ], []);
-
+    // ── Render ────────────────────────────────────────────────────
     return (
-        <AuthenticatedLayout breadcrumbs={breadcrumbs}>
+        <AuthenticatedLayout>
             <style>{`
                 /* ── Action button styles ── */
                 .act-btn {
