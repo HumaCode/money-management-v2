@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import LogoutConfirmationModal from '../Components/LogoutConfirmationModal';
-import ThemeToggleFAB from '../Components/ThemeToggleFAB';
 import { 
     LayoutDashboard, 
     FolderTree, 
@@ -19,7 +18,9 @@ import {
     Settings, 
     LogOut,
     Menu,
-    ChevronDown
+    ChevronDown,
+    Sun,
+    Moon
 } from 'lucide-react';
 
 export default function AuthenticatedLayout({ children }) {
@@ -27,6 +28,29 @@ export default function AuthenticatedLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [theme, setTheme] = useState('dark');
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.remove('light');
+        }
+    }, []);
+
+    const toggleTheme = () => {
+        const nextTheme = theme === 'dark' ? 'light' : 'dark';
+        setTheme(nextTheme);
+        localStorage.setItem('theme', nextTheme);
+        
+        if (nextTheme === 'light') {
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.remove('light');
+        }
+    };
 
     // Calculate user initials
     const getInitials = (name) => {
@@ -187,7 +211,67 @@ export default function AuthenticatedLayout({ children }) {
                             <Menu size={20} />
                         </button>
                     </div>
-                    <div className="header-right">
+                    <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        {/* Topbar Theme Toggle Button */}
+                        <button 
+                            onClick={toggleTheme} 
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'var(--text-secondary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '8px',
+                                borderRadius: '50%',
+                                transition: 'background-color 0.2s, color 0.2s',
+                                width: '38px',
+                                height: '38px'
+                            }}
+                            className="header-theme-toggle"
+                            title="Toggle Theme"
+                        >
+                            <style>{`
+                                .header-theme-toggle:hover {
+                                    background: var(--bg-input-focus);
+                                    color: var(--accent);
+                                }
+                                .header-theme-icon-wrapper {
+                                    position: relative;
+                                    width: 20px;
+                                    height: 20px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+                                }
+                                .header-theme-toggle:hover .header-theme-icon-wrapper {
+                                    transform: rotate(45deg);
+                                }
+                                .header-theme-icon {
+                                    position: absolute;
+                                    transition: transform 0.5s ease, opacity 0.5s ease;
+                                    width: 20px;
+                                    height: 20px;
+                                    stroke-width: 2;
+                                }
+                                .header-theme-icon.hide {
+                                    transform: scale(0) rotate(-90deg);
+                                    opacity: 0;
+                                    pointer-events: none;
+                                }
+                                .header-theme-icon.show {
+                                    transform: scale(1) rotate(0deg);
+                                    opacity: 1;
+                                }
+                            `}</style>
+                            <div className="header-theme-icon-wrapper">
+                                <Sun className={`header-theme-icon ${theme === 'light' ? 'show' : 'hide'}`} />
+                                <Moon className={`header-theme-icon ${theme === 'dark' ? 'show' : 'hide'}`} />
+                            </div>
+                        </button>
+
                         <div 
                             className={`header-user ${isDropdownOpen ? 'active' : ''}`}
                             id="headerUser" 
@@ -230,9 +314,6 @@ export default function AuthenticatedLayout({ children }) {
                 onClose={() => setIsLogoutModalOpen(false)}
                 onConfirm={handleConfirmLogout}
             />
-
-            {/* Global Theme Toggle Floating Action Button */}
-            <ThemeToggleFAB />
         </div>
     );
 }
