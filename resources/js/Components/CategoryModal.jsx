@@ -177,7 +177,7 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                 }
                 .cm-color-swatch {
                     flex-shrink: 0;
-                    width: 40px;
+                    width: 40px !important;
                     height: 40px;
                     border-radius: 9px !important;
                     padding: 0 !important;
@@ -216,6 +216,7 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                 isOpen={isOpen}
                 onClose={onClose}
                 title={titleMap[mode]}
+                size="xl"
                 footer={footer}
             >
                 {isReadOnly ? (
