@@ -197,7 +197,7 @@ export default function AuthenticatedLayout({ children }) {
                     </div>
                     <div className="header-right">
                         <div 
-                            className="header-user" 
+                            className={`header-user ${isDropdownOpen ? 'active' : ''}`}
                             id="headerUser" 
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                             style={{ position: 'relative' }}
@@ -207,23 +207,21 @@ export default function AuthenticatedLayout({ children }) {
                             <ChevronDown size={16} />
 
                             {/* User Dropdown */}
-                            {isDropdownOpen && (
-                                <div className="user-dropdown active" id="userDropdown" style={{ display: 'block' }}>
-                                    <a href="#" className="dropdown-item">
-                                        <User size={16} style={{ marginRight: '8px' }} />
-                                        Profile
-                                    </a>
-                                    <a href="#" className="dropdown-item">
-                                        <Settings size={16} style={{ marginRight: '8px' }} />
-                                        Settings
-                                    </a>
-                                    <div className="dropdown-divider"></div>
-                                    <a href="#" className="dropdown-item danger" onClick={handleLogout}>
-                                        <LogOut size={16} style={{ marginRight: '8px' }} />
-                                        Logout
-                                    </a>
-                                </div>
-                            )}
+                            <div className={`user-dropdown ${isDropdownOpen ? 'show' : ''}`} id="userDropdown">
+                                <a href="#" className="dropdown-item">
+                                    <User size={16} style={{ marginRight: '8px' }} />
+                                    Profile
+                                </a>
+                                <a href="#" className="dropdown-item">
+                                    <Settings size={16} style={{ marginRight: '8px' }} />
+                                    Settings
+                                </a>
+                                <div className="dropdown-divider"></div>
+                                <a href="#" className="dropdown-item danger" onClick={handleLogout}>
+                                    <LogOut size={16} style={{ marginRight: '8px' }} />
+                                    Logout
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </header>
