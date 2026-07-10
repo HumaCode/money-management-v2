@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import LogoutConfirmationModal from '../Components/LogoutConfirmationModal';
+import ThemeToggleFAB from '../Components/ThemeToggleFAB';
 import { 
     LayoutDashboard, 
     FolderTree, 
@@ -229,6 +230,9 @@ export default function AuthenticatedLayout({ children }) {
                 onClose={() => setIsLogoutModalOpen(false)}
                 onConfirm={handleConfirmLogout}
             />
+
+            {/* Global Theme Toggle Floating Action Button */}
+            <ThemeToggleFAB />
         </div>
     );
 }

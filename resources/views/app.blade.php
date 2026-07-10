@@ -31,6 +31,74 @@
             --sidebar-width: 260px;
             --header-height: 70px;
         }
+
+        html.light {
+            --bg-deep: #f3f4f6;
+            --bg-card: #ffffff;
+            --bg-card-border: rgba(0, 0, 0, 0.08);
+            --bg-input: rgba(0, 0, 0, 0.03);
+            --bg-input-focus: rgba(0, 0, 0, 0.05);
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --text-placeholder: #9ca3af;
+            --accent: #059669;
+            --accent-dim: rgba(5, 150, 105, 0.08);
+            --accent-glow: rgba(5, 150, 105, 0.15);
+        }
+
+        /* Specific overrides for light theme on login page & layout */
+        html.light body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        html.light .grid-overlay {
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+        }
+        html.light .panel-brand {
+            background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+        html.light .panel-brand::before,
+        html.light .panel-brand::after {
+            border-color: rgba(5, 150, 105, 0.08);
+        }
+        html.light .sidebar {
+            background: #ffffff;
+            border-right: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        html.light .sidebar-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        html.light .header {
+            background: #ffffff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        html.light .user-dropdown {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+        html.light .dropdown-item {
+            color: #4b5563;
+        }
+        html.light .dropdown-item:hover {
+            background: rgba(0, 0, 0, 0.03);
+            color: #1f2937;
+        }
+        html.light .card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        html.light .btn-logout-cancel {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #1f2937;
+        }
+        html.light .btn-logout-cancel:hover {
+            background: rgba(0, 0, 0, 0.06);
+            border-color: rgba(0, 0, 0, 0.15);
+        }
     </style>
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/toast.css">
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/custom-css.css">

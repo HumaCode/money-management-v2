@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import axios from 'axios';
 import '../../../../public/assets/auth/css/styles.css';
+import ThemeToggleFAB from '../../Components/ThemeToggleFAB';
 
 export default function Login() {
     const [identity, setIdentity] = useState('');
@@ -298,6 +299,7 @@ export default function Login() {
                     )}
                 </div>
             </div>
+            <ThemeToggleFAB />
         </>
     );
 }
