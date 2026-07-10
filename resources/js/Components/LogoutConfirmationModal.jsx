@@ -1,108 +1,216 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 
 export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }) {
-    if (!isOpen) return null;
+    const [shouldRender, setShouldRender] = useState(isOpen);
+    const [animateShow, setAnimateShow] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setShouldRender(true);
+            const timer = setTimeout(() => {
+                setAnimateShow(true);
+            }, 10);
+            return () => clearTimeout(timer);
+        } else {
+            setAnimateShow(false);
+            const timer = setTimeout(() => {
+                setShouldRender(false);
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
+
+    if (!shouldRender) return null;
 
     return (
         <div 
-            className="modal-overlay show" 
-            style={{ 
-                zIndex: 9999, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                background: 'rgba(0, 0, 0, 0.7)' 
-            }}
+            className={`logout-modal-overlay ${animateShow ? 'show' : ''}`}
             onClick={onClose}
         >
+            <style>{`
+                .logout-modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(8, 10, 18, 0.6);
+                    backdrop-filter: blur(0px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9999;
+                    opacity: 0;
+                    transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+                }
+                
+                .logout-modal-overlay.show {
+                    opacity: 1;
+                    backdrop-filter: blur(12px);
+                }
+                
+                .logout-modal-card {
+                    background: rgba(17, 24, 39, 0.85);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 24px;
+                    width: 90%;
+                    max-width: 400px;
+                    padding: 36px 28px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                                0 0 40px rgba(125, 211, 168, 0.03);
+                    transform: scale(0.9) translateY(20px);
+                    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+                
+                .logout-modal-overlay.show .logout-modal-card {
+                    transform: scale(1) translateY(0);
+                }
+                
+                .logout-icon-container {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    background: rgba(245, 158, 11, 0.12);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 24px;
+                    position: relative;
+                    animation: pulseWarning 2s infinite ease-in-out;
+                }
+                
+                .logout-icon-container svg {
+                    color: #f59e0b;
+                    animation: wobbleWarning 2.5s infinite ease-in-out;
+                }
+                
+                @keyframes pulseWarning {
+                    0% {
+                        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.25);
+                        transform: scale(1);
+                    }
+                    50% {
+                        box-shadow: 0 0 0 12px rgba(245, 158, 11, 0);
+                        transform: scale(1.04);
+                    }
+                    100% {
+                        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+                        transform: scale(1);
+                    }
+                }
+                
+                @keyframes wobbleWarning {
+                    0%, 100% { transform: rotate(0deg); }
+                    10% { transform: rotate(-10deg); }
+                    20% { transform: rotate(12deg); }
+                    30% { transform: rotate(-8deg); }
+                    40% { transform: rotate(6deg); }
+                    50% { transform: rotate(0deg); }
+                }
+                
+                .logout-modal-title {
+                    font-family: 'Cormorant Garamond', serif;
+                    font-size: 28px;
+                    font-weight: 500;
+                    color: #f0f2f5;
+                    margin-bottom: 12px;
+                    letter-spacing: -0.3px;
+                }
+                
+                .logout-modal-text {
+                    font-size: 14px;
+                    color: #94a3b8;
+                    margin-bottom: 32px;
+                    line-height: 1.5;
+                }
+                
+                .logout-modal-buttons {
+                    display: flex;
+                    gap: 12px;
+                    width: 100%;
+                }
+                
+                .btn-logout-confirm {
+                    flex: 1;
+                    padding: 14px;
+                    background: linear-gradient(135deg, #ef4444, #f87171);
+                    color: #0a0e1a;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 14px;
+                    font-weight: 600;
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+                    transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+                }
+                
+                .btn-logout-confirm:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+                }
+                
+                .btn-logout-confirm:active {
+                    transform: translateY(1px);
+                }
+                
+                .btn-logout-cancel {
+                    flex: 1;
+                    padding: 14px;
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    color: #f0f2f5;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 14px;
+                    font-weight: 500;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+                }
+                
+                .btn-logout-cancel:hover {
+                    background: rgba(255, 255, 255, 0.06);
+                    border-color: rgba(255, 255, 255, 0.15);
+                    transform: translateY(-1px);
+                }
+                
+                .btn-logout-cancel:active {
+                    transform: translateY(1px);
+                }
+            `}</style>
+            
             <div 
-                className="modal" 
-                style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    textAlign: 'center',
-                    padding: '32px 24px',
-                    maxWidth: '400px',
-                    width: '90%',
-                    borderRadius: '16px',
-                    transform: 'scale(1)',
-                    transition: 'transform 0.3s',
-                    background: 'var(--bg-card)',
-                    border: '1px solid var(--bg-card-border)'
-                }}
+                className="logout-modal-card"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Warning Icon */}
-                <div 
-                    style={{ 
-                        width: '80px', 
-                        height: '80px', 
-                        borderRadius: '50%', 
-                        background: 'rgba(245, 158, 11, 0.12)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        marginBottom: '20px'
-                    }}
-                >
-                    <AlertCircle 
-                        size={40} 
-                        style={{ color: '#f59e0b' }} 
-                    />
+                {/* Motion Warning Icon */}
+                <div className="logout-icon-container">
+                    <AlertCircle size={38} strokeWidth={2.2} />
                 </div>
 
-                {/* Title */}
-                <h3 
-                    style={{ 
-                        fontFamily: '"Cormorant Garamond", serif', 
-                        fontSize: '26px', 
-                        fontWeight: '500', 
-                        color: 'var(--text-primary)',
-                        marginBottom: '10px'
-                    }}
-                >
+                {/* Animated Title */}
+                <h3 className="logout-modal-title">
                     Apakah Anda yakin?
                 </h3>
 
                 {/* Body Message */}
-                <div className="modal-body" style={{ marginBottom: '24px' }}>
-                    <p style={{ fontSize: '15px', color: '#94a3b8', margin: 0 }}>
-                        Anda akan keluar dari aplikasi!
-                    </p>
-                </div>
+                <p className="logout-modal-text">
+                    Anda akan keluar dari aplikasi!
+                </p>
 
                 {/* Footer Buttons */}
-                <div className="modal-footer" style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                <div className="logout-modal-buttons">
                     <button 
-                        className="btn btn-danger" 
+                        className="btn-logout-confirm" 
                         onClick={onConfirm}
-                        style={{ 
-                            flex: 1, 
-                            padding: '12px', 
-                            background: '#f87171', 
-                            color: '#0a0e1a', 
-                            fontWeight: '600', 
-                            border: 'none', 
-                            borderRadius: '10px',
-                            cursor: 'pointer'
-                        }}
                     >
                         Ya, keluar!
                     </button>
                     <button 
-                        className="btn btn-secondary" 
+                        className="btn-logout-cancel" 
                         onClick={onClose}
-                        style={{ 
-                            flex: 1, 
-                            padding: '12px', 
-                            background: '#1f2937', 
-                            color: '#f0f2f5', 
-                            border: '1px solid var(--bg-card-border)', 
-                            borderRadius: '10px',
-                            cursor: 'pointer'
-                        }}
                     >
                         Batal
                     </button>
