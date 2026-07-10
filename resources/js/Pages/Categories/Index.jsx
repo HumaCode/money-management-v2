@@ -35,7 +35,6 @@ export default function Index({ title, subtitle, parentCategories }) {
 
     // ── Fetch ────────────────────────────────────────────────────
     const fetchCategories = useCallback(async () => {
-        if (isLoading) return;
         setIsLoading(true);
         try {
             const response = await axios.get(route('category.allPagination'), {
@@ -63,7 +62,9 @@ export default function Index({ title, subtitle, parentCategories }) {
         }
     }, [filters]);
 
-    useEffect(() => { fetchCategories(); }, [filters.status, filters.type, filters.perPage, filters.page]);
+    useEffect(() => {
+        fetchCategories();
+    }, [filters.status, filters.type, filters.perPage, filters.page, filters.search]);
 
     // Debounced search
     useEffect(() => {
@@ -89,6 +90,20 @@ export default function Index({ title, subtitle, parentCategories }) {
     const handleOpenEdit   = (cat) => { setSelectedCategory(cat); setModalMode('edit');   setIsModalOpen(true); };
     const handleOpenShow   = (cat) => { setSelectedCategory(cat); setModalMode('show');   setIsModalOpen(true); };
 
+    const handleCategorySaved = () => {
+        if (modalMode === 'create') {
+            setSearchTerm('');
+            setFilters(prev => ({
+                ...prev,
+                search: '',
+                status: 'all',
+                type: 'all',
+                page: 1
+            }));
+        }
+        fetchCategories();
+    };
+
     const triggerDelete = (cat) => { setCategoryToDelete(cat); setIsDeleteOpen(true); };
     const closeDelete   = () => { if (isDeleting) return; setIsDeleteOpen(false); setCategoryToDelete(null); };
 
@@ -99,7 +114,11 @@ export default function Index({ title, subtitle, parentCategories }) {
             const response = await axios.delete(route('category.destroy', { category: categoryToDelete.id }));
             if (response.data.success) {
                 showToast('Category deleted successfully!', 'success');
-                fetchCategories();
+                if (categories.length === 1 && filters.page > 1) {
+                    setFilters(prev => ({ ...prev, page: prev.page - 1 }));
+                } else {
+                    fetchCategories();
+                }
                 closeDelete();
             } else {
                 showToast(response.data.message || 'Failed to delete category', 'error');
@@ -416,7 +435,7 @@ export default function Index({ title, subtitle, parentCategories }) {
                 data={selectedCategory}
                 parentCategories={parentCategories}
                 onClose={() => setIsModalOpen(false)}
-                onSave={fetchCategories}
+                onSave={handleCategorySaved}
                 onShowToast={showToast}
             />
 
