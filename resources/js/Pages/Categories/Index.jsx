@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import CategoryModal from '../../Components/CategoryModal';
 import ConfirmModal from '../../Components/ConfirmModal';
+import EmptyState from '../../Components/EmptyState';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
 import axios from 'axios';
 import { Eye, Edit, Trash2, Search, RotateCcw, Plus, LayoutDashboard, FolderTree } from 'lucide-react';
@@ -343,12 +344,10 @@ export default function Index({ title, subtitle, parentCategories }) {
                             ) : categories.length === 0 ? (
                                 <tr>
                                     <td colSpan="6">
-                                        <div style={{ padding: '48px 0', textAlign: 'center' }}>
-                                            <div style={{ fontSize: 32, marginBottom: 12 }}>📂</div>
-                                            <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
-                                                No categories found matching your filters.
-                                            </div>
-                                        </div>
+                                        <EmptyState 
+                                            message="No categories found matching your filters."
+                                            icon="FolderOpen"
+                                        />
                                     </td>
                                 </tr>
                             ) : (
