@@ -32,15 +32,35 @@
             --header-height: 70px;
         }
 
+        /* Autofill Styling Fix for both Dark & Light themes */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-text-fill-color: var(--text-primary) !important;
+            -webkit-box-shadow: 0 0 0 1000px var(--bg-card) inset !important;
+            box-shadow: 0 0 0 1000px var(--bg-card) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        html.light input:-webkit-autofill,
+        html.light input:-webkit-autofill:hover, 
+        html.light input:-webkit-autofill:focus,
+        html.light input:-webkit-autofill:active {
+            -webkit-text-fill-color: #1f2937 !important;
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+            box-shadow: 0 0 0 1000px #ffffff inset !important;
+        }
+
         html.light {
             --bg-deep: #f3f4f6;
             --bg-card: #ffffff;
-            --bg-card-border: rgba(0, 0, 0, 0.08);
-            --bg-input: rgba(0, 0, 0, 0.03);
-            --bg-input-focus: rgba(0, 0, 0, 0.05);
+            --bg-card-border: #d1d5db;
+            --bg-input: #f9fafb;
+            --bg-input-focus: #ffffff;
             --text-primary: #1f2937;
-            --text-secondary: #4b5563;
-            --text-placeholder: #9ca3af;
+            --text-secondary: #374151;
+            --text-placeholder: #6b7280;
             --accent: #059669;
             --accent-dim: rgba(5, 150, 105, 0.08);
             --accent-glow: rgba(5, 150, 105, 0.15);
@@ -61,7 +81,51 @@
         }
         html.light .panel-brand::before,
         html.light .panel-brand::after {
-            border-color: rgba(5, 150, 105, 0.08);
+            border-color: rgba(5, 150, 105, 0.12);
+        }
+        html.light .brand-tagline p {
+            color: #374151;
+            font-weight: 400;
+        }
+        html.light .feature-text p {
+            color: #4b5563;
+            font-weight: 400;
+        }
+        html.light .form-header p {
+            color: #4b5563;
+        }
+        html.light .form-group label {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        html.light .input-wrapper input {
+            border: 1px solid #c8d2df;
+            font-weight: 400;
+        }
+        html.light .input-wrapper input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+        }
+        html.light .toggle-password:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        html.light .remember-me span {
+            color: #374151;
+            font-weight: 400;
+        }
+        html.light .remember-me input[type="checkbox"] {
+            border: 1px solid #c8d2df;
+        }
+        html.light .forgot-link {
+            color: var(--accent);
+            font-weight: 500;
+        }
+        html.light .signup-link {
+            color: #374151;
+        }
+        html.light .signup-link a {
+            color: var(--accent);
+            font-weight: 500;
         }
         html.light .sidebar {
             background: #ffffff;
