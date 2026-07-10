@@ -1,6 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BaseModal from './BaseModal';
 import axios from 'axios';
+
+const POPULAR_EMOJIS = [
+    // Finance/Business
+    '💰', '💵', '💳', '🪙', '💸', '📈', '📉', '📊', '🏦', '💎',
+    // Food/Drink
+    '🍔', '🍕', '🍜', '🍣', '☕', '🥤', '🍰', '🍎', '🥦', '🍻',
+    // Shopping/Lifestyle
+    '🛍️', '🛒', '👕', '👠', '💄', '🎁', '🧸', '💐', '🏠', '🔑',
+    // Transport & Travel
+    '🚗', '🛵', '🚲', '🚌', '✈️', '🚂', '⛽', '🏨', '🗺️', '🧳',
+    // Bills & Utilities
+    '🔌', '💧', '📶', '📱', '✉️', '📦', '🏢', '🛠️', '🧹', '📅',
+    // Entertainment & Health
+    '🎮', '🎬', '🎤', '🎧', '⚽', '🏋️', '🎫', '🎰', '🎨', '📚',
+    // Medical & Other
+    '💊', '🩺', '🏥', '🦷', '🧴', '💆', '🥗', '💼', '🎓', '👶',
+    // Animals & Emotions
+    '🐾', '⚡', '🍀', '⚙️', '🔒', '❤️', '🌟', '🔔', '🔥', '✨'
+];
 
 export default function CategoryModal({ isOpen, mode, data, parentCategories, onClose, onSave, onShowToast }) {
     const [formData, setFormData] = useState({
@@ -15,6 +34,19 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
 
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const emojiPickerRef = useRef(null);
+
+    // Close emoji picker on click outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+                setShowEmojiPicker(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     // Reset / populate form when modal opens
     useEffect(() => {
@@ -191,6 +223,81 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                     letter-spacing: 0.04em;
                 }
 
+                /* Emoji picker */
+                .cm-emoji-picker-container {
+                    position: relative;
+                    width: 100%;
+                }
+                .cm-emoji-trigger {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    background: var(--bg-input);
+                    border: 1px solid var(--bg-card-border);
+                    border-radius: 10px;
+                    padding: 10px 14px;
+                    cursor: pointer;
+                    user-select: none;
+                    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+                }
+                .cm-emoji-trigger:hover {
+                    border-color: var(--accent);
+                    background: var(--bg-input-focus);
+                }
+                .cm-emoji-display {
+                    font-size: 22px;
+                    line-height: 1;
+                }
+                .cm-emoji-label {
+                    font-size: 13.5px;
+                    color: var(--text-secondary);
+                }
+                .cm-emoji-dropdown {
+                    position: absolute;
+                    top: calc(100% + 8px);
+                    left: 0;
+                    right: 0;
+                    background: var(--bg-card);
+                    border: 1px solid var(--bg-card-border);
+                    border-radius: 14px;
+                    box-shadow: 
+                        0 0 0 1px rgba(255,255,255,0.04) inset,
+                        0 20px 40px rgba(0, 0, 0, 0.45);
+                    padding: 14px;
+                    z-index: 1050;
+                    display: grid;
+                    grid-template-columns: repeat(8, 1fr);
+                    gap: 8px;
+                    max-height: 220px;
+                    overflow-y: auto;
+                    backdrop-filter: blur(16px);
+                }
+                .cm-emoji-dropdown::-webkit-scrollbar {
+                    width: 5px;
+                }
+                .cm-emoji-dropdown::-webkit-scrollbar-thumb {
+                    background: var(--bg-card-border);
+                    border-radius: 3px;
+                }
+                .cm-emoji-option {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 22px;
+                    aspect-ratio: 1;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: background 0.15s, transform 0.1s;
+                }
+                .cm-emoji-option:hover {
+                    background: var(--bg-input-focus);
+                    transform: scale(1.18);
+                }
+                .cm-emoji-option.selected {
+                    background: var(--accent-dim);
+                    border: 1px solid var(--accent);
+                }
+
                 /* Show / detail table */
                 .cm-detail-table { width: 100%; border-collapse: collapse; }
                 .cm-detail-table th, .cm-detail-table td {
@@ -317,12 +424,35 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
 
                         {/* Icon + Color */}
                         <div className="cm-row">
-                            <div className="cm-group">
+                            <div className="cm-group" ref={emojiPickerRef}>
                                 <label htmlFor="icon">Icon Emoji</label>
-                                <input id="icon" name="icon" type="text"
-                                    value={formData.icon} onChange={handleChange}
-                                    placeholder="🍔" maxLength="10" disabled={isSubmitting}
-                                />
+                                <div className="cm-emoji-picker-container">
+                                    <div 
+                                        className="cm-emoji-trigger" 
+                                        onClick={() => !isSubmitting && setShowEmojiPicker(!showEmojiPicker)}
+                                    >
+                                        <span className="cm-emoji-display">{formData.icon || '🍔'}</span>
+                                        <span className="cm-emoji-label">Click to select emoji</span>
+                                    </div>
+                                    
+                                    {showEmojiPicker && (
+                                        <div className="cm-emoji-dropdown">
+                                            {POPULAR_EMOJIS.map(emoji => (
+                                                <div 
+                                                    key={emoji}
+                                                    className={`cm-emoji-option ${formData.icon === emoji ? 'selected' : ''}`}
+                                                    onClick={() => {
+                                                        setFormData(prev => ({ ...prev, icon: emoji }));
+                                                        setShowEmojiPicker(false);
+                                                        if (errors.icon) setErrors(prev => ({ ...prev, icon: null }));
+                                                    }}
+                                                >
+                                                    {emoji}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                                 {errors.icon && <span className="cm-field-error">{errors.icon[0]}</span>}
                             </div>
                             <div className="cm-group">
