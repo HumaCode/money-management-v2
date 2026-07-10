@@ -30,7 +30,7 @@ class CategoryController extends Controller
         return Inertia::render('Categories/Index', [
             'title'             => $this->title,
             'subtitle'          => $this->subtitle,
-            'parentCategories'  => CategoryResource::collection($this->categoryService->getCategoriesWithoutParentId()),
+            'parentCategories'  => CategoryResource::collection($this->categoryService->getCategoriesWithoutParentId())->resolve(request()),
         ]);
     }
 

@@ -89,8 +89,13 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
         }
     };
 
-    // Parent categories filtered to match the selected type (avoid circular parent)
-    const filteredParents = (parentCategories || []).filter(
+    // Normalize parentCategories — handles plain array or {data:[]} from ResourceCollection
+    const parentCatArray = Array.isArray(parentCategories)
+        ? parentCategories
+        : (parentCategories?.data ?? []);
+
+    // Filter to match selected type and exclude self (prevent circular parent)
+    const filteredParents = parentCatArray.filter(
         cat => cat.type === formData.type && (!data || cat.id !== data.id)
     );
 
