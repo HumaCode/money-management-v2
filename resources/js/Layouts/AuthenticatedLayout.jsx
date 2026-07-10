@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import LogoutConfirmationModal from '../Components/LogoutConfirmationModal';
+import Breadcrumb from '../Components/Breadcrumb';
 import { 
     LayoutDashboard, 
     FolderTree, 
@@ -23,7 +24,7 @@ import {
     Moon
 } from 'lucide-react';
 
-export default function AuthenticatedLayout({ children }) {
+export default function AuthenticatedLayout({ children, breadcrumbs }) {
     const { auth } = usePage().props;
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -304,6 +305,10 @@ export default function AuthenticatedLayout({ children }) {
 
                 {/* Content */}
                 <main className="content">
+                    {/* Breadcrumb — rendered when page passes breadcrumbs prop */}
+                    {breadcrumbs && breadcrumbs.length > 0 && (
+                        <Breadcrumb items={breadcrumbs} />
+                    )}
                     {children}
                 </main>
             </div>

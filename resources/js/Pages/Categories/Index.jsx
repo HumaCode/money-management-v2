@@ -4,7 +4,7 @@ import CategoryModal from '../../Components/CategoryModal';
 import ConfirmModal from '../../Components/ConfirmModal';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
 import axios from 'axios';
-import { Eye, Edit, Trash2, Search, RotateCcw, Plus } from 'lucide-react';
+import { Eye, Edit, Trash2, Search, RotateCcw, Plus, LayoutDashboard, FolderTree } from 'lucide-react';
 
 export default function Index({ title, subtitle, parentCategories }) {
     // ── Data state ──────────────────────────────────────────────
@@ -138,8 +138,14 @@ export default function Index({ title, subtitle, parentCategories }) {
     }, []);
 
     // ── Render ────────────────────────────────────────────────────
+    const breadcrumbs = [
+        { label: 'Dashboard', href: route('dashboard'), icon: <LayoutDashboard size={13} /> },
+        { label: 'Master' },
+        { label: 'Categories', icon: <FolderTree size={13} /> },
+    ];
+
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout breadcrumbs={breadcrumbs}>
             <style>{`
                 /* ── Action button styles ── */
                 .act-btn {
