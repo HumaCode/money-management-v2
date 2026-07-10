@@ -224,10 +224,6 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                 }
 
                 /* Emoji picker */
-                .cm-emoji-picker-container {
-                    position: relative;
-                    width: 100%;
-                }
                 .cm-emoji-trigger {
                     display: flex;
                     align-items: center;
@@ -238,7 +234,7 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                     padding: 10px 14px;
                     cursor: pointer;
                     user-select: none;
-                    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+                    transition: border-color 0.2s, background 0.2s;
                 }
                 .cm-emoji-trigger:hover {
                     border-color: var(--accent);
@@ -249,35 +245,59 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                     line-height: 1;
                 }
                 .cm-emoji-label {
-                    font-size: 13.5px;
+                    font-size: 13px;
                     color: var(--text-secondary);
                 }
-                .cm-emoji-dropdown {
-                    position: absolute;
-                    top: calc(100% + 8px);
-                    left: 0;
-                    right: 0;
-                    background: var(--bg-card);
+                .cm-emoji-inline-picker {
+                    grid-column: span 2;
+                    background: rgba(255, 255, 255, 0.015);
                     border: 1px solid var(--bg-card-border);
                     border-radius: 14px;
-                    box-shadow: 
-                        0 0 0 1px rgba(255,255,255,0.04) inset,
-                        0 20px 40px rgba(0, 0, 0, 0.45);
                     padding: 14px;
-                    z-index: 1050;
+                    margin-top: 2px;
+                    animation: cm-fade-in 0.2s ease-out;
+                }
+                @keyframes cm-fade-in {
+                    from { opacity: 0; transform: translateY(-6px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .cm-emoji-inline-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 10px;
+                    font-size: 11.5px;
+                    font-weight: 600;
+                    color: var(--text-secondary);
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+                .cm-emoji-inline-header button {
+                    background: none;
+                    border: none;
+                    color: var(--text-secondary);
+                    font-size: 18px;
+                    cursor: pointer;
+                    line-height: 1;
+                    padding: 0 4px;
+                }
+                .cm-emoji-inline-header button:hover {
+                    color: var(--text-primary);
+                }
+                .cm-emoji-inline-grid {
                     display: grid;
-                    grid-template-columns: repeat(8, 1fr);
-                    gap: 8px;
-                    max-height: 220px;
+                    grid-template-columns: repeat(10, 1fr);
+                    gap: 6px;
+                    max-height: 160px;
                     overflow-y: auto;
-                    backdrop-filter: blur(16px);
+                    padding-right: 4px;
                 }
-                .cm-emoji-dropdown::-webkit-scrollbar {
-                    width: 5px;
+                .cm-emoji-inline-grid::-webkit-scrollbar {
+                    width: 4px;
                 }
-                .cm-emoji-dropdown::-webkit-scrollbar-thumb {
+                .cm-emoji-inline-grid::-webkit-scrollbar-thumb {
                     background: var(--bg-card-border);
-                    border-radius: 3px;
+                    border-radius: 2px;
                 }
                 .cm-emoji-option {
                     display: flex;
@@ -291,7 +311,7 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                 }
                 .cm-emoji-option:hover {
                     background: var(--bg-input-focus);
-                    transform: scale(1.18);
+                    transform: scale(1.15);
                 }
                 .cm-emoji-option.selected {
                     background: var(--accent-dim);
@@ -423,10 +443,10 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                         </div>
 
                         {/* Icon + Color */}
-                        <div className="cm-row">
-                            <div className="cm-group" ref={emojiPickerRef}>
-                                <label htmlFor="icon">Icon Emoji</label>
-                                <div className="cm-emoji-picker-container">
+                        <div ref={emojiPickerRef}>
+                            <div className="cm-row">
+                                <div className="cm-group">
+                                    <label htmlFor="icon">Icon Emoji</label>
                                     <div 
                                         className="cm-emoji-trigger" 
                                         onClick={() => !isSubmitting && setShowEmojiPicker(!showEmojiPicker)}
@@ -434,41 +454,47 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                                         <span className="cm-emoji-display">{formData.icon || '🍔'}</span>
                                         <span className="cm-emoji-label">Click to select emoji</span>
                                     </div>
-                                    
-                                    {showEmojiPicker && (
-                                        <div className="cm-emoji-dropdown">
-                                            {POPULAR_EMOJIS.map(emoji => (
-                                                <div 
-                                                    key={emoji}
-                                                    className={`cm-emoji-option ${formData.icon === emoji ? 'selected' : ''}`}
-                                                    onClick={() => {
-                                                        setFormData(prev => ({ ...prev, icon: emoji }));
-                                                        setShowEmojiPicker(false);
-                                                        if (errors.icon) setErrors(prev => ({ ...prev, icon: null }));
-                                                    }}
-                                                >
-                                                    {emoji}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                    {errors.icon && <span className="cm-field-error">{errors.icon[0]}</span>}
                                 </div>
-                                {errors.icon && <span className="cm-field-error">{errors.icon[0]}</span>}
-                            </div>
-                            <div className="cm-group">
-                                <label htmlFor="color">Color Theme</label>
-                                <div className="cm-color-row">
-                                    <input type="color" className="cm-color-swatch"
-                                        id="color" value={formData.color}
-                                        onChange={(e) => setFormData(p => ({ ...p, color: e.target.value }))}
-                                        disabled={isSubmitting}
-                                    />
-                                    <input type="text" className="cm-color-hex"
-                                        value={formData.color} readOnly
-                                    />
+                                <div className="cm-group">
+                                    <label htmlFor="color">Color Theme</label>
+                                    <div className="cm-color-row">
+                                        <input type="color" className="cm-color-swatch"
+                                            id="color" value={formData.color}
+                                            onChange={(e) => setFormData(p => ({ ...p, color: e.target.value }))}
+                                            disabled={isSubmitting}
+                                        />
+                                        <input type="text" className="cm-color-hex"
+                                            value={formData.color} readOnly
+                                        />
+                                    </div>
+                                    {errors.color && <span className="cm-field-error">{errors.color[0]}</span>}
                                 </div>
-                                {errors.color && <span className="cm-field-error">{errors.color[0]}</span>}
                             </div>
+
+                            {/* Inline Emoji Picker Grid */}
+                            {showEmojiPicker && (
+                                <div className="cm-emoji-inline-picker">
+                                    <div className="cm-emoji-inline-header">
+                                        <span>Select Category Icon</span>
+                                        <button type="button" onClick={() => setShowEmojiPicker(false)}>&times;</button>
+                                    </div>
+                                    <div className="cm-emoji-inline-grid">
+                                        {POPULAR_EMOJIS.map(emoji => (
+                                            <div 
+                                                key={emoji}
+                                                className={`cm-emoji-option ${formData.icon === emoji ? 'selected' : ''}`}
+                                                onClick={() => {
+                                                    setFormData(prev => ({ ...prev, icon: emoji }));
+                                                    if (errors.icon) setErrors(prev => ({ ...prev, icon: null }));
+                                                }}
+                                            >
+                                                {emoji}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Status (edit only) */}
