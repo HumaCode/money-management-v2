@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import BaseModal from './BaseModal';
+import CustomDatePicker from './CustomDatePicker';
 import axios from 'axios';
-import { ArrowLeft, Coins, Calendar, FileText, TrendingUp, TrendingDown, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Coins, Calendar, FileText, TrendingUp, TrendingDown, RefreshCcw } from 'lucide-react';
 
 export default function BudgetExpensesListModal({ isOpen, budget, onClose, onBackToDetail, onShowToast }) {
     const [expenses, setExpenses] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    
+    // Filter states
+    const [filterStart, setFilterStart] = useState('');
+    const [filterEnd, setFilterEnd] = useState('');
 
     useEffect(() => {
         if (!isOpen || !budget) return;
@@ -29,6 +34,20 @@ export default function BudgetExpensesListModal({ isOpen, budget, onClose, onBac
 
         fetchExpenses();
     }, [isOpen, budget]);
+
+    // Reset filters
+    const handleResetFilters = () => {
+        setFilterStart('');
+        setFilterEnd('');
+    };
+
+    // Filtered expenses list
+    const filteredExpenses = expenses.filter(exp => {
+        if (!exp.raw_spent_date) return true;
+        if (filterStart && exp.raw_spent_date < filterStart) return false;
+        if (filterEnd && exp.raw_spent_date > filterEnd) return false;
+        return true;
+    });
 
     const title = budget ? `Expenses Rincian: ${budget.name}` : 'Expenses Rincian';
 
@@ -161,6 +180,69 @@ export default function BudgetExpensesListModal({ isOpen, budget, onClose, onBac
                     </div>
                 )}
 
+                {/* ── Table Filter Row ── */}
+                {!isLoading && expenses.length > 0 && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '12px',
+                        borderBottom: '1px solid var(--bg-card-border)',
+                        paddingBottom: '14px',
+                        marginTop: '4px'
+                    }}>
+                        <div style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                            Records ({filteredExpenses.length})
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {/* Filter Start Date */}
+                            <div style={{ width: '140px' }}>
+                                <CustomDatePicker
+                                    id="filterStart"
+                                    placeholder="From Date"
+                                    value={filterStart}
+                                    onChange={setFilterStart}
+                                    placement="bottom"
+                                />
+                            </div>
+                            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>to</span>
+                            {/* Filter End Date */}
+                            <div style={{ width: '140px' }}>
+                                <CustomDatePicker
+                                    id="filterEnd"
+                                    placeholder="To Date"
+                                    value={filterEnd}
+                                    onChange={setFilterEnd}
+                                    placement="bottom"
+                                />
+                            </div>
+                            {/* Reset Filters */}
+                            {(filterStart || filterEnd) && (
+                                <button
+                                    onClick={handleResetFilters}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '34px',
+                                        height: '34px',
+                                        background: 'rgba(248, 113, 113, 0.12)',
+                                        border: '1px solid rgba(248, 113, 113, 0.25)',
+                                        color: 'var(--error)',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    title="Reset Date Filters"
+                                >
+                                    <RefreshCcw size={14} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* ── Table / Content ── */}
                 <div style={{ minHeight: '180px', display: 'flex', flexDirection: 'column' }}>
                     {isLoading ? (
@@ -183,29 +265,51 @@ export default function BudgetExpensesListModal({ isOpen, budget, onClose, onBac
                                 There are no individual expenses recorded under this budget period yet.
                             </p>
                         </div>
+                    ) : filteredExpenses.length === 0 ? (
+                        <div style={{ display: 'flex', flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0', textAlign: 'center' }}>
+                            <div style={{
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                width: '48px', height: '48px', borderRadius: '50%',
+                                background: 'var(--bg-input)', color: 'var(--text-secondary)',
+                                marginBottom: '12px'
+                            }}>
+                                <Calendar size={22} />
+                            </div>
+                            <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--text-primary)', fontWeight: 600 }}>No expenses in this date range</h4>
+                            <p style={{ margin: '4px 0 0', fontSize: '12.5px', color: 'var(--text-secondary)', maxWidth: '280px' }}>
+                                Try adjusting your start or end date filters to locate transaction records.
+                            </p>
+                        </div>
                     ) : (
                         <div style={{ 
                             border: '1px solid var(--bg-card-border)', 
                             borderRadius: '12px', 
-                            overflow: 'hidden',
+                            maxHeight: '340px', // enables vertical scroll
+                            overflowY: 'auto',  // scroll container
                             background: 'var(--bg-card)' 
                         }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
-                                    <tr style={{ background: 'var(--bg-input)', borderBottom: '1px solid var(--bg-card-border)' }}>
-                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Category</th>
-                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Spent Date</th>
-                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Allocated</th>
-                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Spent Amount</th>
-                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notes</th>
+                                    <tr style={{ 
+                                        position: 'sticky',
+                                        top: 0,
+                                        zIndex: 10,
+                                        background: 'var(--bg-input)', 
+                                        borderBottom: '1px solid var(--bg-card-border)' 
+                                    }}>
+                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Category</th>
+                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Spent Date</th>
+                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Allocated</th>
+                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Spent Amount</th>
+                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Notes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {expenses.map((exp, idx) => (
+                                    {filteredExpenses.map((exp, idx) => (
                                         <tr 
                                             key={exp.id} 
                                             style={{ 
-                                                borderBottom: idx === expenses.length - 1 ? 'none' : '1px solid var(--bg-card-border)',
+                                                borderBottom: idx === filteredExpenses.length - 1 ? 'none' : '1px solid var(--bg-card-border)',
                                                 transition: 'background 0.2s, transform 0.2s',
                                                 cursor: 'default'
                                             }}

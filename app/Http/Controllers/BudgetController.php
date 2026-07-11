@@ -111,6 +111,7 @@ class BudgetController extends Controller
                         'category_name' => $item->category?->name ?? 'Uncategorized',
                         'category_icon' => $item->category?->icon ?? '🍔',
                         'spent_date' => $item->spent_date?->format('d M Y') ?? '—',
+                        'raw_spent_date' => $item->spent_date?->format('Y-m-d') ?? null,
                         'allocated_amount' => (float)$item->allocated_amount,
                         'spent_amount' => (float)$item->spent_amount,
                         'spent_amount_formatted' => $item->spent_amount_formatted,
