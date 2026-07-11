@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import SavingGoalModal from '../../Components/SavingGoalModal';
 import ConfirmModal from '../../Components/ConfirmModal';
+import SavingGoalContributionsListModal from '../../Components/SavingGoalContributionsListModal';
 import EmptyState from '../../Components/EmptyState';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
 import axios from 'axios';
@@ -21,6 +22,9 @@ export default function Index({ title, subtitle, currencies, accounts, statuses 
     const [isModalOpen, setIsModalOpen]     = useState(false);
     const [modalMode, setModalMode]         = useState('create');
     const [selectedGoal, setSelectedGoal]   = useState(null);
+
+    const [isContributionsModalOpen, setIsContributionsModalOpen] = useState(false);
+    const [selectedGoalForContributions, setSelectedGoalForContributions] = useState(null);
 
     // ── Delete confirm state ─────────────────────────────────────
     const [isDeleteOpen, setIsDeleteOpen]   = useState(false);
@@ -82,6 +86,19 @@ export default function Index({ title, subtitle, currencies, accounts, statuses 
     const openEdit   = (g) => { setSelectedGoal(g);    setModalMode('edit');   setIsModalOpen(true); };
     const openShow   = (g) => { setSelectedGoal(g);    setModalMode('show');   setIsModalOpen(true); };
     const openAddSaving = (g) => { setSelectedGoal(g); setModalMode('addSaving'); setIsModalOpen(true); };
+
+    const handleShowContributions = (g) => {
+        setIsModalOpen(false);
+        setSelectedGoalForContributions(g);
+        setIsContributionsModalOpen(true);
+    };
+
+    const handleBackToDetail = (g) => {
+        setIsContributionsModalOpen(false);
+        setSelectedGoal(g);
+        setModalMode('show');
+        setIsModalOpen(true);
+    };
 
     const triggerDelete = (g) => { setGoalToDelete(g); setIsDeleteOpen(true); };
     const closeDelete   = () => { if (isDeleting) return; setIsDeleteOpen(false); setGoalToDelete(null); };
@@ -391,6 +408,16 @@ export default function Index({ title, subtitle, currencies, accounts, statuses 
                 accounts={accounts}
                 onClose={() => { setIsModalOpen(false); setSelectedGoal(null); }}
                 onSave={fetchSavingGoals}
+                onShowToast={showToast}
+                onShowContributions={handleShowContributions}
+            />
+
+            {/* ── Saving Goal Contributions List Modal ── */}
+            <SavingGoalContributionsListModal
+                isOpen={isContributionsModalOpen}
+                saving={selectedGoalForContributions}
+                onClose={() => { setIsContributionsModalOpen(false); setSelectedGoalForContributions(null); }}
+                onBackToDetail={handleBackToDetail}
                 onShowToast={showToast}
             />
 

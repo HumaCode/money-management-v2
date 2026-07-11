@@ -111,4 +111,27 @@ class SavingGoalController extends Controller
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
     }
+
+    public function getContributions(SavingsGoal $saving)
+    {
+        try {
+            $contributions = $saving->contributions()
+                ->orderBy('contributed_at', 'desc')
+                ->get()
+                ->map(function ($c) use ($saving) {
+                    return [
+                        'id' => $c->id,
+                        'amount' => (float) $c->amount,
+                        'amount_formatted' => $saving->currency ? $saving->currency->symbol . ' ' . number_format($c->amount, 2, ',', '.') : number_format($c->amount, 2, ',', '.'),
+                        'notes' => $c->notes ?? '—',
+                        'contributed_at' => $c->contributed_at->format('d M Y'),
+                        'raw_contributed_date' => $c->contributed_at->format('Y-m-d'),
+                    ];
+                });
+
+            return ResponseHelper::jsonResponse(true, 'Contributions retrieved successfully!', $contributions, 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
 }

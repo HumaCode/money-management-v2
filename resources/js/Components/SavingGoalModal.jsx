@@ -211,7 +211,7 @@ function EmojiPicker({ value, onChange, disabled }) {
 }
 
 // ── Main Saving Goal Modal ──────────────────────────────────────────
-export default function SavingGoalModal({ isOpen, mode, data, currencies, accounts, onClose, onSave, onShowToast }) {
+export default function SavingGoalModal({ isOpen, mode, data, currencies, accounts, onClose, onSave, onShowToast, onShowContributions }) {
     const empty = {
         name: '', description: '', account_id: '', currency_id: '',
         target_amount: 0, current_amount: 0, monthly_target: 0,
@@ -331,6 +331,16 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
 
     const footer = (
         <>
+            {isReadOnly && onShowContributions && (
+                <button 
+                    type="button"
+                    className="bm-btn bm-btn-primary" 
+                    onClick={() => onShowContributions(data)}
+                    style={{ background: 'var(--accent-dim)', color: 'var(--accent)', borderColor: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                    Rincian Tabungan
+                </button>
+            )}
             <button className="bm-btn bm-btn-cancel" onClick={onClose} disabled={isSubmitting}>
                 {isReadOnly ? 'Close' : 'Cancel'}
             </button>
@@ -380,6 +390,30 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
                         </tr>
                         <tr><th>Created At</th><td>{data?.created_at || '—'}</td></tr>
                         <tr><th>Last Updated</th><td>{data?.updated_at || '—'}</td></tr>
+                        {onShowContributions && (
+                            <tr>
+                                <th>Action</th>
+                                <td>
+                                    <button 
+                                        type="button" 
+                                        style={{ 
+                                            padding: '6px 14px', 
+                                            fontSize: '12.5px', 
+                                            border: '1px solid var(--bg-card-border)', 
+                                            background: 'var(--bg-input)', 
+                                            color: 'var(--accent)', 
+                                            borderRadius: '8px', 
+                                            cursor: 'pointer',
+                                            fontWeight: 600,
+                                            transition: 'all 0.2s'
+                                        }}
+                                        onClick={() => onShowContributions(data)}
+                                    >
+                                        Lihat Rincian Tabungan
+                                    </button>
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             )}
