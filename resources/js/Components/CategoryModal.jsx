@@ -337,6 +337,90 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                     font-size: 13.5px;
                     color: var(--text-primary);
                 }
+
+                /* Custom radio group for Status */
+                .cm-radio-group {
+                    display: flex;
+                    gap: 12px;
+                    margin-top: 4px;
+                }
+                .cm-radio-option {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    padding: 10px 16px;
+                    background: var(--bg-input);
+                    border: 1px solid var(--bg-card-border);
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-size: 13.5px;
+                    font-family: 'Inter', sans-serif;
+                    font-weight: 500;
+                    color: var(--text-secondary);
+                    transition: all 0.2s ease-in-out;
+                    position: relative;
+                    user-select: none;
+                }
+                .cm-radio-input {
+                    position: absolute;
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                }
+                .cm-radio-option:hover:not(.disabled):not(.active-active):not(.active-inactive) {
+                    background: var(--bg-input-focus);
+                    color: var(--text-primary);
+                    border-color: var(--accent);
+                }
+                .cm-radio-option:hover:not(.disabled):not(.active-active):not(.active-inactive) .cm-radio-dot {
+                    border-color: var(--text-primary);
+                }
+                .cm-radio-option.active-active:hover:not(.disabled) {
+                    box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+                    background: rgba(16, 185, 129, 0.12);
+                }
+                .cm-radio-option.active-inactive:hover:not(.disabled) {
+                    box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+                    background: rgba(239, 68, 68, 0.12);
+                }
+                .cm-radio-dot {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    background: transparent;
+                    border: 2px solid var(--text-secondary);
+                    transition: all 0.2s ease-in-out;
+                }
+                /* Active state (Active option checked) */
+                .cm-radio-option.active-active {
+                    background: rgba(16, 185, 129, 0.08);
+                    border-color: #10b981;
+                    color: #10b981;
+                    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+                }
+                .cm-radio-option.active-active .cm-radio-dot {
+                    border-color: #10b981;
+                    background: #10b981;
+                    box-shadow: 0 0 6px #10b981;
+                }
+                /* Inactive state (Inactive option checked) */
+                .cm-radio-option.active-inactive {
+                    background: rgba(239, 68, 68, 0.08);
+                    border-color: #ef4444;
+                    color: #ef4444;
+                    box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+                }
+                .cm-radio-option.active-inactive .cm-radio-dot {
+                    border-color: #ef4444;
+                    background: #ef4444;
+                    box-shadow: 0 0 6px #ef4444;
+                }
+                .cm-radio-option.disabled {
+                    opacity: 0.55;
+                    cursor: not-allowed;
+                }
             `}</style>
 
             <BaseModal
@@ -500,13 +584,45 @@ export default function CategoryModal({ isOpen, mode, data, parentCategories, on
                         {/* Status (edit only) */}
                         {mode === 'edit' && (
                             <div className="cm-group">
-                                <label htmlFor="is_active">
+                                <label>
                                     Status <span className="cm-required">*</span>
                                 </label>
-                                <select id="is_active" name="is_active" value={formData.is_active} onChange={handleChange} required disabled={isSubmitting}>
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
+                                <div className="cm-radio-group">
+                                    <label className={`cm-radio-option ${Number(formData.is_active) === 1 ? 'active-active' : ''} ${isSubmitting ? 'disabled' : ''}`}>
+                                        <input
+                                            type="radio"
+                                            name="is_active"
+                                            value="1"
+                                            checked={Number(formData.is_active) === 1}
+                                            onChange={() => {
+                                                if (isSubmitting) return;
+                                                setFormData(prev => ({ ...prev, is_active: 1 }));
+                                                if (errors.is_active) setErrors(prev => ({ ...prev, is_active: null }));
+                                            }}
+                                            className="cm-radio-input"
+                                            disabled={isSubmitting}
+                                        />
+                                        <span className="cm-radio-dot" />
+                                        <span>Active</span>
+                                    </label>
+                                    <label className={`cm-radio-option ${Number(formData.is_active) === 0 ? 'active-inactive' : ''} ${isSubmitting ? 'disabled' : ''}`}>
+                                        <input
+                                            type="radio"
+                                            name="is_active"
+                                            value="0"
+                                            checked={Number(formData.is_active) === 0}
+                                            onChange={() => {
+                                                if (isSubmitting) return;
+                                                setFormData(prev => ({ ...prev, is_active: 0 }));
+                                                if (errors.is_active) setErrors(prev => ({ ...prev, is_active: null }));
+                                            }}
+                                            className="cm-radio-input"
+                                            disabled={isSubmitting}
+                                        />
+                                        <span className="cm-radio-dot" />
+                                        <span>Inactive</span>
+                                    </label>
+                                </div>
                                 {errors.is_active && <span className="cm-field-error">{errors.is_active[0]}</span>}
                             </div>
                         )}
