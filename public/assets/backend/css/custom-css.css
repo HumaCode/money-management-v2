@@ -475,3 +475,31 @@
     background: rgba(248,113,113,0.1);
     color: var(--error);
 }
+
+/* ── Native Date Picker styling ── */
+input[type="date"] {
+    position: relative;
+    color-scheme: dark;
+    accent-color: var(--accent) !important;
+}
+
+html.light input[type="date"] {
+    color-scheme: light;
+}
+
+/* Custom Calendar Icon color styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    /* Invert color to white/grey in dark theme */
+    filter: invert(0.85);
+}
+
+html.light input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.15);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
