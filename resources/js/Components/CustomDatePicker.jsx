@@ -26,7 +26,8 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
             if (placement === 'top') {
                 openUp = true;
             } else if (placement === 'bottom') {
-                openUp = false;
+                // If space below is less than popoverHeight and there is more space above, open upward
+                openUp = spaceBelow < popoverHeight && rect.top > spaceBelow;
             } else {
                 openUp = spaceBelow < popoverHeight && rect.top > popoverHeight;
             }
