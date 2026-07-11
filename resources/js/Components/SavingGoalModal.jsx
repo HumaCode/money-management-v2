@@ -92,6 +92,124 @@ function AmountInput({ id, name, value, onChange, placeholder, disabled, require
     );
 }
 
+const EMOJI_LIST = [
+    // Financial/Goals
+    '🎯', '💰', '💵', '🏦', '💳', '📈', '🐷', '🔒', '🔑', '🏆',
+    // Assets/Major Purchases
+    '🏠', '🏡', '🏢', '🚗', '🏍️', '🚲', '🛵', '✈️', '⛵', '🚀',
+    // Devices/Tech
+    '💻', '📱', '🎮', '🎧', '📷', '⌚', '📺', '🖥️', '⌨️', 'Mouse',
+    // Travel/Lifestyle
+    '🎒', '🌍', '🏕️', '🏖️', '⛰️', '🎡', '🎢', '🎫', '🎬', '🎨',
+    // Celebrations & Gift
+    '🎁', '🎈', '🎉', '💍', '🎓', '🍰', '🥂', '🍾', '🧸', '💐',
+    // Health & Fitness
+    '🏥', '💊', '🩺', '🏃', '🚴', '🧗', '🏋️', '🧘', '🧗', '🥊',
+    // Food & Dining
+    '🍔', '🍕', '☕', '🍩', '🍣', '🍦', '🍓', '🍿', '🥩', '🍜'
+];
+
+function EmojiPicker({ value, onChange, disabled }) {
+    const [open, setOpen] = useState(false);
+    const wrapRef = useRef(null);
+
+    useEffect(() => {
+        const h = (e) => {
+            if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', h);
+        return () => document.removeEventListener('mousedown', h);
+    }, []);
+
+    return (
+        <div ref={wrapRef} style={{ position: 'relative', width: '100%' }}>
+            <div 
+                onClick={() => { if (!disabled) setOpen(o => !o); }}
+                style={{
+                    background: 'var(--bg-input)',
+                    border: '1px solid var(--bg-card-border)',
+                    borderRadius: '10px',
+                    padding: '9px 13px',
+                    color: 'var(--text-primary)',
+                    fontSize: '15px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    userSelect: 'none',
+                    height: '40px',
+                    boxSizing: 'border-box'
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '18px' }}>{value || '🎯'}</span>
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Choose...</span>
+                </div>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>
+                    <polyline points="6 9 12 15 18 9" />
+                </svg>
+            </div>
+
+            {open && (
+                <div style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    left: 0,
+                    zIndex: 10000,
+                    width: '260px',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--bg-card-border)',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
+                    padding: '12px',
+                    boxSizing: 'border-box'
+                }}>
+                    <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: 600, marginBottom: '8px', letterSpacing: '0.05em' }}>Select Icon</div>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(6, 1fr)',
+                        gap: '6px',
+                        maxHeight: '180px',
+                        overflowY: 'auto',
+                        paddingRight: '2px'
+                    }}>
+                        {EMOJI_LIST.map((emo, idx) => (
+                            <div 
+                                key={idx}
+                                onClick={() => { onChange(emo); setOpen(false); }}
+                                style={{
+                                    fontSize: '20px',
+                                    padding: '6px',
+                                    borderRadius: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    transition: 'background 0.15s, transform 0.15s',
+                                    background: value === emo ? 'var(--accent-dim)' : 'transparent',
+                                    border: value === emo ? '1px solid var(--accent)' : '1px solid transparent'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = 'var(--bg-input-focus)';
+                                    e.currentTarget.style.transform = 'scale(1.1)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = value === emo ? 'var(--accent-dim)' : 'transparent';
+                                    e.currentTarget.style.transform = 'none';
+                                }}
+                            >
+                                {emo}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 // ── Main Saving Goal Modal ──────────────────────────────────────────
 export default function SavingGoalModal({ isOpen, mode, data, currencies, accounts, onClose, onSave, onShowToast }) {
     const empty = {
@@ -256,10 +374,11 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
                         </div>
                         <div className="sg-row" style={{ gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                             <div className="sg-group">
-                                <label htmlFor="sg_icon">Icon (Emoji) <span className="sg-required">*</span></label>
-                                <input id="sg_icon" type="text" value={formData.icon}
-                                    onChange={e => handleFieldChange('icon', e.target.value)}
-                                    placeholder="e.g. 🎯" required disabled={isSubmitting}
+                                <label>Icon (Emoji) <span className="sg-required">*</span></label>
+                                <EmojiPicker 
+                                    value={formData.icon} 
+                                    onChange={val => handleFieldChange('icon', val)} 
+                                    disabled={isSubmitting} 
                                 />
                                 {errors.icon && <span className="sg-field-error">{errors.icon[0]}</span>}
                             </div>
