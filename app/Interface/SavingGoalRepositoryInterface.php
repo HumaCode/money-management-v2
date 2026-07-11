@@ -24,4 +24,8 @@ interface SavingGoalRepositoryInterface
     public function getById(string $id);
 
     public function delete(string $id);
+
+    public function getAccountList(): array;
+
+    public function getCurrencyList(): array;
 }

@@ -1,0 +1,389 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
+import SavingGoalModal from '../../Components/SavingGoalModal';
+import ConfirmModal from '../../Components/ConfirmModal';
+import EmptyState from '../../Components/EmptyState';
+import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
+import axios from 'axios';
+import { Eye, Edit, Trash2, Search, RotateCcw, Plus, CirclePlus, Target } from 'lucide-react';
+
+export default function Index({ title, subtitle, currencies, accounts, statuses }) {
+    // ── Data state ──────────────────────────────────────────────
+    const [savingGoals, setSavingGoals] = useState([]);
+    const [meta, setMeta]               = useState({ current_page: 1, last_page: 1, from: 0, to: 0, total: 0 });
+    const [isLoading, setIsLoading]     = useState(false);
+
+    // ── Filter state ─────────────────────────────────────────────
+    const [filters, setFilters]         = useState({ search: '', status: 'all', perPage: 10, page: 1 });
+    const [searchTerm, setSearchTerm]   = useState('');
+
+    // ── Modal state ──────────────────────────────────────────────
+    const [isModalOpen, setIsModalOpen]     = useState(false);
+    const [modalMode, setModalMode]         = useState('create');
+    const [selectedGoal, setSelectedGoal]   = useState(null);
+
+    // ── Delete confirm state ─────────────────────────────────────
+    const [isDeleteOpen, setIsDeleteOpen]   = useState(false);
+    const [goalToDelete, setGoalToDelete]   = useState(null);
+    const [isDeleting, setIsDeleting]       = useState(false);
+
+    // ── Toast ────────────────────────────────────────────────────
+    const { toast, showToast, dismissToast } = useToast(3500);
+
+    // ── Fetch ────────────────────────────────────────────────────
+    const fetchSavingGoals = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const response = await axios.get(route('saving.goals.allPagination'), {
+                params: {
+                    search:       filters.search || null,
+                    status:       filters.status === 'all' ? null : filters.status,
+                    row_per_page: filters.perPage,
+                    page:         filters.page,
+                }
+            });
+            if (response.data.success) {
+                setSavingGoals(response.data.data.data || []);
+                setMeta(response.data.data.meta || { current_page: 1, last_page: 1, from: 0, to: 0, total: 0 });
+            } else {
+                showToast(response.data.message || 'Failed to retrieve saving goals', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Failed to fetch data from server', 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [filters, showToast]);
+
+    useEffect(() => {
+        fetchSavingGoals();
+    }, [filters.page, filters.perPage, filters.status, fetchSavingGoals]);
+
+    // Apply search on click/enter
+    const handleSearchSubmit = (e) => {
+        if (e) e.preventDefault();
+        setFilters(prev => ({ ...prev, search: searchTerm, page: 1 }));
+    };
+
+    // ── Handlers ─────────────────────────────────────────────────
+    const handleReload = () => {
+        setSearchTerm('');
+        setFilters({ search: '', status: 'all', perPage: 10, page: 1 });
+        showToast('Table data refreshed', 'info');
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= meta.last_page)
+            setFilters(prev => ({ ...prev, page: newPage }));
+    };
+
+    const openCreate = () => { setSelectedGoal(null); setModalMode('create'); setIsModalOpen(true); };
+    const openEdit   = (g) => { setSelectedGoal(g);    setModalMode('edit');   setIsModalOpen(true); };
+    const openShow   = (g) => { setSelectedGoal(g);    setModalMode('show');   setIsModalOpen(true); };
+
+    const triggerDelete = (g) => { setGoalToDelete(g); setIsDeleteOpen(true); };
+    const closeDelete   = () => { if (isDeleting) return; setIsDeleteOpen(false); setGoalToDelete(null); };
+
+    const handleDeleteConfirm = async () => {
+        if (!goalToDelete) return;
+        setIsDeleting(true);
+        try {
+            const res = await axios.delete(route('saving.goals.destroy', { saving: goalToDelete.id }));
+            if (res.data.success) {
+                showToast('Saving goal deleted successfully!', 'success');
+                if (savingGoals.length === 1 && filters.page > 1) {
+                    setFilters(prev => ({ ...prev, page: prev.page - 1 }));
+                } else {
+                    fetchSavingGoals();
+                }
+                closeDelete();
+            } else {
+                showToast(res.data.message || 'Failed to delete saving goal', 'error');
+            }
+        } catch (err) {
+            showToast(err.response?.data?.message || 'Server error during deletion', 'error');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    // ── Pagination numbers ────────────────────────────────────────
+    const renderPageNumbers = () => {
+        const { current_page: current, last_page: last } = meta;
+        let pages = [];
+        if (last <= 5) {
+            pages = Array.from({ length: last }, (_, i) => i + 1);
+        } else if (current <= 3) {
+            pages = [1, 2, 3, '...', last];
+        } else if (current >= last - 2) {
+            pages = [1, '...', last - 2, last - 1, last];
+        } else {
+            pages = [1, '...', current, '...', last];
+        }
+
+        return pages.map((p, idx) =>
+            p === '...'
+                ? <button key={`d${idx}`} disabled>...</button>
+                : (
+                    <button
+                        key={p}
+                        onClick={() => handlePageChange(p)}
+                        className={meta.current_page === p ? 'active' : ''}
+                    >
+                        {p}
+                    </button>
+                )
+        );
+    };
+
+    return (
+        <AuthenticatedLayout>
+            <DynamicToastContainer toast={toast} onDismiss={dismissToast} />
+
+            {/* ── Page Header ── */}
+            <div className="page-header" style={{ marginBottom: '28px' }}>
+                <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: '40px', height: '40px', borderRadius: '10px',
+                        background: 'var(--accent-dim)', color: 'var(--accent)'
+                    }}>
+                        <Target size={20} />
+                    </div>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)' }}>{title}</h1>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '12.5px', color: 'var(--text-secondary)' }}>{subtitle}</p>
+                    </div>
+                </div>
+                <button className="btn btn-primary" onClick={openCreate} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    <Plus size={16} /> Add Saving Goal
+                </button>
+            </div>
+
+            {/* ── Filter Bar ── */}
+            <div className="table-card" style={{ marginBottom: '24px' }}>
+                <div className="table-header-filter">
+                    {/* Entries select */}
+                    <div className="per-page-select">
+                        <span>Show</span>
+                        <select
+                            value={filters.perPage}
+                            onChange={e => setFilters(prev => ({ ...prev, perPage: Number(e.target.value), page: 1 }))}
+                        >
+                            {[10, 25, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
+                        </select>
+                        <span>entries</span>
+                    </div>
+
+                    {/* Right side filter inputs */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                        {/* Status Filter */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Status:</span>
+                            <select
+                                className="filter-select"
+                                value={filters.status}
+                                onChange={e => setFilters(prev => ({ ...prev, status: e.target.value, page: 1 }))}
+                                style={{
+                                    background: 'var(--bg-input)',
+                                    border: '1px solid var(--bg-card-border)',
+                                    borderRadius: '8px',
+                                    padding: '6px 12px',
+                                    color: 'var(--text-primary)',
+                                    fontSize: '13px'
+                                }}
+                            >
+                                <option value="all">All Status</option>
+                                {statuses.map(st => (
+                                    <option key={st} value={st}>
+                                        {st.charAt(0).toUpperCase() + st.slice(1)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Search Input */}
+                        <form onSubmit={handleSearchSubmit} className="search-box">
+                            <input
+                                type="text"
+                                placeholder="Search goals..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                            <button type="submit" className="search-btn">
+                                <Search size={14} />
+                            </button>
+                        </form>
+
+                        {/* Reset Filter Button */}
+                        <button className="btn-action reload" onClick={handleReload} title="Reset Filters" style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
+                            <RotateCcw size={15} />
+                        </button>
+                    </div>
+                </div>
+
+                {/* ── Main Data Table ── */}
+                <div className="table-wrapper">
+                    {isLoading ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0' }}>
+                            <span className="bm-spinner" style={{ width: '36px', height: '36px', border: '3px solid rgba(255,255,255,0.15)', borderTopColor: 'var(--accent)' }} />
+                            <span style={{ marginTop: '14px', fontSize: '13.5px', color: 'var(--text-secondary)' }}>Loading goals...</span>
+                        </div>
+                    ) : savingGoals.length === 0 ? (
+                        <EmptyState
+                            icon={<Target size={36} />}
+                            title="No saving goals found"
+                            description={
+                                filters.search || filters.status !== 'all'
+                                    ? "Try adjusting your filters or search keywords to find what you're looking for."
+                                    : "Start setting up your target saving goals and track your progress easily!"
+                            }
+                            action={
+                                filters.search || filters.status !== 'all' ? (
+                                    <button className="btn btn-secondary" onClick={handleReload}>Clear Filters</button>
+                                ) : (
+                                    <button className="btn btn-primary" onClick={openCreate}>Create Goal</button>
+                                )
+                            }
+                        />
+                    ) : (
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th>Goal</th>
+                                    <th>Source Account</th>
+                                    <th>Target Amount</th>
+                                    <th>Saved Progress</th>
+                                    <th>Target Date</th>
+                                    <th>Status</th>
+                                    <th style={{ width: '100px', textAlign: 'center' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {savingGoals.map((goal) => (
+                                    <tr key={goal.id}>
+                                        {/* Goal Info */}
+                                        <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div className="account-icon" style={{
+                                                    background: goal.color ? `${goal.color}18` : 'var(--accent-dim)',
+                                                    color: goal.color || 'var(--accent)',
+                                                    fontSize: '18px', width: '38px', height: '38px', borderRadius: '10px',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                                                }}>
+                                                    {goal.icon || '🎯'}
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{goal.name}</div>
+                                                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                                                        {goal.description || '—'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        {/* Source Account */}
+                                        <td>
+                                            <span className="badge info">
+                                                {goal.account?.name || '—'}
+                                            </span>
+                                        </td>
+
+                                        {/* Target Amount */}
+                                        <td style={{ fontWeight: 500 }}>
+                                            {goal.target_amount_formatted}
+                                        </td>
+
+                                        {/* Saved Progress */}
+                                        <td>
+                                            <div className="sg-progress-wrap" style={{ maxWidth: '160px' }}>
+                                                <div className="sg-progress-bar">
+                                                    <div className="sg-progress-fill" style={{ width: `${goal.progress_bar_width || 0}%`, background: goal.color }} />
+                                                </div>
+                                                <span className="sg-progress-text" style={{ fontSize: '11px' }}>
+                                                    {goal.current_amount_formatted} ({goal.progress_percentage}%)
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        {/* Target Date */}
+                                        <td style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
+                                            {goal.target_date_formatted}
+                                        </td>
+
+                                        {/* Status Badge */}
+                                        <td>
+                                            <span className={`badge ${
+                                                goal.status === 'completed' ? 'success' :
+                                                goal.status === 'paused' ? 'warning' :
+                                                goal.status === 'cancelled' ? 'danger' : 'info'
+                                            }`}>
+                                                {goal.status}
+                                            </span>
+                                        </td>
+
+                                        {/* Actions */}
+                                        <td>
+                                            <div className="action-buttons" style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                                <button className="btn-action show" onClick={() => openShow(goal)} title="View Details">
+                                                    <Eye size={13} />
+                                                </button>
+                                                <button className="btn-action edit" onClick={() => openEdit(goal)} title="Edit">
+                                                    <Edit size={13} />
+                                                </button>
+                                                <button className="btn-action delete" onClick={() => triggerDelete(goal)} title="Delete">
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="table-footer">
+                    <div className="table-info">
+                        Showing {meta.from || 0} to {meta.to || 0} of {meta.total || 0} entries
+                    </div>
+                    <div className="pagination">
+                        <button onClick={() => handlePageChange(meta.current_page - 1)} disabled={meta.current_page === 1 || isLoading}>‹</button>
+                        {renderPageNumbers()}
+                        <button onClick={() => handlePageChange(meta.current_page + 1)} disabled={meta.current_page === meta.last_page || isLoading}>›</button>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Saving Goal Modal ── */}
+            <SavingGoalModal
+                isOpen={isModalOpen}
+                mode={modalMode}
+                data={selectedGoal}
+                currencies={currencies}
+                accounts={accounts}
+                onClose={() => { setIsModalOpen(false); setSelectedGoal(null); }}
+                onSave={fetchSavingGoals}
+                onShowToast={showToast}
+            />
+
+            {/* ── Confirm Delete ── */}
+            <ConfirmModal
+                isOpen={isDeleteOpen}
+                onClose={closeDelete}
+                onConfirm={handleDeleteConfirm}
+                isLoading={isDeleting}
+                variant="danger"
+                title="Delete Saving Goal?"
+                message={
+                    <>
+                        Are you sure you want to delete saving goal <strong>{goalToDelete?.name}</strong>?
+                        This action cannot be undone.
+                    </>
+                }
+            />
+        </AuthenticatedLayout>
+    );
+}
