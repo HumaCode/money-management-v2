@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import BaseModal from './BaseModal';
+import CustomDatePicker from './CustomDatePicker';
 import axios from 'axios';
 
 // ── Searchable Select (reuse same pattern as AccountModal) ─────────
@@ -278,10 +279,15 @@ export default function BudgetModal({ isOpen, mode, data, currencies, periods, c
 
                     <div className="bg-group">
                         <label htmlFor="expDate">Spent Date <span className="bg-required">*</span></label>
-                        <input id="expDate" name="spent_date" type="date"
+                        <CustomDatePicker
+                            id="expDate"
                             value={expenseData.spent_date}
-                            onChange={handleExpenseChange}
-                            required disabled={isSubmitting}
+                            onChange={(val) => {
+                                setExpenseData(prev => ({ ...prev, spent_date: val }));
+                                if (errors.spent_date) setErrors(prev => ({ ...prev, spent_date: null }));
+                            }}
+                            disabled={isSubmitting}
+                            required
                         />
                         {errors.spent_date && <span className="bg-field-error">{errors.spent_date[0]}</span>}
                     </div>
@@ -368,17 +374,29 @@ export default function BudgetModal({ isOpen, mode, data, currencies, periods, c
                     <div className="bg-row">
                         <div className="bg-group">
                             <label htmlFor="budgetStart">Start Date <span className="bg-required">*</span></label>
-                            <input id="budgetStart" name="start_date" type="date"
-                                value={formData.start_date} onChange={handleChange}
-                                required disabled={isSubmitting}
+                            <CustomDatePicker
+                                id="budgetStart"
+                                value={formData.start_date}
+                                onChange={(val) => {
+                                    setFormData(prev => ({ ...prev, start_date: val }));
+                                    if (errors.start_date) setErrors(prev => ({ ...prev, start_date: null }));
+                                }}
+                                disabled={isSubmitting}
+                                required
                             />
                             {errors.start_date && <span className="bg-field-error">{errors.start_date[0]}</span>}
                         </div>
                         <div className="bg-group">
                             <label htmlFor="budgetEnd">End Date <span className="bg-required">*</span></label>
-                            <input id="budgetEnd" name="end_date" type="date"
-                                value={formData.end_date} onChange={handleChange}
-                                required disabled={isSubmitting}
+                            <CustomDatePicker
+                                id="budgetEnd"
+                                value={formData.end_date}
+                                onChange={(val) => {
+                                    setFormData(prev => ({ ...prev, end_date: val }));
+                                    if (errors.end_date) setErrors(prev => ({ ...prev, end_date: null }));
+                                }}
+                                disabled={isSubmitting}
+                                required
                             />
                             {errors.end_date && <span className="bg-field-error">{errors.end_date[0]}</span>}
                         </div>
