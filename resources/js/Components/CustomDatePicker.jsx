@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MONTHS = [
@@ -10,25 +11,61 @@ const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 export default function CustomDatePicker({ id, value, onChange, disabled, required, placeholder = 'Select date', placement = 'auto' }) {
     const [isOpen, setIsOpen] = useState(false);
-    const [openUpward, setOpenUpward] = useState(false);
+    const [coords, setCoords] = useState({ top: 0, left: 0, openUpward: false });
     const containerRef = useRef(null);
+
+    // Calculate position for popover relative to input wrapper
+    const updateCoords = () => {
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const popoverHeight = 330; // height of the popover block
+            const spaceBelow = window.innerHeight - rect.bottom;
+            
+            // Determine direction
+            let openUp = false;
+            if (placement === 'top') {
+                openUp = true;
+            } else if (placement === 'bottom') {
+                openUp = false;
+            } else {
+                openUp = spaceBelow < popoverHeight && rect.top > popoverHeight;
+            }
+
+            setCoords({
+                top: openUp 
+                    ? rect.top - popoverHeight - 6 
+                    : rect.bottom + 6,
+                left: rect.left,
+                openUpward: openUp
+            });
+        }
+    };
 
     const handleToggleOpen = () => {
         if (disabled) return;
         if (!isOpen) {
-            if (placement === 'top') {
-                setOpenUpward(true);
-            } else if (placement === 'bottom') {
-                setOpenUpward(false);
-            } else if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                const spaceBelow = window.innerHeight - rect.bottom;
-                // Height of popover is ~320px
-                setOpenUpward(spaceBelow < 330);
-            }
+            updateCoords();
         }
         setIsOpen(!isOpen);
     };
+
+    // Update coordinates dynamically on scroll or resize when calendar is open
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleScrollOrResize = () => {
+            updateCoords();
+        };
+
+        // Capture scroll in modal body or any other scrolling element
+        window.addEventListener('scroll', handleScrollOrResize, true);
+        window.addEventListener('resize', handleScrollOrResize);
+
+        return () => {
+            window.removeEventListener('scroll', handleScrollOrResize, true);
+            window.removeEventListener('resize', handleScrollOrResize);
+        };
+    }, [isOpen]);
 
     // Initialize calendar view to the current value, or today if no value
     const parseValueDate = (val) => {
@@ -53,6 +90,11 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.target)) {
+                // If clicked popover, do not close (since it is rendered outside container in portal)
+                const popover = document.querySelector('.datepicker-calendar-popover');
+                if (popover && popover.contains(event.target)) {
+                    return;
+                }
                 setIsOpen(false);
             }
         };
@@ -110,7 +152,6 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
         if (parts.length === 3) {
             const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
             if (!isNaN(date.getTime())) {
-                // Return format: e.g. "Jul 11, 2026" or "11 Jul 2026" depending on preference
                 return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
             }
         }
@@ -160,8 +201,17 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
                 <CalendarIcon className="datepicker-calendar-icon" size={16} />
             </div>
 
-            {isOpen && (
-                <div className={`datepicker-calendar-popover ${openUpward ? 'open-upward' : ''}`}>
+            {isOpen && createPortal(
+                <div 
+                    className={`datepicker-calendar-popover ${coords.openUpward ? 'open-upward' : ''}`}
+                    style={{
+                        position: 'fixed',
+                        top: `${coords.top}px`,
+                        left: `${coords.left}px`,
+                        width: '290px',
+                        zIndex: 9999999
+                    }}
+                >
                     {/* Header */}
                     <div className="datepicker-popover-header">
                         <button type="button" className="nav-btn" onClick={handlePrevMonth}>
@@ -221,7 +271,8 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
                             Today
                         </button>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
