@@ -8,18 +8,24 @@ const MONTHS = [
 
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-export default function CustomDatePicker({ id, value, onChange, disabled, required, placeholder = 'Select date' }) {
+export default function CustomDatePicker({ id, value, onChange, disabled, required, placeholder = 'Select date', placement = 'auto' }) {
     const [isOpen, setIsOpen] = useState(false);
     const [openUpward, setOpenUpward] = useState(false);
     const containerRef = useRef(null);
 
     const handleToggleOpen = () => {
         if (disabled) return;
-        if (!isOpen && containerRef.current) {
-            const rect = containerRef.current.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.bottom;
-            // Height of popover is ~320px
-            setOpenUpward(spaceBelow < 330);
+        if (!isOpen) {
+            if (placement === 'top') {
+                setOpenUpward(true);
+            } else if (placement === 'bottom') {
+                setOpenUpward(false);
+            } else if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                const spaceBelow = window.innerHeight - rect.bottom;
+                // Height of popover is ~320px
+                setOpenUpward(spaceBelow < 330);
+            }
         }
         setIsOpen(!isOpen);
     };

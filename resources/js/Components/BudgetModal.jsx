@@ -382,6 +382,7 @@ export default function BudgetModal({ isOpen, mode, data, currencies, periods, c
                                     if (errors.start_date) setErrors(prev => ({ ...prev, start_date: null }));
                                 }}
                                 disabled={isSubmitting}
+                                placement="top"
                                 required
                             />
                             {errors.start_date && <span className="bg-field-error">{errors.start_date[0]}</span>}
@@ -396,6 +397,7 @@ export default function BudgetModal({ isOpen, mode, data, currencies, periods, c
                                     if (errors.end_date) setErrors(prev => ({ ...prev, end_date: null }));
                                 }}
                                 disabled={isSubmitting}
+                                placement="top"
                                 required
                             />
                             {errors.end_date && <span className="bg-field-error">{errors.end_date[0]}</span>}
