@@ -31,6 +31,8 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
                 openUp = spaceBelow < popoverHeight && rect.top > popoverHeight;
             }
 
+            console.log('[DatePicker] updateCoords:', { rect, spaceBelow, openUp, placement });
+
             setCoords({
                 top: openUp 
                     ? rect.top - popoverHeight - 6 
@@ -38,10 +40,13 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
                 left: rect.left,
                 openUpward: openUp
             });
+        } else {
+            console.log('[DatePicker] updateCoords failed: containerRef.current is null');
         }
     };
 
     const handleToggleOpen = () => {
+        console.log('[DatePicker] handleToggleOpen clicked. Current isOpen:', isOpen, 'disabled:', disabled);
         if (disabled) return;
         if (!isOpen) {
             updateCoords();
@@ -93,8 +98,10 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
                 // If clicked popover, do not close (since it is rendered outside container in portal)
                 const popover = document.querySelector('.datepicker-calendar-popover');
                 if (popover && popover.contains(event.target)) {
+                    console.log('[DatePicker] handleClickOutside: clicked inside popover, ignore.');
                     return;
                 }
+                console.log('[DatePicker] handleClickOutside: clicked outside. Closing datepicker.');
                 setIsOpen(false);
             }
         };
