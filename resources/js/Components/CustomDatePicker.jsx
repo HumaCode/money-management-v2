@@ -10,7 +10,19 @@ const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 export default function CustomDatePicker({ id, value, onChange, disabled, required, placeholder = 'Select date' }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [openUpward, setOpenUpward] = useState(false);
     const containerRef = useRef(null);
+
+    const handleToggleOpen = () => {
+        if (disabled) return;
+        if (!isOpen && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            // Height of popover is ~320px
+            setOpenUpward(spaceBelow < 330);
+        }
+        setIsOpen(!isOpen);
+    };
 
     // Initialize calendar view to the current value, or today if no value
     const parseValueDate = (val) => {
@@ -128,7 +140,7 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
         <div ref={containerRef} className={`custom-datepicker-container ${disabled ? 'disabled' : ''}`}>
             <div
                 className={`datepicker-input-wrapper ${isOpen ? 'focused' : ''}`}
-                onClick={() => !disabled && setIsOpen(!isOpen)}
+                onClick={handleToggleOpen}
             >
                 <input
                     id={id}
@@ -143,7 +155,7 @@ export default function CustomDatePicker({ id, value, onChange, disabled, requir
             </div>
 
             {isOpen && (
-                <div className="datepicker-calendar-popover">
+                <div className={`datepicker-calendar-popover ${openUpward ? 'open-upward' : ''}`}>
                     {/* Header */}
                     <div className="datepicker-popover-header">
                         <button type="button" className="nav-btn" onClick={handlePrevMonth}>
