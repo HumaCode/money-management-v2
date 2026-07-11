@@ -322,15 +322,33 @@ export default function Index({ title, subtitle, currencies, accounts, statuses 
 
                                         {/* Actions */}
                                         <td>
-                                            <div className="action-buttons" style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                                                <button className="btn-action show" onClick={() => openShow(goal)} title="View Details">
-                                                    <Eye size={13} />
+                                            <div style={{ display: 'flex', gap: 7, justifyContent: 'center' }}>
+                                                {/* View */}
+                                                <button
+                                                    className="act-btn act-btn-view"
+                                                    title="View Detail"
+                                                    onClick={() => openShow(goal)}
+                                                    id={`btnView-${goal.id}`}
+                                                >
+                                                    <Eye size={14} />
                                                 </button>
-                                                <button className="btn-action edit" onClick={() => openEdit(goal)} title="Edit">
-                                                    <Edit size={13} />
+                                                {/* Edit */}
+                                                <button
+                                                    className="act-btn act-btn-edit"
+                                                    title="Edit"
+                                                    onClick={() => openEdit(goal)}
+                                                    id={`btnEdit-${goal.id}`}
+                                                >
+                                                    <Edit size={14} />
                                                 </button>
-                                                <button className="btn-action delete" onClick={() => triggerDelete(goal)} title="Delete">
-                                                    <Trash2 size={13} />
+                                                {/* Delete */}
+                                                <button
+                                                    className="act-btn act-btn-delete"
+                                                    title="Delete"
+                                                    onClick={() => triggerDelete(goal)}
+                                                    id={`btnDelete-${goal.id}`}
+                                                >
+                                                    <Trash2 size={14} />
                                                 </button>
                                             </div>
                                         </td>
