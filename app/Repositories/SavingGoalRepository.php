@@ -148,4 +148,31 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
             ->get()
             ->toArray();
     }
+
+    public function addSaving(string $id, array $data)
+    {
+        return DB::transaction(function () use ($id, $data) {
+            $saving = SavingsGoal::findOrFail($id);
+
+            // 1. Create contribution record
+            $saving->contributions()->create([
+                'amount'         => $data['amount'],
+                'notes'          => $data['notes'] ?? null,
+                'contributed_at' => $data['contributed_at'] ?? now(),
+            ]);
+
+            // 2. Recalculate current_amount
+            $totalSaved = (float) $saving->contributions()->sum('amount');
+            $saving->current_amount = $totalSaved;
+
+            // 3. Update status automatically if target is met
+            if ($saving->current_amount >= $saving->target_amount) {
+                $saving->status = 'completed';
+            }
+            $saving->save();
+
+            $saving->load(['currency', 'account']);
+            return $saving;
+        });
+    }
 }

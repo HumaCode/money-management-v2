@@ -7,6 +7,7 @@ use App\Constants\GlobalMessage;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\SavingGoal\SavingGoalStoreRequest;
 use App\Http\Requests\SavingGoal\SavingGoalUpdateRequest;
+use App\Http\Requests\SavingGoal\SavingGoalAddSavingRequest;
 use App\Http\Resources\SavingResource;
 use App\Http\Resources\PaginateResource;
 use App\Models\SavingsGoal;
@@ -95,6 +96,17 @@ class SavingGoalController extends Controller
             $this->savingGoalService->deleteSavingGoal($record->id);
 
             return ResponseHelper::jsonResponse(true, SavingMessage::SAVING_DELETED_SUCCESS, null, 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function addSaving(SavingGoalAddSavingRequest $request, SavingsGoal $saving)
+    {
+        $data = $request->validated();
+        try {
+            $savingGoal = $this->savingGoalService->addSaving($saving->id, $data);
+            return ResponseHelper::jsonResponse(true, 'Saving added successfully!', new SavingResource($savingGoal), 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

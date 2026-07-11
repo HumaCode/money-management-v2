@@ -219,6 +219,11 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
     };
 
     const [formData, setFormData] = useState(empty);
+    const [savingData, setSavingData] = useState({
+        amount: '',
+        notes: '',
+        contributed_at: new Date().toISOString().split('T')[0]
+    });
     const [errors, setErrors]     = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -226,10 +231,16 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
     const accountOptions  = accounts.map(a => ({ id: a.id, name: a.name }));
 
     const isReadOnly = mode === 'show';
+    const isAddSaving = mode === 'addSaving';
 
     useEffect(() => {
         if (isOpen) {
             setErrors({});
+            setSavingData({
+                amount: '',
+                notes: '',
+                contributed_at: new Date().toISOString().split('T')[0]
+            });
             if (data && (mode === 'edit' || mode === 'show')) {
                 setFormData({
                     name:           data.name || '',
@@ -261,6 +272,17 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
         }
     };
 
+    const handleSavingFieldChange = (name, val) => {
+        setSavingData(prev => ({ ...prev, [name]: val }));
+        if (errors[name]) {
+            setErrors(prev => {
+                const copy = { ...prev };
+                delete copy[name];
+                return copy;
+            });
+        }
+    };
+
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
         setIsSubmitting(true);
@@ -272,12 +294,15 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
                 res = await axios.post(route('saving.goals.store'), formData);
             } else if (mode === 'edit') {
                 res = await axios.put(route('saving.goals.update', { saving: data.id }), formData);
+            } else if (mode === 'addSaving') {
+                res = await axios.post(route('saving.goals.addSaving', { saving: data.id }), savingData);
             }
 
             if (res.data.success) {
                 const msgMap = {
                     create: 'Saving goal created successfully!',
                     edit:   'Saving goal updated successfully!',
+                    addSaving: 'Contribution added successfully!',
                 };
                 onShowToast(msgMap[mode], 'success');
                 onSave();
@@ -301,6 +326,7 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
         create: 'Add Saving Goal',
         edit:   'Edit Saving Goal',
         show:   'Saving Goal Details',
+        addSaving: 'Add Saving Contribution',
     };
 
     const footer = (
@@ -310,7 +336,7 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
             </button>
             {!isReadOnly && (
                 <button className="bm-btn bm-btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? (<><span className="bm-spinner" /> Saving...</>) : 'Save Data'}
+                    {isSubmitting ? (<><span className="bm-spinner" /> Saving...</>) : (isAddSaving ? 'Add Saving' : 'Save Data')}
                 </button>
             )}
         </>
@@ -486,6 +512,75 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
                         {errors.description && <span className="sg-field-error">{errors.description[0]}</span>}
                     </div>
 
+                </form>
+            )}
+
+            {/* ── ADD SAVING FORM ── */}
+            {isAddSaving && (
+                <form className="sg-form" onSubmit={handleSubmit}>
+                    <div style={{
+                        background: 'var(--accent-dim)',
+                        border: '1px solid var(--bg-card-border)',
+                        borderRadius: '10px',
+                        padding: '14px 18px',
+                        marginBottom: '20px',
+                        color: 'var(--text-primary)',
+                        fontSize: '14px',
+                        lineHeight: 1.5
+                    }}>
+                        Adding saving contribution to <strong>{data?.name}</strong> — Target: <strong>{data?.target_amount_formatted}</strong>
+                    </div>
+
+                    <div className="sg-row">
+                        <div className="sg-group">
+                            <label htmlFor="sav_amount">Saving Amount <span className="sg-required">*</span></label>
+                            <AmountInput 
+                                id="sav_amount" 
+                                name="amount" 
+                                value={savingData.amount}
+                                onChange={handleSavingFieldChange} 
+                                placeholder="e.g. 1.000.000" 
+                                required 
+                                disabled={isSubmitting}
+                            />
+                            {errors.amount && <span className="sg-field-error">{errors.amount[0]}</span>}
+                        </div>
+                        <div className="sg-group">
+                            <label htmlFor="sav_date">Saving Date <span className="sg-required">*</span></label>
+                            <CustomDatePicker 
+                                id="sav_date" 
+                                value={savingData.contributed_at}
+                                onChange={val => handleSavingFieldChange('contributed_at', val)} 
+                                disabled={isSubmitting}
+                                required
+                            />
+                            {errors.contributed_at && <span className="sg-field-error">{errors.contributed_at[0]}</span>}
+                        </div>
+                    </div>
+
+                    <div className="sg-group">
+                        <label htmlFor="sav_notes">Notes / Remarks</label>
+                        <textarea 
+                            id="sav_notes" 
+                            rows="3" 
+                            value={savingData.notes}
+                            onChange={e => handleSavingFieldChange('notes', e.target.value)} 
+                            placeholder="Add any details about this saving contribution..." 
+                            disabled={isSubmitting}
+                            style={{
+                                width: '100%',
+                                background: 'var(--bg-input)',
+                                border: '1px solid var(--bg-card-border)',
+                                borderRadius: '10px',
+                                padding: '12px 14px',
+                                color: 'var(--text-primary)',
+                                fontSize: '13.5px',
+                                resize: 'vertical',
+                                boxSizing: 'border-box'
+                            }}
+                        />
+                        {errors.notes && <span className="sg-field-error">{errors.notes[0]}</span>}
+                    </div>
                 </form>
             )}
 

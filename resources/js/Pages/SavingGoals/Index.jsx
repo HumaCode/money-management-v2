@@ -81,6 +81,7 @@ export default function Index({ title, subtitle, currencies, accounts, statuses 
     const openCreate = () => { setSelectedGoal(null); setModalMode('create'); setIsModalOpen(true); };
     const openEdit   = (g) => { setSelectedGoal(g);    setModalMode('edit');   setIsModalOpen(true); };
     const openShow   = (g) => { setSelectedGoal(g);    setModalMode('show');   setIsModalOpen(true); };
+    const openAddSaving = (g) => { setSelectedGoal(g); setModalMode('addSaving'); setIsModalOpen(true); };
 
     const triggerDelete = (g) => { setGoalToDelete(g); setIsDeleteOpen(true); };
     const closeDelete   = () => { if (isDeleting) return; setIsDeleteOpen(false); setGoalToDelete(null); };
@@ -323,6 +324,15 @@ export default function Index({ title, subtitle, currencies, accounts, statuses 
                                         {/* Actions */}
                                         <td>
                                             <div style={{ display: 'flex', gap: 7, justifyContent: 'center' }}>
+                                                {/* Add Saving */}
+                                                <button
+                                                    className="act-btn act-btn-view action"
+                                                    title="Add Saving"
+                                                    onClick={() => openAddSaving(goal)}
+                                                    id={`btnAddSaving-${goal.id}`}
+                                                >
+                                                    <CirclePlus size={14} />
+                                                </button>
                                                 {/* View */}
                                                 <button
                                                     className="act-btn act-btn-view"

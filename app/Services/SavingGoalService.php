@@ -47,4 +47,9 @@ class SavingGoalService
     {
         return $this->savingGoalRepository->getCurrencyList();
     }
+
+    public function addSaving(string $id, array $data)
+    {
+        return $this->savingGoalRepository->addSaving($id, $data);
+    }
 }
