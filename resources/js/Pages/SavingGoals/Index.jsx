@@ -147,52 +147,48 @@ export default function Index({ title, subtitle, currencies, accounts, statuses 
                     <div style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         width: '40px', height: '40px', borderRadius: '10px',
-                        background: 'var(--accent-dim)', color: 'var(--accent)'
+                        background: 'var(--accent-dim)', border: '1px solid var(--bg-card-border)',
+                        color: 'var(--accent)', flexShrink: 0
                     }}>
                         <Target size={20} />
                     </div>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)' }}>{title}</h1>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '12.5px', color: 'var(--text-secondary)' }}>{subtitle}</p>
+                        <h2 style={{ margin: 0, lineHeight: 1.25, fontSize: '26px' }}>{title}</h2>
+                        <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: '13px' }}>{subtitle}</p>
                     </div>
                 </div>
-                <button className="btn btn-primary" onClick={openCreate} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <button 
+                    onClick={openCreate} 
+                    className="btn-primary action" 
+                    style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    id="btnAddSavingGoal"
+                >
                     <Plus size={16} /> Add Saving Goal
                 </button>
             </div>
 
-            {/* ── Filter Bar ── */}
+            {/* ── Table Card ── */}
             <div className="table-card" style={{ marginBottom: '24px' }}>
-                <div className="table-header-filter">
-                    {/* Entries select */}
-                    <div className="per-page-select">
-                        <span>Show</span>
-                        <select
-                            value={filters.perPage}
-                            onChange={e => setFilters(prev => ({ ...prev, perPage: Number(e.target.value), page: 1 }))}
-                        >
-                            {[10, 25, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
-                        </select>
-                        <span>entries</span>
-                    </div>
+                
+                {/* Controls */}
+                <div className="table-controls">
+                    <div className="table-controls-left">
+                        <form onSubmit={handleSearchSubmit} className="search-box">
+                            <Search size={16} />
+                            <input
+                                id="savingSearch"
+                                type="text"
+                                placeholder="Search..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                        </form>
 
-                    {/* Right side filter inputs */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                        {/* Status Filter */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Status:</span>
+                        <div className="custom-select">
                             <select
-                                className="filter-select"
+                                id="savingStatusFilter"
                                 value={filters.status}
                                 onChange={e => setFilters(prev => ({ ...prev, status: e.target.value, page: 1 }))}
-                                style={{
-                                    background: 'var(--bg-input)',
-                                    border: '1px solid var(--bg-card-border)',
-                                    borderRadius: '8px',
-                                    padding: '6px 12px',
-                                    color: 'var(--text-primary)',
-                                    fontSize: '13px'
-                                }}
                             >
                                 <option value="all">All Status</option>
                                 {statuses.map(st => (
@@ -203,23 +199,24 @@ export default function Index({ title, subtitle, currencies, accounts, statuses 
                             </select>
                         </div>
 
-                        {/* Search Input */}
-                        <form onSubmit={handleSearchSubmit} className="search-box">
-                            <input
-                                type="text"
-                                placeholder="Search goals..."
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                            />
-                            <button type="submit" className="search-btn">
-                                <Search size={14} />
-                            </button>
-                        </form>
-
-                        {/* Reset Filter Button */}
-                        <button className="btn-action reload" onClick={handleReload} title="Reset Filters" style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
+                        <button className="btn-icon" onClick={handleReload} title="Reload" id="savingReset">
                             <RotateCcw size={15} />
                         </button>
+                    </div>
+
+                    <div className="table-controls-right">
+                        <div className="custom-select">
+                            <select
+                                id="savingPerPage"
+                                value={filters.perPage}
+                                onChange={e => setFilters(prev => ({ ...prev, perPage: Number(e.target.value), page: 1 }))}
+                            >
+                                <option value={10}>Show 10</option>
+                                <option value={25}>Show 25</option>
+                                <option value={50}>Show 50</option>
+                                <option value={100}>Show 100</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
