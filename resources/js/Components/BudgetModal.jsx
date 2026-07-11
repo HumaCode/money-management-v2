@@ -93,7 +93,7 @@ function AmountInput({ id, name, value, onChange, placeholder, disabled, require
 }
 
 // ── Main Budget Modal ──────────────────────────────────────────────
-export default function BudgetModal({ isOpen, mode, data, currencies, periods, categories, onClose, onSave, onShowToast }) {
+export default function BudgetModal({ isOpen, mode, data, currencies, periods, categories, onClose, onSave, onShowToast, onShowExpenses }) {
     const empty = {
         name: '', currency_id: '', period: '', start_date: '', end_date: '',
         total_amount: 0, rollover_unused: 0, notes: '', is_active: 1,
@@ -210,6 +210,16 @@ export default function BudgetModal({ isOpen, mode, data, currencies, periods, c
 
     const footer = (
         <>
+            {isReadOnly && (
+                <button 
+                    type="button"
+                    className="bm-btn bm-btn-primary" 
+                    onClick={() => onShowExpenses(data)}
+                    style={{ background: 'var(--accent-dim)', color: 'var(--accent)', borderColor: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                    Rincian Expense
+                </button>
+            )}
             <button className="bm-btn bm-btn-cancel" onClick={onClose} disabled={isSubmitting}>
                 {isReadOnly ? 'Close' : 'Cancel'}
             </button>
@@ -250,6 +260,29 @@ export default function BudgetModal({ isOpen, mode, data, currencies, periods, c
                         <tr><th>Notes</th><td>{data?.notes || '—'}</td></tr>
                         <tr><th>Created At</th><td>{data?.created_at || '—'}</td></tr>
                         <tr><th>Last Updated</th><td>{data?.updated_at || '—'}</td></tr>
+                        <tr>
+                            <th>Action</th>
+                            <td>
+                                <button 
+                                    type="button" 
+                                    className="bm-btn bm-btn-secondary" 
+                                    style={{ 
+                                        padding: '6px 14px', 
+                                        fontSize: '12.5px', 
+                                        border: '1px solid var(--bg-card-border)', 
+                                        background: 'var(--bg-input)', 
+                                        color: 'var(--accent)', 
+                                        borderRadius: '8px', 
+                                        cursor: 'pointer',
+                                        fontWeight: 600,
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onClick={() => onShowExpenses(data)}
+                                >
+                                    Lihat Rincian Expense
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             )}

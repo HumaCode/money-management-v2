@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import BudgetModal from '../../Components/BudgetModal';
+import BudgetExpensesListModal from '../../Components/BudgetExpensesListModal';
 import ConfirmModal from '../../Components/ConfirmModal';
 import EmptyState from '../../Components/EmptyState';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
@@ -21,6 +22,10 @@ export default function Index({ title, subtitle, periods, currencies, categories
     const [isModalOpen, setIsModalOpen]   = useState(false);
     const [modalMode, setModalMode]       = useState('create');
     const [selectedBudget, setSelectedBudget] = useState(null);
+
+    // ── Expenses List Modal state ────────────────────────────────
+    const [isExpensesModalOpen, setIsExpensesModalOpen] = useState(false);
+    const [selectedBudgetForExpenses, setSelectedBudgetForExpenses] = useState(null);
 
     // ── Delete confirm state ─────────────────────────────────────
     const [isDeleteOpen, setIsDeleteOpen]     = useState(false);
@@ -83,6 +88,18 @@ export default function Index({ title, subtitle, periods, currencies, categories
     const openEdit   = (b) => { setSelectedBudget(b);    setModalMode('edit');       setIsModalOpen(true); };
     const openShow   = (b) => { setSelectedBudget(b);    setModalMode('show');       setIsModalOpen(true); };
     const openAddExp = (b) => { setSelectedBudget(b);    setModalMode('addExpense'); setIsModalOpen(true); };
+
+    const handleShowExpenses = (b) => {
+        setIsModalOpen(false);
+        setSelectedBudgetForExpenses(b);
+        setIsExpensesModalOpen(true);
+    };
+
+    const handleBackToDetail = (b) => {
+        setSelectedBudget(b);
+        setModalMode('show');
+        setIsModalOpen(true);
+    };
 
     const triggerDelete = (b) => { setBudgetToDelete(b); setIsDeleteOpen(true); };
     const closeDelete   = () => { if (isDeleting) return; setIsDeleteOpen(false); setBudgetToDelete(null); };
@@ -396,6 +413,16 @@ export default function Index({ title, subtitle, periods, currencies, categories
                 categories={categories}
                 onClose={() => { setIsModalOpen(false); setSelectedBudget(null); }}
                 onSave={fetchBudgets}
+                onShowToast={showToast}
+                onShowExpenses={handleShowExpenses}
+            />
+
+            {/* ── Budget Expenses List Modal ── */}
+            <BudgetExpensesListModal
+                isOpen={isExpensesModalOpen}
+                budget={selectedBudgetForExpenses}
+                onClose={() => { setIsExpensesModalOpen(false); setSelectedBudgetForExpenses(null); }}
+                onBackToDetail={handleBackToDetail}
                 onShowToast={showToast}
             />
 

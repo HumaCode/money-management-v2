@@ -99,6 +99,31 @@ class BudgetController extends Controller
         }
     }
 
+    public function getExpenses(Budget $budget)
+    {
+        try {
+            $expenses = $budget->budgetCategories()
+                ->with(['category', 'budget.currency'])
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'category_name' => $item->category?->name ?? 'Uncategorized',
+                        'category_icon' => $item->category?->icon ?? '🍔',
+                        'spent_date' => $item->spent_date?->format('d M Y') ?? '—',
+                        'allocated_amount' => (float)$item->allocated_amount,
+                        'spent_amount' => (float)$item->spent_amount,
+                        'spent_amount_formatted' => $item->spent_amount_formatted,
+                        'notes' => $item->notes ?? '—',
+                    ];
+                });
+
+            return ResponseHelper::jsonResponse(true, 'Expenses retrieved successfully', $expenses, 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
     public function destroy(Budget $budget)
     {
         try {
