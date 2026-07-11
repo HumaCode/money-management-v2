@@ -190,6 +190,7 @@
         <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/dashboard.css">
         <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/category.css">
         <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/account.css">
+        <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/budget.css">
     @endif
 
     <!-- Scripts -->
