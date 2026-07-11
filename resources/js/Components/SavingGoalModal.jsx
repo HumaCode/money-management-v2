@@ -385,7 +385,7 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
             )}
 
             {/* ── CREATE / EDIT FORM ── */}
-            {!isReadOnly && (
+            {(mode === 'create' || mode === 'edit') && (
                 <form className="sg-form" onSubmit={handleSubmit}>
                     
                     {/* Row 1: Name, Icon & Color */}
