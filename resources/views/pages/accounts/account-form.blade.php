@@ -3,7 +3,7 @@
     $isEdit = !empty($data->id);
 @endphp
 
-<x-form.modal title="Account" :action="$action ?? null" :is-edit="$isEdit" type="{{ $type ?? null }}">
+<x-form.modal title="Account" :action="$action ?? null" :is-edit="$isEdit" type="{{ $type ?? null }}" size="xl">
 
     @if ($action ?? null)
         <div class="form-group">
@@ -140,6 +140,66 @@
         <div class="table-wrapper">
             <table>
                 <tbody>
+                    <tr>
+                        <th>Account Name</th>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                @if ($data->icon)
+                                    <span class="account-icon" style="background: {{ $data->color ?? 'rgba(125,211,168,0.15)' }};">{{ $data->icon }}</span>
+                                @endif
+                                <strong style="color: var(--text-primary);">{{ $data->name }}</strong>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Account Type</th>
+                        <td>{{ $data->accountType?->name ?? '—' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Institution</th>
+                        <td>{{ $data->institution_name ?? '—' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Account Number</th>
+                        <td>{{ $data->masked_account_number ?? ($data->account_number ?? '—') }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Currency</th>
+                        <td>{{ $data->currency?->name ?? $data->currency?->code ?? '—' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Balance</th>
+                        <td><strong>{{ $data->balance_formatted ?? number_format($data->balance, 2) }}</strong></td>
+                    </tr>
+
+                    <tr>
+                        <th>Credit Limit</th>
+                        <td>{{ $data->credit_limit > 0 ? number_format($data->credit_limit, 2) : '—' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Default Account</th>
+                        <td>
+                            <span class="badge {{ $data->is_default ? 'success' : 'secondary' }}">
+                                {{ $data->is_default ? 'Yes' : 'No' }}
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Status</th>
+                        <td>
+                            <span class="badge {{ $data->is_active ? 'success' : 'danger' }}">
+                                {{ $data->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                    </tr>
+
                     <tr>
                         <th>Note</th>
                         <td>{{ $data->notes ?? '—' }}</td>

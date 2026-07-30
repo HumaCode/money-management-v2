@@ -73,10 +73,19 @@
                 for (let i = 0; i < rows; i++) {
                     skeletonRows += `
                         <tr class="skeleton-row">
-                            <td><div class="skeleton skeleton-icon"></div></td>
-                            <td><div class="skeleton skeleton-text"></div></td>
-                            <td><div class="skeleton skeleton-badge"></div></td>
-                            <td><div class="skeleton skeleton-text short"></div></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div class="skeleton skeleton-icon" style="width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;"></div>
+                                    <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+                                        <div class="skeleton skeleton-text" style="width: 120px; height: 14px;"></div>
+                                        <div class="skeleton skeleton-text" style="width: 80px; height: 10px;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><div class="skeleton skeleton-text" style="width: 90px; height: 14px;"></div></td>
+                            <td><div class="skeleton skeleton-text" style="width: 110px; height: 14px;"></div></td>
+                            <td><div class="skeleton skeleton-text" style="width: 45px; height: 14px;"></div></td>
+                            <td><div class="skeleton skeleton-text" style="width: 100px; height: 14px;"></div></td>
                             <td><div class="skeleton skeleton-badge"></div></td>
                             <td><div class="skeleton skeleton-actions"></div></td>
                         </tr>

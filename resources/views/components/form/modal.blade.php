@@ -7,7 +7,7 @@
 ])
 
 
-<div class="modal">
+<div class="modal {{ $size ? 'modal-' . $size : '' }}">
     <div class="modal-header">
         <h3 id="modalTitle">
             @php

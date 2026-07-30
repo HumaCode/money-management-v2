@@ -9,13 +9,14 @@ function openModal(url) {
 
     // tampilkan modal + loading
     $overlay.addClass("show").html(`
-                    <div class="modal">
-                        <div class="modal-body modal-loading text-center py-5">
-                            <div class="spinner-form mb-3"></div>
-                            <p>Loading...</p>
-                        </div>
-                    </div>
-                `);
+        <div class="modal modal-sm">
+            <div class="modal-body modal-loading">
+                <div class="spinner-form mb-2"></div>
+                <h4>Memuat Data...</h4>
+                <p>Mohon tunggu sebentar, data sedang disiapkan.</p>
+            </div>
+        </div>
+    `);
 
     $("body").css("overflow", "hidden");
 
@@ -32,12 +33,19 @@ function openModal(url) {
             if (xhr.statusText === "abort") return;
 
             $overlay.html(`
-                        <div class="modal">
-                            <div class="modal-body text-danger text-center p-5">
-                                Failed to load content
-                            </div>
-                        </div>
-                    `);
+                <div class="modal modal-sm">
+                    <div class="modal-body modal-loading">
+                        <svg style="width:36px; height:36px; stroke:var(--error);" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <h4 style="color: var(--error);">Gagal Memuat Data</h4>
+                        <p>Terjadi kesalahan saat mengambil data.</p>
+                        <button type="button" class="btn-secondary mt-2" onclick="closeModal()">Tutup</button>
+                    </div>
+                </div>
+            `);
         },
     });
 }

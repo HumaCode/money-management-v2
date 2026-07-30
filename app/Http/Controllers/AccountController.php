@@ -106,6 +106,8 @@ class AccountController extends Controller
 
     public function show(Account $account)
     {
+        $account->load(['accountType', 'currency']);
+
         return view($this->formView, [
             'type'      => 'show',
             'data'      => $account,
