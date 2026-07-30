@@ -49,6 +49,8 @@
             window.urlData = @json($dataUrl);
             window.urlEdit = @json($editUrl);
             window.urlDestroy = @json($destroyUrl);
+            window.urlDeposit = @json(route('saving.goals.depositForm', ['saving' => '__ID__']));
+            window.urlHistory = @json(route('saving.goals.history', ['saving' => '__ID__']));
         </script>
 
 
@@ -71,9 +73,15 @@
                 for (let i = 0; i < rows; i++) {
                     skeletonRows += `
                         <tr class="skeleton-row">
-                            <td><div class="skeleton skeleton-icon"></div></td>
-                            <td><div class="skeleton skeleton-text"></div></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div class="skeleton skeleton-icon"></div>
+                                    <div style="flex: 1;"><div class="skeleton skeleton-text"></div></div>
+                                </div>
+                            </td>
                             <td><div class="skeleton skeleton-badge"></div></td>
+                            <td><div class="skeleton skeleton-text short"></div></td>
+                            <td><div class="skeleton skeleton-text"></div></td>
                             <td><div class="skeleton skeleton-text short"></div></td>
                             <td><div class="skeleton skeleton-badge"></div></td>
                             <td><div class="skeleton skeleton-actions"></div></td>
@@ -146,60 +154,103 @@
                 rows.forEach(row => {
                     const finalEditUrl = window.urlEdit.replace('__ID__', row.id);
                     const finalDestroyUrl = window.urlDestroy.replace('__ID__', row.id);
+                    const finalDepositUrl = window.urlDeposit.replace('__ID__', row.id);
+                    const finalHistoryUrl = window.urlHistory.replace('__ID__', row.id);
+
+                    const targetAmountVal = Number(row.target_amount || 0);
+                    const currentAmountVal = Number(row.current_amount || 0);
+                    const symbol = row.currency?.symbol || 'Rp';
+
+                    const targetAmountFormatted = row.target_amount_formatted || (symbol + ' ' + targetAmountVal.toLocaleString('en-US', {minimumFractionDigits: 2}));
+                    const currentAmountFormatted = row.current_amount_formatted || (symbol + ' ' + currentAmountVal.toLocaleString('en-US', {minimumFractionDigits: 2}));
+
+                    const progressPercentage = row.progress_percentage !== undefined ? row.progress_percentage : (targetAmountVal > 0 ? Math.min(100, (currentAmountVal / targetAmountVal) * 100).toFixed(1) : 0);
+                    const progressBarWidth = row.progress_bar_width !== undefined ? row.progress_bar_width : Math.min(100, Math.max(0, progressPercentage));
+
+                    const targetDateFormatted = row.target_date_formatted || (row.target_date ? row.target_date.split('T')[0] : '—');
+                    const statusVal = row.status || (row.is_active ? 'active' : 'inactive');
+                    const statusLabel = row.status_label || (statusVal ? statusVal.charAt(0).toUpperCase() + statusVal.slice(1) : 'Active');
 
                     // Determine progress color class
-                    let progressColorClass = '';
+                    let progressColorClass = 'success';
                     let progressTextStyle = '';
 
-                    if (row.progress_percentage_normalized >= 100) {
-                        progressColorClass = 'error';
-                        progressTextStyle = 'color: var(--error); font-weight: 600;';
-                    } else if (row.progress_percentage_normalized >= 80) {
+                    if (progressPercentage >= 100) {
+                        progressColorClass = 'success';
+                        progressTextStyle = 'color: var(--success); font-weight: 600;';
+                    } else if (progressPercentage >= 50) {
+                        progressColorClass = 'info';
+                    } else {
                         progressColorClass = 'warning';
-                        progressTextStyle = 'color: var(--warning); font-weight: 600;';
                     }
+
+                    // Status badge class
+                    let statusBadgeClass = 'success';
+                    if (statusVal === 'completed') statusBadgeClass = 'success';
+                    else if (statusVal === 'paused') statusBadgeClass = 'warning';
+                    else if (statusVal === 'cancelled' || statusVal === 'inactive') statusBadgeClass = 'danger';
 
                     html += `
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 12px;">
-                            <div class="account-icon" style="background: ${row.color ?? 'rgba(125,211,168,0.15)'};">${row.icon}</div>
-                            <div>
-                                <div style="font-weight: 500;">${row.name}</div>
-                                <div style="font-size: 11px; color: var(--text-secondary);">${row.description}</div>
-                            </div>
+                                <div class="account-icon" style="background: ${row.color ?? 'rgba(125,211,168,0.15)'};">${row.icon ?? '🎯'}</div>
+                                <div>
+                                    <div style="font-weight: 500;">${row.name ?? '—'}</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">${row.description ?? '—'}</div>
+                                </div>
                             </div>
                         </td>
 
                         <td>
                             <span class="badge info">
-                                ${row.account.name}
+                                ${row.account?.name ?? '—'}
                             </span>
                         </td>
 
                         <td>
-                            ${row.target_amount}
+                            ${targetAmountFormatted}
                         </td>
 
                         <td>
-                            proggress
+                            <div class="progress-bar">
+                                <div class="progress-fill ${progressColorClass}" 
+                                    style="width: ${progressBarWidth}%;">
+                                </div>
+                            </div>
+                            
+                            <div class="progress-text" style="${progressTextStyle}">
+                                ${currentAmountFormatted} of ${targetAmountFormatted}
+                                (${progressPercentage}%)
+                            </div>
                         </td>
 
                         <td>
-                            ${row.target_date}
+                            ${targetDateFormatted}
                         </td>
 
-                        
                         <td>
-                            <span class="badge badge-success">
-                                ${row.is_active }
+                            <span class="badge ${statusBadgeClass}">
+                                ${statusLabel}
                             </span>
                         </td>
                         <td>
                             <div class="action-buttons">
                                 ${row.actions ?? ''}
 
-                               
+                                <a href="${finalDepositUrl}" class="btn-action action" style="color: #7dd3a8; background: rgba(125, 211, 168, 0.15);" title="Setor Tabungan / Mulai Nabung"> 
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                </a>
+
+                                <a href="${finalHistoryUrl}" class="btn-action action" style="color: #60a5fa; background: rgba(96, 165, 250, 0.15);" title="Lihat Riwayat Setoran"> 
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </a>
+
                                 <a href="${finalEditUrl}" class="btn-action edit action" title="Edit"> 
                                     <svg viewBox="0 0 24 24"> <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /> 
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /> </svg> 

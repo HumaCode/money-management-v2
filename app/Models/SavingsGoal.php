@@ -90,4 +90,20 @@ class SavingsGoal extends Model
     {
         return $this->current_amount >= $this->target_amount;
     }
+
+    public function recalculateProgress(): void
+    {
+        $totalContributions = (float) $this->contributions()->sum('amount');
+        $targetAmount = (float) $this->target_amount;
+
+        $status = $this->status;
+        if ($targetAmount > 0 && $totalContributions >= $targetAmount && $status === 'active') {
+            $status = 'completed';
+        }
+
+        $this->forceFill([
+            'current_amount' => $totalContributions,
+            'status'         => $status,
+        ])->save();
+    }
 }

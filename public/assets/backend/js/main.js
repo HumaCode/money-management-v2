@@ -104,10 +104,21 @@ function handleFormSubmit(formSelector) {
     }
 
     function submitAjax(form) {
+        const formData = new FormData(form);
+
+        // Unformat currency inputs before sending to server
+        $(form).find(".currency-input, input[data-type='currency']").each(function () {
+            const name = $(this).attr("name");
+            if (name) {
+                const rawVal = getRawNumberValue($(this).val());
+                formData.set(name, rawVal);
+            }
+        });
+
         $.ajax({
             url: form.action,
             method: form.method || "POST",
-            data: new FormData(form),
+            data: formData,
             contentType: false,
             processData: false,
 
@@ -282,64 +293,69 @@ function toggleCategory(chip, categoryId) {
 }
 
 function handleDelete(dataTableId, onSuccess) {
-    $(document).on("click", `#${dataTableId} .delete`, function (e) {
-        e.preventDefault();
+    // Keep function for backwards compatibility
+}
 
-        const url = $(this).attr("href");
-        if (!url) return;
+$(document).on("click", "a.btn-action.delete, a.delete", function (e) {
+    e.preventDefault();
 
-        Swal.fire({
-            title: "Delete this item?",
-            html: `
-                <div style="text-align:center">
-                    <p>This action cannot be undone.</p>
-                    <strong class="text-danger">The data will be permanently removed.</strong>
-                </div>
-            `,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it",
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#ef4444",
-        }).then((result) => {
-            if (!result.isConfirmed) return;
+    const $btn = $(this);
+    const url = $btn.attr("href");
+    if (!url || url === "#" || url.startsWith("javascript:")) return;
 
-            $.ajax({
-                url,
-                method: "DELETE",
+    Swal.fire({
+        title: "Delete this item?",
+        html: `
+            <div style="text-align:center">
+                <p>This action cannot be undone.</p>
+                <strong class="text-danger">The data will be permanently removed.</strong>
+            </div>
+        `,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#ef4444",
+    }).then((result) => {
+        if (!result.isConfirmed) return;
 
-                beforeSend() {
-                    showLoading(true);
-                },
+        $.ajax({
+            url,
+            method: "DELETE",
 
-                success(res) {
-                    showToast(
-                        res.status || "success",
-                        res.message || "Data deleted successfully",
-                    );
+            beforeSend() {
+                showLoading(true);
+            },
 
-                    // 🔁 Reload table (AJAX custom)
-                    if (typeof loadData === "function") {
-                        loadData();
-                    }
+            success(res) {
+                showToast(
+                    res.status || "success",
+                    res.message || "Data deleted successfully"
+                );
 
-                    onSuccess && onSuccess(res);
-                },
+                if ($btn.closest(".modal").length > 0) {
+                    closeModal();
+                }
 
-                error(err) {
-                    showToast(
-                        "error",
-                        err.responseJSON?.message || "Failed to delete data",
-                    );
-                },
+                // 🔁 Reload table data
+                if (typeof loadData === "function") {
+                    loadData();
+                }
+            },
 
-                complete() {
-                    showLoading(false);
-                },
-            });
+            error(err) {
+                showToast(
+                    "error",
+                    err.responseJSON?.message || "Failed to delete data"
+                );
+            },
+
+            complete() {
+                showLoading(false);
+            }
         });
     });
-}
+});
 
 /* ============================================================
    FLATPICKR DATEPICKER INITIALIZER
@@ -408,10 +424,62 @@ function updateYearDropdown(instance) {
     }
 }
 
+/* ============================================================
+   CURRENCY INPUT FORMATTER (THOUSAND SEPARATOR)
+   ============================================================ */
+
+function formatRupiahInput(val) {
+    if (val === null || val === undefined || val === "") return "";
+    let str = val.toString().trim();
+
+    // If initial value from DB/PHP is float number string with decimal dot e.g. "100000.00"
+    if (/^\d+(\.\d{1,2})?$/.test(str)) {
+        let num = parseFloat(str);
+        if (isNaN(num)) return "";
+        return Math.floor(num).toLocaleString("id-ID");
+    }
+
+    let numberString = str.replace(/[^0-9]/g, "");
+    if (!numberString) return "";
+    return parseInt(numberString, 10).toLocaleString("id-ID");
+}
+
+function getRawNumberValue(val) {
+    if (!val) return "";
+    return val.toString().replace(/\./g, "").replace(/,/g, "");
+}
+
+function initCurrencyInput() {
+    $(".currency-input, input[data-type='currency']").each(function () {
+        const $input = $(this);
+        if ($input.data("currency-initialized")) return;
+
+        $input.data("currency-initialized", true);
+
+        if ($input.val()) {
+            $input.val(formatRupiahInput($input.val()));
+        }
+
+        $input.on("input", function () {
+            const cursorPosition = this.selectionStart;
+            const originalLength = this.value.length;
+            const formatted = formatRupiahInput(this.value);
+
+            this.value = formatted;
+
+            const newLength = formatted.length;
+            const newPosition = Math.max(0, cursorPosition + (newLength - originalLength));
+            this.setSelectionRange(newPosition, newPosition);
+        });
+    });
+}
+
 $(document).ready(function () {
     initDatepicker();
+    initCurrencyInput();
 });
 
 $(document).on("modal:loaded", function () {
     initDatepicker();
+    initCurrencyInput();
 });

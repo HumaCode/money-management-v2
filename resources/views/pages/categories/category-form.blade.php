@@ -3,7 +3,7 @@
     $isEdit = !empty($data->id);
 @endphp
 
-<x-form.modal title="Category" :action="$action ?? null" :is-edit="$isEdit" type="{{ $type ?? null }}">
+<x-form.modal title="Category" :action="$action ?? null" :is-edit="$isEdit" type="{{ $type ?? null }}" size="xl">
 
     @if ($action ?? null)
         <div class="form-group">
