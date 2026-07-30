@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavingGoalController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -58,6 +59,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/budget-expenses/{budgetExpense}/add-expenses', [BudgetExpenseController::class, 'addExpenses'])->name('budget.expense.addExpenses');
     Route::put('/budget-expenses/{budgetExpense}/add-expenses', [BudgetExpenseController::class, 'storeExpenses'])->name('budget.expense.storeExpenses');
     Route::delete('/budget-expenses/{budgetExpense}/destroy', [BudgetExpenseController::class, 'destroy'])->name('budget.expense.destroy');
+
+    // transactions
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transaction.index');
+    Route::get('/transactions/getAllPagination', [TransactionController::class, 'getAllPaginated'])->name('transaction.allPagination');
+    Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transaction.create');
+    Route::post('/transactions/store', [TransactionController::class, 'store'])->name('transaction.store');
+    Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transaction.edit');
+    Route::put('/transactions/{transaction}/update', [TransactionController::class, 'update'])->name('transaction.update');
+    Route::delete('/transactions/{transaction}/destroy', [TransactionController::class, 'destroy'])->name('transaction.destroy');
 
     // saving goal
     Route::get('/saving-goals', [SavingGoalController::class, 'index'])->name('saving.goals.index');

@@ -91,6 +91,48 @@ function handleFormSubmit(formSelector) {
                 e.preventDefault();
                 const form = this;
 
+                // Overdraft warning for expense transactions
+                const $txType = $(form).find("#txType");
+                const $txAccount = $(form).find("#txAccount");
+                const $txAmount = $(form).find("#txAmount");
+
+                if ($txType.length && $txAccount.length && $txAmount.length) {
+                    const type = $txType.val();
+                    const $selectedOpt = $txAccount.find("option:selected");
+                    const balance = parseFloat($selectedOpt.attr("data-balance") || 0);
+                    const amount = parseFloat(getRawNumberValue($txAmount.val()) || 0);
+
+                    if (type === "expense" && amount > balance && !form.dataset.confirmedOverdraft) {
+                        const formattedAmount = "Rp " + amount.toLocaleString("id-ID");
+                        const formattedBalance = "Rp " + balance.toLocaleString("id-ID");
+
+                        Swal.fire({
+                            title: "Saldo Akun Tidak Cukup",
+                            html: `
+                                <div style="text-align:center">
+                                    <p>Nominal pengeluaran (<strong>${formattedAmount}</strong>) melebihi saldo akun saat ini (<strong>${formattedBalance}</strong>).</p>
+                                    <p style="color: #f59e0b; font-size: 13px; margin-top: 8px;">Saldo akun Anda akan berkurang menjadi minus jika dilanjutkan.</p>
+                                    <strong style="color: #fff; margin-top: 10px; display: inline-block;">Apakah Anda yakin ingin melanjutkan transaksi ini?</strong>
+                                </div>
+                            `,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Ya, Lanjutkan Transaksi",
+                            cancelButtonText: "Batal / Perbaiki Nominal",
+                            confirmButtonColor: "#f59e0b",
+                            cancelButtonColor: "#6b7280",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.dataset.confirmedOverdraft = "true";
+                                $(form).submit();
+                            }
+                        });
+                        return;
+                    }
+                }
+
+                delete form.dataset.confirmedOverdraft;
+
                 // tampilkan spinner submit
                 showFormSpinner();
 
