@@ -189,7 +189,7 @@
                             
                             <div class="progress-text" style="${progressTextStyle}">
                                 ${row.spent_amount_formatted} of ${row.total_amount_formatted}
-                                (${Math.round(row.progress_percentage_normalized)}%)
+                                (${parseFloat(Number(row.progress_percentage_normalized).toFixed(1))})%
                             </div>
                         </td>
 

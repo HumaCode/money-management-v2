@@ -340,3 +340,78 @@ function handleDelete(dataTableId, onSuccess) {
         });
     });
 }
+
+/* ============================================================
+   FLATPICKR DATEPICKER INITIALIZER
+   ============================================================ */
+
+function initDatepicker() {
+    if (typeof flatpickr !== "undefined") {
+        $("input[type='date'], input.datepicker").each(function () {
+            if (this._flatpickr) return;
+
+            flatpickr(this, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d M Y",
+                allowInput: true,
+                disableMobile: "true",
+                onReady: function (selectedDates, dateStr, instance) {
+                    createYearDropdown(instance);
+                },
+                onMonthChange: function (selectedDates, dateStr, instance) {
+                    updateYearDropdown(instance);
+                },
+                onYearChange: function (selectedDates, dateStr, instance) {
+                    updateYearDropdown(instance);
+                },
+                onOpen: function (selectedDates, dateStr, instance) {
+                    updateYearDropdown(instance);
+                }
+            });
+        });
+    }
+}
+
+function createYearDropdown(instance) {
+    const yearInputWrapper = instance.calendarContainer.querySelector(".numInputWrapper");
+    if (!yearInputWrapper || instance.calendarContainer.querySelector(".flatpickr-year-select")) return;
+
+    const currentYear = instance.currentYear;
+    const startYear = currentYear - 50;
+    const endYear = currentYear + 50;
+
+    const yearSelect = document.createElement("select");
+    yearSelect.className = "flatpickr-monthDropdown-months flatpickr-year-select";
+
+    for (let y = startYear; y <= endYear; y++) {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        opt.className = "flatpickr-monthDropdown-month";
+        if (y === currentYear) opt.selected = true;
+        yearSelect.appendChild(opt);
+    }
+
+    yearSelect.addEventListener("change", function () {
+        instance.changeYear(parseInt(this.value, 10));
+    });
+
+    yearInputWrapper.style.display = "none";
+    yearInputWrapper.parentNode.appendChild(yearSelect);
+}
+
+function updateYearDropdown(instance) {
+    const yearSelect = instance.calendarContainer.querySelector(".flatpickr-year-select");
+    if (yearSelect) {
+        yearSelect.value = instance.currentYear;
+    }
+}
+
+$(document).ready(function () {
+    initDatepicker();
+});
+
+$(document).on("modal:loaded", function () {
+    initDatepicker();
+});
