@@ -9,62 +9,47 @@ use App\Http\Requests\Account\AccountStoreRequest;
 use App\Http\Requests\Account\AccountUpdateRequest;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\PaginateResource;
-use App\Interface\AccountRepositoryInterface;
+use App\Services\AccountService;
 use App\Models\Account;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AccountController extends Controller
 {
     private string $title               = AccountMessage::TITLE;
     private string $subtitle            = AccountMessage::SUBTITLE;
-    private string $formView            = AccountMessage::FORMVIEW;
-    private string $indexView           = AccountMessage::INDEXVIEW;
+    private AccountService $accountService;
 
-    private string $createUrl           = AccountMessage::CREATEURL;
-    private string $editUrl             = AccountMessage::EDITURL;
-    private string $showUrl             = AccountMessage::SHOWURL;
-    private string $storeUrl            = AccountMessage::STOREURL;
-    private string $updateUrl           = AccountMessage::UPDATEURL;
-    private string $destroyUrl          = AccountMessage::DESTROYURL;
-
-    private string $dataUrl             = AccountMessage::PAGINATIONURL;
-    private string $dataTableId         = AccountMessage::TABLEID;
-
-
-    private AccountRepositoryInterface $accountRepository;
-
-    public function __construct(AccountRepositoryInterface $accountRepository)
+    public function __construct(AccountService $accountService)
     {
-        $this->accountRepository = $accountRepository;
+        $this->accountService = $accountService;
     }
 
     public function index()
     {
-        // Gate::authorize('read ' . $this->permissionAkses);
-
-        return \Inertia\Inertia::render('Accounts/Index', [
+        return Inertia::render('Accounts/Index', [
             'title'             => $this->title,
             'subtitle'          => $this->subtitle,
-            'accountTypes'      => $this->accountRepository->getAccountTypeList(),
-            'currencies'        => $this->accountRepository->getCurrencyList(),
+            'accountTypes'      => $this->accountService->getAccountTypeList(),
+            'currencies'        => $this->accountService->getCurrencyList(),
         ]);
     }
 
     public function getAllPaginated(Request $request)
     {
-        $request = $request->validate([
+        $requestData = $request->validate([
             'search'        => 'nullable|string',
             'status'        => 'nullable|string',
-            'type'        => 'nullable|string',
+            'type'          => 'nullable|string',
             'row_per_page'  => 'required|integer'
         ]);
 
         try {
-            $accounts = $this->accountRepository->getAllPaginated(
-                $request['search'] ?? null,
-                $request['status'] ?? null,
-                $request['type'] ?? null,
-                $request['row_per_page'],
+            $accounts = $this->accountService->getAllPaginated(
+                $requestData['search'] ?? null,
+                $requestData['status'] ?? null,
+                $requestData['type'] ?? null,
+                $requestData['row_per_page'],
             );
 
             return ResponseHelper::jsonResponse(true, AccountMessage::ACCOUNT_RETRIEVED_SUCCESS, PaginateResource::make($accounts, AccountResource::class), 200);
@@ -73,22 +58,12 @@ class AccountController extends Controller
         }
     }
 
-    public function create(Account $account)
-    {
-        return view($this->formView, [
-            'action'            => route($this->storeUrl),
-            'data'              => $account,
-            'CurrencyList'      => $this->accountRepository->getCurrencyList(),
-            'AccountTypeList'   => $this->accountRepository->getAccountTypeList(),
-        ]);
-    }
-
     public function store(AccountStoreRequest $request)
     {
-        $request = $request->validated();
+        $data = $request->validated();
 
         try {
-            $account = $this->accountRepository->create($request);
+            $account = $this->accountService->createAccount($data);
 
             return ResponseHelper::jsonResponse(true, AccountMessage::ACCOUNT_CREATED_SUCCESS, new AccountResource($account), 201);
         } catch (\Exception $e) {
@@ -96,32 +71,12 @@ class AccountController extends Controller
         }
     }
 
-    public function show(Account $account)
-    {
-        $account->load(['accountType', 'currency']);
-
-        return view($this->formView, [
-            'type'      => 'show',
-            'data'      => $account,
-        ]);
-    }
-
-    public function edit(Account $account)
-    {
-        return view($this->formView, [
-            'action'            => route($this->updateUrl, ['account' => $account->id]),
-            'data'              => $account,
-            'CurrencyList'      => $this->accountRepository->getCurrencyList(),
-            'AccountTypeList'   => $this->accountRepository->getAccountTypeList(),
-        ]);
-    }
-
     public function update(AccountUpdateRequest $request, Account $account)
     {
-        $request = $request->validated();
+        $data = $request->validated();
 
         try {
-            $account = $this->accountRepository->update($account->id, $request);
+            $account = $this->accountService->updateAccount($account->id, $data);
 
             return ResponseHelper::jsonResponse(true, AccountMessage::ACCOUNT_UPDATED_SUCCESS, new AccountResource($account), 200);
         } catch (\Exception $e) {
@@ -131,14 +86,13 @@ class AccountController extends Controller
 
     public function destroy(Account $account)
     {
-
         try {
-            $account = $this->accountRepository->getById($account->id);
-            if (!$account) {
+            $accountRecord = $this->accountService->getAccountById($account->id);
+            if (!$accountRecord) {
                 return ResponseHelper::jsonResponse(false, GlobalMessage::NOT_FOUND, null, 404);
             }
 
-            $this->accountRepository->delete($account->id);
+            $this->accountService->deleteAccount($accountRecord->id);
 
             return ResponseHelper::jsonResponse(true, AccountMessage::ACCOUNT_DELETED_SUCCESS, null, 200);
         } catch (\Exception $e) {

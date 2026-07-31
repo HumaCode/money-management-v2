@@ -7,7 +7,6 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavingGoalController;
-use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -40,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/budgets/store', [BudgetController::class, 'store'])->name('budget.store');
     Route::get('/budgets/{budget}/edit', [BudgetController::class, 'edit'])->name('budget.edit');
     Route::put('/budgets/{budget}/update', [BudgetController::class, 'update'])->name('budget.update');
+    Route::get('/budgets/{budget}/expenses', [BudgetController::class, 'getExpenses'])->name('budget.expenses');
     Route::get('/budgets/{budget}/add-expenses', [BudgetController::class, 'addExpenses'])->name('budget.addExpenses');
     Route::put('/budgets/{budget}/add-expenses', [BudgetController::class, 'storeExpenses'])->name('budget.storeExpenses');
     Route::delete('/budgets/{budget}/destroy', [BudgetController::class, 'destroy'])->name('budget.destroy');
@@ -55,15 +55,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/budget-expenses/{budgetExpense}/add-expenses', [BudgetExpenseController::class, 'storeExpenses'])->name('budget.expense.storeExpenses');
     Route::delete('/budget-expenses/{budgetExpense}/destroy', [BudgetExpenseController::class, 'destroy'])->name('budget.expense.destroy');
 
-    // transactions
-    Route::get('/transactions', [TransactionController::class, 'index'])->name('transaction.index');
-    Route::get('/transactions/getAllPagination', [TransactionController::class, 'getAllPaginated'])->name('transaction.allPagination');
-    Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transaction.create');
-    Route::post('/transactions/store', [TransactionController::class, 'store'])->name('transaction.store');
-    Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transaction.edit');
-    Route::put('/transactions/{transaction}/update', [TransactionController::class, 'update'])->name('transaction.update');
-    Route::delete('/transactions/{transaction}/destroy', [TransactionController::class, 'destroy'])->name('transaction.destroy');
-
     // saving goal
     Route::get('/saving-goals', [SavingGoalController::class, 'index'])->name('saving.goals.index');
     Route::get('/saving-goals/getAllPagination', [SavingGoalController::class, 'getAllPaginated'])->name('saving.goals.allPagination');
@@ -71,12 +62,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/saving-goals/store', [SavingGoalController::class, 'store'])->name('saving.goals.store');
     Route::get('/saving-goals/{saving}/edit', [SavingGoalController::class, 'edit'])->name('saving.goals.edit');
     Route::put('/saving-goals/{saving}/update', [SavingGoalController::class, 'update'])->name('saving.goals.update');
-    Route::get('/saving-goals/{saving}/deposit', [SavingGoalController::class, 'depositForm'])->name('saving.goals.depositForm');
-    Route::post('/saving-goals/{saving}/deposit', [SavingGoalController::class, 'storeDeposit'])->name('saving.goals.storeDeposit');
-    Route::get('/saving-goals/{saving}/history', [SavingGoalController::class, 'history'])->name('saving.goals.history');
-    Route::get('/saving-contributions/{contribution}/edit', [SavingGoalController::class, 'editContribution'])->name('saving.contributions.edit');
-    Route::put('/saving-contributions/{contribution}/update', [SavingGoalController::class, 'updateContribution'])->name('saving.contributions.update');
-    Route::delete('/saving-contributions/{contribution}', [SavingGoalController::class, 'destroyContribution'])->name('saving.contributions.destroy');
+    Route::post('/saving-goals/{saving}/add-saving', [SavingGoalController::class, 'addSaving'])->name('saving.goals.addSaving');
+    Route::get('/saving-goals/{saving}/contributions', [SavingGoalController::class, 'getContributions'])->name('saving.goals.contributions');
     Route::delete('/saving-goals/{saving}/destroy', [SavingGoalController::class, 'destroy'])->name('saving.goals.destroy');
 
 

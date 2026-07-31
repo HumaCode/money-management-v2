@@ -37,6 +37,8 @@
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/custom-css.css">
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/dashboard.css">
     <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/category.css">
+    <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/account.css">
+    <link rel="stylesheet" href="{{ asset('/') }}assets/backend/css/budget.css">
 
 
     @stack('css')

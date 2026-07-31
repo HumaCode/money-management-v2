@@ -235,7 +235,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0a0e1a;
+    color: #ffffff;
     font-weight: 600;
     font-size: 15px;
 }
@@ -409,10 +409,10 @@ body {
     background: linear-gradient(135deg, #5bbf8a, #7dd3a8);
     border: none;
     border-radius: 10px;
-    color: #0a0e1a;
+    color: #ffffff;
     font-family: "Inter", sans-serif;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition:
         transform 0.2s,
@@ -780,26 +780,26 @@ tbody tr:hover {
     color: var(--text-secondary);
     font-size: 13px;
     cursor: pointer;
-    transition:
-        background 0.2s,
-        border-color 0.2s,
-        color 0.2s;
+    transition: all 0.2s ease-in-out;
 }
 
-.pagination button:hover {
+.pagination button:hover:not(.active):not(:disabled) {
     background: var(--bg-input-focus);
     border-color: var(--accent);
     color: var(--accent);
+    transform: translateY(-1px);
 }
 
 .pagination button.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #0a0e1a;
+    background: linear-gradient(135deg, #5bbf8a, #7dd3a8);
+    border-color: #5bbf8a;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(91, 191, 138, 0.25);
 }
 
 .pagination button:disabled {
-    opacity: 0.3;
+    opacity: 0.35;
     cursor: not-allowed;
 }
 
