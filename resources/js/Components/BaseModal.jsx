@@ -223,6 +223,26 @@ export default function BaseModal({ isOpen, onClose, title, size = 'md', footer,
                     to { transform: rotate(360deg); }
                 }
 
+                /* Custom select & dropdown options styling for Dark/Light mode */
+                .bm-body select,
+                .table-card select,
+                .custom-select select {
+                    color: var(--text-primary);
+                    background-color: var(--bg-input);
+                }
+                .bm-body select option,
+                .table-card select option,
+                .custom-select select option {
+                    background-color: #111827;
+                    color: #f0f2f5;
+                }
+                html.light .bm-body select option,
+                html.light .table-card select option,
+                html.light .custom-select select option {
+                    background-color: #ffffff;
+                    color: #1f2937;
+                }
+
                 /* Light mode overrides */
                 html.light .bm-footer { background: rgba(0,0,0,0.02); }
                 html.light .bm-btn-primary { color: #fff; }

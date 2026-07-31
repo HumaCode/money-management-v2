@@ -45,19 +45,10 @@ class BudgetController extends Controller
     {
         // Gate::authorize('read ' . $this->permissionAkses);
 
-        $data = [
+        return \Inertia\Inertia::render('Budgets/Index', [
             'title'             => $this->title,
             'subtitle'          => $this->subtitle,
-            'createUrl'         => route($this->createUrl),
-            'editUrl'           => route($this->editUrl, ['budget' => '__ID__']),
-            'addExpensesUrl'    => route($this->addExpensesUrl, ['budget' => '__ID__']),
-            'destroyUrl'        => route($this->destroyUrl, ['budget' => '__ID__']),
-            'dataUrl'           => route($this->dataUrl),
-            'dataTableId'       => $this->dataTableId,
-            // 'permissionAkses'   => $this->permissionAkses,
-        ];
-
-        return view($this->indexView, $data);
+        ]);
     }
 
     public function getAllPaginated(Request $request)

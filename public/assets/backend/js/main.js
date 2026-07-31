@@ -9,13 +9,14 @@ function openModal(url) {
 
     // tampilkan modal + loading
     $overlay.addClass("show").html(`
-                    <div class="modal">
-                        <div class="modal-body modal-loading text-center py-5">
-                            <div class="spinner-form mb-3"></div>
-                            <p>Loading...</p>
-                        </div>
-                    </div>
-                `);
+        <div class="modal modal-sm">
+            <div class="modal-body modal-loading">
+                <div class="spinner-form mb-2"></div>
+                <h4>Memuat Data...</h4>
+                <p>Mohon tunggu sebentar, data sedang disiapkan.</p>
+            </div>
+        </div>
+    `);
 
     $("body").css("overflow", "hidden");
 
@@ -32,12 +33,19 @@ function openModal(url) {
             if (xhr.statusText === "abort") return;
 
             $overlay.html(`
-                        <div class="modal">
-                            <div class="modal-body text-danger text-center p-5">
-                                Failed to load content
-                            </div>
-                        </div>
-                    `);
+                <div class="modal modal-sm">
+                    <div class="modal-body modal-loading">
+                        <svg style="width:36px; height:36px; stroke:var(--error);" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <h4 style="color: var(--error);">Gagal Memuat Data</h4>
+                        <p>Terjadi kesalahan saat mengambil data.</p>
+                        <button type="button" class="btn-secondary mt-2" onclick="closeModal()">Tutup</button>
+                    </div>
+                </div>
+            `);
         },
     });
 }
@@ -83,6 +91,48 @@ function handleFormSubmit(formSelector) {
                 e.preventDefault();
                 const form = this;
 
+                // Overdraft warning for expense transactions
+                const $txType = $(form).find("#txType");
+                const $txAccount = $(form).find("#txAccount");
+                const $txAmount = $(form).find("#txAmount");
+
+                if ($txType.length && $txAccount.length && $txAmount.length) {
+                    const type = $txType.val();
+                    const $selectedOpt = $txAccount.find("option:selected");
+                    const balance = parseFloat($selectedOpt.attr("data-balance") || 0);
+                    const amount = parseFloat(getRawNumberValue($txAmount.val()) || 0);
+
+                    if (type === "expense" && amount > balance && !form.dataset.confirmedOverdraft) {
+                        const formattedAmount = "Rp " + amount.toLocaleString("id-ID");
+                        const formattedBalance = "Rp " + balance.toLocaleString("id-ID");
+
+                        Swal.fire({
+                            title: "Saldo Akun Tidak Cukup",
+                            html: `
+                                <div style="text-align:center">
+                                    <p>Nominal pengeluaran (<strong>${formattedAmount}</strong>) melebihi saldo akun saat ini (<strong>${formattedBalance}</strong>).</p>
+                                    <p style="color: #f59e0b; font-size: 13px; margin-top: 8px;">Saldo akun Anda akan berkurang menjadi minus jika dilanjutkan.</p>
+                                    <strong style="color: #fff; margin-top: 10px; display: inline-block;">Apakah Anda yakin ingin melanjutkan transaksi ini?</strong>
+                                </div>
+                            `,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Ya, Lanjutkan Transaksi",
+                            cancelButtonText: "Batal / Perbaiki Nominal",
+                            confirmButtonColor: "#f59e0b",
+                            cancelButtonColor: "#6b7280",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.dataset.confirmedOverdraft = "true";
+                                $(form).submit();
+                            }
+                        });
+                        return;
+                    }
+                }
+
+                delete form.dataset.confirmedOverdraft;
+
                 // tampilkan spinner submit
                 showFormSpinner();
 
@@ -96,10 +146,21 @@ function handleFormSubmit(formSelector) {
     }
 
     function submitAjax(form) {
+        const formData = new FormData(form);
+
+        // Unformat currency inputs before sending to server
+        $(form).find(".currency-input, input[data-type='currency']").each(function () {
+            const name = $(this).attr("name");
+            if (name) {
+                const rawVal = getRawNumberValue($(this).val());
+                formData.set(name, rawVal);
+            }
+        });
+
         $.ajax({
             url: form.action,
             method: form.method || "POST",
-            data: new FormData(form),
+            data: formData,
             contentType: false,
             processData: false,
 
@@ -274,61 +335,193 @@ function toggleCategory(chip, categoryId) {
 }
 
 function handleDelete(dataTableId, onSuccess) {
-    $(document).on("click", `#${dataTableId} .delete`, function (e) {
-        e.preventDefault();
+    // Keep function for backwards compatibility
+}
 
-        const url = $(this).attr("href");
-        if (!url) return;
+$(document).on("click", "a.btn-action.delete, a.delete", function (e) {
+    e.preventDefault();
 
-        Swal.fire({
-            title: "Delete this item?",
-            html: `
-                <div style="text-align:center">
-                    <p>This action cannot be undone.</p>
-                    <strong class="text-danger">The data will be permanently removed.</strong>
-                </div>
-            `,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it",
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#ef4444",
-        }).then((result) => {
-            if (!result.isConfirmed) return;
+    const $btn = $(this);
+    const url = $btn.attr("href");
+    if (!url || url === "#" || url.startsWith("javascript:")) return;
 
-            $.ajax({
-                url,
-                method: "DELETE",
+    Swal.fire({
+        title: "Delete this item?",
+        html: `
+            <div style="text-align:center">
+                <p>This action cannot be undone.</p>
+                <strong class="text-danger">The data will be permanently removed.</strong>
+            </div>
+        `,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#ef4444",
+    }).then((result) => {
+        if (!result.isConfirmed) return;
 
-                beforeSend() {
-                    showLoading(true);
+        $.ajax({
+            url,
+            method: "DELETE",
+
+            beforeSend() {
+                showLoading(true);
+            },
+
+            success(res) {
+                showToast(
+                    res.status || "success",
+                    res.message || "Data deleted successfully"
+                );
+
+                if ($btn.closest(".modal").length > 0) {
+                    closeModal();
+                }
+
+                // 🔁 Reload table data
+                if (typeof loadData === "function") {
+                    loadData();
+                }
+            },
+
+            error(err) {
+                showToast(
+                    "error",
+                    err.responseJSON?.message || "Failed to delete data"
+                );
+            },
+
+            complete() {
+                showLoading(false);
+            }
+        });
+    });
+});
+
+/* ============================================================
+   FLATPICKR DATEPICKER INITIALIZER
+   ============================================================ */
+
+function initDatepicker() {
+    if (typeof flatpickr !== "undefined") {
+        $("input[type='date'], input.datepicker").each(function () {
+            if (this._flatpickr) return;
+
+            flatpickr(this, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d M Y",
+                allowInput: true,
+                disableMobile: "true",
+                onReady: function (selectedDates, dateStr, instance) {
+                    createYearDropdown(instance);
                 },
-
-                success(res) {
-                    showToast(
-                        res.status || "success",
-                        res.message || "Data deleted successfully",
-                    );
-
-                    // 🔁 Reload table (AJAX custom)
-                    if (typeof loadData === "function") {
-                        loadData();
-                    }
-
-                    onSuccess && onSuccess(res);
+                onMonthChange: function (selectedDates, dateStr, instance) {
+                    updateYearDropdown(instance);
                 },
-
-                error(err) {
-                    showToast(
-                        "error",
-                        err.responseJSON?.message || "Failed to delete data",
-                    );
+                onYearChange: function (selectedDates, dateStr, instance) {
+                    updateYearDropdown(instance);
                 },
-
-                complete() {
-                    showLoading(false);
-                },
+                onOpen: function (selectedDates, dateStr, instance) {
+                    updateYearDropdown(instance);
+                }
             });
+        });
+    }
+}
+
+function createYearDropdown(instance) {
+    const yearInputWrapper = instance.calendarContainer.querySelector(".numInputWrapper");
+    if (!yearInputWrapper || instance.calendarContainer.querySelector(".flatpickr-year-select")) return;
+
+    const currentYear = instance.currentYear;
+    const startYear = currentYear - 50;
+    const endYear = currentYear + 50;
+
+    const yearSelect = document.createElement("select");
+    yearSelect.className = "flatpickr-monthDropdown-months flatpickr-year-select";
+
+    for (let y = startYear; y <= endYear; y++) {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        opt.className = "flatpickr-monthDropdown-month";
+        if (y === currentYear) opt.selected = true;
+        yearSelect.appendChild(opt);
+    }
+
+    yearSelect.addEventListener("change", function () {
+        instance.changeYear(parseInt(this.value, 10));
+    });
+
+    yearInputWrapper.style.display = "none";
+    yearInputWrapper.parentNode.appendChild(yearSelect);
+}
+
+function updateYearDropdown(instance) {
+    const yearSelect = instance.calendarContainer.querySelector(".flatpickr-year-select");
+    if (yearSelect) {
+        yearSelect.value = instance.currentYear;
+    }
+}
+
+/* ============================================================
+   CURRENCY INPUT FORMATTER (THOUSAND SEPARATOR)
+   ============================================================ */
+
+function formatRupiahInput(val) {
+    if (val === null || val === undefined || val === "") return "";
+    let str = val.toString().trim();
+
+    // If initial value from DB/PHP is float number string with decimal dot e.g. "100000.00"
+    if (/^\d+(\.\d{1,2})?$/.test(str)) {
+        let num = parseFloat(str);
+        if (isNaN(num)) return "";
+        return Math.floor(num).toLocaleString("id-ID");
+    }
+
+    let numberString = str.replace(/[^0-9]/g, "");
+    if (!numberString) return "";
+    return parseInt(numberString, 10).toLocaleString("id-ID");
+}
+
+function getRawNumberValue(val) {
+    if (!val) return "";
+    return val.toString().replace(/\./g, "").replace(/,/g, "");
+}
+
+function initCurrencyInput() {
+    $(".currency-input, input[data-type='currency']").each(function () {
+        const $input = $(this);
+        if ($input.data("currency-initialized")) return;
+
+        $input.data("currency-initialized", true);
+
+        if ($input.val()) {
+            $input.val(formatRupiahInput($input.val()));
+        }
+
+        $input.on("input", function () {
+            const cursorPosition = this.selectionStart;
+            const originalLength = this.value.length;
+            const formatted = formatRupiahInput(this.value);
+
+            this.value = formatted;
+
+            const newLength = formatted.length;
+            const newPosition = Math.max(0, cursorPosition + (newLength - originalLength));
+            this.setSelectionRange(newPosition, newPosition);
         });
     });
 }
+
+$(document).ready(function () {
+    initDatepicker();
+    initCurrencyInput();
+});
+
+$(document).on("modal:loaded", function () {
+    initDatepicker();
+    initCurrencyInput();
+});

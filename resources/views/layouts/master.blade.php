@@ -10,6 +10,7 @@
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet" />
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <style>
         :root {
@@ -137,8 +138,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script src="{{ asset('/') }}assets/backend/js/toast.js"></script>
-
-
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="{{ asset('/') }}assets/backend/js/main.js"></script>
 
     <script>

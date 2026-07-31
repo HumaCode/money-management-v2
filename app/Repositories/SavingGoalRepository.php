@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Constants\GlobalMessage;
 use App\Interface\SavingGoalRepositoryInterface;
-use App\Models\Budget;
+use App\Models\Account;
 use App\Models\Category;
 use App\Models\Currency;
 use App\Models\SavingsGoal;
@@ -15,6 +15,11 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
     public function getAll(?string $search, ?string $status, ?string $limit, bool $execute)
     {
         $query = SavingsGoal::query();
+
+        // Scope to current user
+        if (function_exists('user') && user('id')) {
+            $query->where('user_id', user('id'));
+        }
 
         // Search filter
         if ($search) {
@@ -34,7 +39,6 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
             }
         }
 
-
         // Limit
         if ($limit) {
             $query->take((int)$limit);
@@ -43,7 +47,7 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
         // Order by
         $query->orderBy('id', 'desc');
 
-        // Eager loading jika diperlukan
+        // Eager loading
         $query->with(['currency', 'account']);
 
         // Execute or return query builder
@@ -62,30 +66,27 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
 
     public function getById(string $id)
     {
-        $query = Budget::where('id', $id);
-        return $query->first();
+        return SavingsGoal::where('id', $id)->first();
     }
 
     public function create(array $data)
     {
         DB::beginTransaction();
         try {
-
-            $saving = new Budget();
+            $saving = new SavingsGoal();
 
             $saving->user_id            = user('id');
             $saving->account_id         = $data['account_id'];
             $saving->currency_id        = $data['currency_id'];
             $saving->name               = $data['name'];
-            $saving->description        = $data['description'];
+            $saving->description        = $data['description'] ?? null;
             $saving->target_amount      = $data['target_amount'];
-            $saving->current_amount     = $data['current_amount'];
-            $saving->monthly_target     = $data['monthly_target'];
+            $saving->current_amount     = $data['current_amount'] ?? 0;
+            $saving->monthly_target     = $data['monthly_target'] ?? null;
             $saving->target_date        = $data['target_date'];
-            $saving->status             = '1';
-            $saving->icon               = $data['icon'];
-            $saving->color              = $data['color'];
-
+            $saving->status             = 'active';
+            $saving->icon               = $data['icon'] ?? '🎯';
+            $saving->color              = $data['color'] ?? '#7dd3a8';
 
             $saving->save();
 
@@ -106,21 +107,20 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
             $saving = $this->getById($id);
 
             if (!$saving) {
-                throw new \Exception('Budget not found');
+                throw new \Exception('Saving Goal not found');
             }
 
             $saving->account_id         = $data['account_id'];
             $saving->currency_id        = $data['currency_id'];
             $saving->name               = $data['name'];
-            $saving->description        = $data['description'];
+            $saving->description        = $data['description'] ?? null;
             $saving->target_amount      = $data['target_amount'];
-            $saving->current_amount     = $data['current_amount'];
-            $saving->monthly_target     = $data['monthly_target'];
+            $saving->current_amount     = $data['current_amount'] ?? 0;
+            $saving->monthly_target     = $data['monthly_target'] ?? null;
             $saving->target_date        = $data['target_date'];
-            $saving->status             = $data['status'];
-            $saving->icon               = $data['icon'];
-            $saving->color              = $data['color'];
-
+            $saving->status             = $data['status'] ?? $saving->status;
+            $saving->icon               = $data['icon'] ?? $saving->icon;
+            $saving->color              = $data['color'] ?? $saving->color;
 
             $saving->save();
 
@@ -144,60 +144,42 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
         return $saving->delete();
     }
 
-    public function budgetExpenses(string $id, array $data): Budget
+    public function addDeposit(string $id, array $data)
     {
-        return DB::transaction(function () use ($id, $data) {
+        DB::beginTransaction();
 
-            $budget = Budget::with('budgetCategories')->findOrFail($id);
+        try {
+            $saving = SavingsGoal::findOrFail($id);
+            $amount = (float) $data['amount'];
 
-            // 1️⃣ Tambah record baru (ledger)
-            $budget->budgetCategories()->create([
-                'category_id'  => $data['category_id'],
-                'allocated_amount' => $data['allocated_amount'],
-                'spent_amount' => $data['spent_amount'],
-                'spent_date'   => $data['spent_date'] ?? now(),
-                'notes'        => $data['notes'] ?? null,
+            // 1. Simpan kontribusi baru (akan secara otomatis mentrigger SavingsGoalContributionObserver)
+            $saving->contributions()->create([
+                'amount'         => $amount,
+                'notes'          => $data['notes'] ?? null,
+                'contributed_at' => $data['contributed_at'] ?? now(),
             ]);
 
-            // 2️⃣ Hitung ulang agregat
-            $totalSpent = $budget->budgetCategories()->sum('spent_amount');
+            DB::commit();
 
-            $progress = $budget->total_amount > 0
-                ? ($totalSpent / $budget->total_amount) * 100
-                : 0;
-
-            // 3️⃣ Simpan hasil ke budget
-            $budget->forceFill([
-                'total_spent'         => $totalSpent,
-                'progress_percentage' => round($progress, 2),
-            ])->save();
-
-            return $budget->fresh(['currency', 'budgetCategories.category']);
-        });
+            return $saving->fresh(['currency', 'account']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception('Gagal menambahkan setor tabungan: ' . $e->getMessage());
+        }
     }
 
-
-
-    public function getPeriodList()
+    public function getAccountList()
     {
-        return  ['weekly', 'monthly', 'quarterly', 'yearly'];
+        return Account::select('name', 'icon', 'id')
+            ->orderBy('name', 'asc')
+            ->get()
+            ->toArray();
     }
 
     public function getCurrencyList()
     {
         return Currency::select('name', 'code', 'id')
             ->distinct()
-            ->orderBy('name', 'asc')
-            ->get()
-            ->toArray();
-    }
-
-    public function getCategoryList()
-    {
-        // Assuming there's a Category model
-        return Category::select('name', 'icon', 'id')
-            ->distinct()
-            ->where('type', 'expense')
             ->orderBy('name', 'asc')
             ->get()
             ->toArray();

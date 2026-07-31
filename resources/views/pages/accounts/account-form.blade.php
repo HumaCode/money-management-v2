@@ -3,7 +3,7 @@
     $isEdit = !empty($data->id);
 @endphp
 
-<x-form.modal title="Account" :action="$action ?? null" :is-edit="$isEdit" type="{{ $type ?? null }}">
+<x-form.modal title="Account" :action="$action ?? null" :is-edit="$isEdit" type="{{ $type ?? null }}" size="xl">
 
     @if ($action ?? null)
         <div class="form-group">
@@ -136,28 +136,175 @@
             </div>
         @endif
     @else
-        {{-- DETAIL VIEW --}}
-        <div class="table-wrapper">
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Note</th>
-                        <td>{{ $data->notes ?? '—' }}</td>
-                    </tr>
+        {{-- DETAIL VIEW (STACKED CLEAN LAYOUT) --}}
+        <div style="display: flex; flex-direction: column; gap: 24px;">
 
-                    <tr>
-                        <th>Created At</th>
-                        <td>{{ $data->created_at?->format('d M Y H:i') }}</td>
-                    </tr>
+            {{-- TOP SECTION: ACCOUNT SUMMARY & DETAILS TABLE --}}
+            <div class="table-wrapper">
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <th style="width: 25%; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Account Name</th>
+                            <td style="text-align: right;">
+                                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                                    @if ($data->icon)
+                                        <div class="account-icon" style="background: {{ $data->color ?? 'rgba(125,211,168,0.15)' }}; font-size: 18px; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                            {{ $data->icon }}
+                                        </div>
+                                    @endif
+                                    <div style="text-align: right;">
+                                        <strong style="font-size: 15px; color: var(--text-primary);">{{ $data->name }}</strong>
+                                        <div style="font-size: 11px; color: var(--text-secondary);">{{ $data->accountType?->name ?? 'Account' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
 
-                    <tr>
-                        <th>Last Updated</th>
-                        <td>{{ $data->updated_at?->format('d M Y H:i') }}</td>
-                    </tr>
-                </tbody>
-            </table>
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Account Type</th>
+                            <td style="text-align: right; color: var(--text-primary); font-weight: 500;">{{ $data->accountType?->name ?? '—' }}</td>
+                        </tr>
+
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Institution</th>
+                            <td style="text-align: right; color: var(--text-primary);">{{ $data->institution_name ?? '—' }}</td>
+                        </tr>
+
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Account Number</th>
+                            <td style="text-align: right; color: var(--text-primary); font-family: monospace; font-size: 13px;">{{ $data->masked_account_number ?? ($data->account_number ?? '—') }}</td>
+                        </tr>
+
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Currency</th>
+                            <td style="text-align: right; color: var(--text-primary);">{{ $data->currency?->name ?? $data->currency?->code ?? '—' }}</td>
+                        </tr>
+
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Balance (Saldo)</th>
+                            <td style="text-align: right;"><strong style="font-size: 16px; color: #7dd3a8;">{{ $data->balance_formatted ?? number_format($data->balance, 2) }}</strong></td>
+                        </tr>
+
+                        @if ($data->credit_limit > 0)
+                            <tr>
+                                <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Credit Limit</th>
+                                <td style="text-align: right;">{{ number_format($data->credit_limit, 2) }}</td>
+                            </tr>
+                        @endif
+
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Default Account</th>
+                            <td style="text-align: right;">
+                                <span class="badge {{ $data->is_default ? 'success' : 'secondary' }}">
+                                    {{ $data->is_default ? 'Yes' : 'No' }}
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Status</th>
+                            <td style="text-align: right;">
+                                <span class="badge {{ $data->is_active ? 'success' : 'danger' }}">
+                                    {{ $data->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Note</th>
+                            <td style="text-align: right; color: var(--text-primary); font-style: italic;">{{ $data->notes ?? '—' }}</td>
+                        </tr>
+
+                        <tr>
+                            <th style="font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Created At</th>
+                            <td style="text-align: right; color: var(--text-secondary); font-size: 12px;">{{ $data->created_at ? tgl_indo($data->created_at, false, true) : '—' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- BOTTOM SECTION: TRANSACTION HISTORY TABLE --}}
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                        <span>📜</span> Transaction History (Riwayat Transaksi)
+                    </h4>
+                    <span style="font-size: 12px; color: var(--text-secondary);">Total {{ count($data->transactions ?? []) }} transaksi</span>
+                </div>
+
+                <div class="table-wrapper">
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Transaksi</th>
+                                <th>Kategori</th>
+                                <th>Tipe</th>
+                                <th>Nominal</th>
+                                <th>Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($data->transactions ?? [] as $index => $tx)
+                                @php
+                                    $symbol = $tx->currency?->symbol ?? ($data->currency?->symbol ?? 'Rp');
+                                    $typeBadgeClass = 'info';
+                                    $amountColor = 'var(--text-primary)';
+                                    $prefix = '';
+
+                                    if ($tx->type === 'income') {
+                                        $typeBadgeClass = 'success';
+                                        $amountColor = '#7dd3a8';
+                                        $prefix = '+ ';
+                                    } elseif ($tx->type === 'expense') {
+                                        $typeBadgeClass = 'danger';
+                                        $amountColor = '#f87171';
+                                        $prefix = '- ';
+                                    }
+                                @endphp
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <span style="font-size: 16px;">{{ $tx->category?->icon ?? '💳' }}</span>
+                                            <div>
+                                                <div style="font-weight: 500; color: var(--text-primary);">{{ $tx->description }}</div>
+                                                @if ($tx->notes)
+                                                    <div style="font-size: 11px; color: var(--text-secondary);">{{ $tx->notes }}</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge secondary">
+                                            {{ $tx->category?->name ?? '—' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ $typeBadgeClass }}">
+                                            {{ ucfirst($tx->type) }}
+                                        </span>
+                                    </td>
+                                    <td style="font-weight: 600; color: {{ $amountColor }};">
+                                        {{ $prefix }}{{ $symbol }} {{ number_format($tx->amount, 2) }}
+                                    </td>
+                                    <td style="font-size: 12px; color: var(--text-primary);">
+                                        {{ tgl_indo($tx->transaction_date) }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 24px;">
+                                        Belum ada riwayat transaksi pada akun ini.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
-
     @endif
 
 </x-form.modal>

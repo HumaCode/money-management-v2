@@ -7,6 +7,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PaginateResource extends JsonResource
 {
+    protected ?string $collectsClass = null;
+
+    public function __construct($resource, ?string $collectsClass = null)
+    {
+        parent::__construct($resource);
+        $this->collectsClass = $collectsClass;
+    }
+
+    public static function make(...$parameters)
+    {
+        return new static(...$parameters);
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -14,8 +27,12 @@ class PaginateResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $items = $this->collectsClass 
+            ? $this->collectsClass::collection($this->items())
+            : $this->collect($this->items());
+
         return [
-            'data' => $this->collect($this->items()),
+            'data' => $items,
             'meta' => [
                 'current_page'  => $this->currentPage(),
                 'from'          => $this->firstItem(),

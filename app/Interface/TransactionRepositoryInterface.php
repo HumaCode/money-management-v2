@@ -2,19 +2,21 @@
 
 namespace App\Interface;
 
-interface SavingGoalRepositoryInterface
+interface TransactionRepositoryInterface
 {
     public function getAll(
         ?string $search,
-        ?string $status,
+        ?string $type,
+        ?string $categoryId,
         ?string $limit,
         bool $execute
     );
 
     public function getAllPaginated(
         ?string $search,
-        ?string $status,
-        ?int $rowsPerPage,
+        ?string $type,
+        ?string $categoryId,
+        ?int $rowsPerPage
     );
 
     public function create(array $data);
@@ -25,5 +27,9 @@ interface SavingGoalRepositoryInterface
 
     public function delete(string $id);
 
-    public function addDeposit(string $id, array $data);
+    public function getAccountList();
+
+    public function getCategoryList(?string $type = null);
+
+    public function getCurrencyList();
 }

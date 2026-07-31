@@ -42,20 +42,12 @@ class AccountController extends Controller
     {
         // Gate::authorize('read ' . $this->permissionAkses);
 
-        $data = [
+        return \Inertia\Inertia::render('Accounts/Index', [
             'title'             => $this->title,
             'subtitle'          => $this->subtitle,
-            'createUrl'         => route($this->createUrl),
-            'editUrl'           => route($this->editUrl, ['account' => '__ID__']),
-            'showUrl'           => route($this->showUrl, ['account' => '__ID__']),
-            'destroyUrl'        => route($this->destroyUrl, ['account' => '__ID__']),
-            'dataUrl'           => route($this->dataUrl),
-            'dataTableId'       => $this->dataTableId,
-            'AccountTypeList'   => $this->accountRepository->getAccountTypeList(),
-            // 'permissionAkses'   => $this->permissionAkses,
-        ];
-
-        return view($this->indexView, $data);
+            'accountTypes'      => $this->accountRepository->getAccountTypeList(),
+            'currencies'        => $this->accountRepository->getCurrencyList(),
+        ]);
     }
 
     public function getAllPaginated(Request $request)
@@ -106,6 +98,8 @@ class AccountController extends Controller
 
     public function show(Account $account)
     {
+        $account->load(['accountType', 'currency']);
+
         return view($this->formView, [
             'type'      => 'show',
             'data'      => $account,

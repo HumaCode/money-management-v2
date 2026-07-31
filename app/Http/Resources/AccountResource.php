@@ -22,8 +22,7 @@ class AccountResource extends JsonResource
             'name'              => $this->name,
             'institution_name'  => $this->institution_name,
 
-            // ⛔ JANGAN expose full account number (opsional)
-            // 'account_number' => $this->account_number,
+            'account_number'        => $this->account_number,
 
             // ✅ masked version
             'masked_account_number' => $this->masked_account_number,
@@ -41,6 +40,17 @@ class AccountResource extends JsonResource
             'notes'             => $this->notes,
 
             'display_name'      => $this->getDisplayName(),
+
+            'account_type'      => $this->accountType ? [
+                'id' => $this->accountType->id,
+                'name' => $this->accountType->name,
+            ] : null,
+            'currency'          => $this->currency ? [
+                'id' => $this->currency->id,
+                'code' => $this->currency->code,
+                'name' => $this->currency->name,
+                'symbol' => $this->currency->symbol,
+            ] : null,
 
             'status_badge'      => $this->is_active ? 'Active' : 'Inactive',
             'status_color'      => $this->is_active ? 'success' : 'secondary',
