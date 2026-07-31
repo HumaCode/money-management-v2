@@ -31,6 +31,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(BudgetExpenseRepositoryInnterface::class, BudgetExpenseRepository::class);
         // saving goal
         $this->app->bind(SavingGoalRepositoryInterface::class, SavingGoalRepository::class);
+        // auth
+        $this->app->bind(\App\Interface\AuthRepositoryInterface::class, \App\Repositories\AuthRepository::class);
     }
 
     /**

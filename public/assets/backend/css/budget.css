@@ -1,0 +1,223 @@
+/* ── Budget Form Styles ── */
+.bg-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.bg-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+@media (max-width: 480px) {
+    .bg-row { grid-template-columns: 1fr; }
+}
+.bg-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.bg-group label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+}
+.bg-group input,
+.bg-group select,
+.bg-group textarea {
+    background: var(--bg-input);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 10px;
+    padding: 9px 13px;
+    color: var(--text-primary);
+    font-size: 13.5px;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+.bg-group input:focus,
+.bg-group select:focus,
+.bg-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--bg-input-focus);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.bg-group input:disabled,
+.bg-group select:disabled,
+.bg-group textarea:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.bg-field-error {
+    font-size: 11.5px;
+    color: var(--error);
+    font-weight: 500;
+    margin-top: 2px;
+}
+.bg-required {
+    color: var(--error);
+    margin-left: 2px;
+}
+.bg-checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    cursor: pointer;
+}
+.bg-checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* ── Status Radio Buttons (matches account/category style) ── */
+.bg-radio-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+.bg-radio-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    user-select: none;
+}
+.bg-radio-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.bg-radio-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid var(--text-secondary);
+    transition: all 0.2s ease-in-out;
+}
+.bg-radio-option:hover:not(.disabled):not(.active-active):not(.active-inactive) {
+    background: var(--bg-input-focus);
+    color: var(--text-primary);
+    border-color: var(--accent);
+}
+.bg-radio-option.active-active {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: #10b981;
+    color: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+.bg-radio-option.active-active .bg-radio-dot {
+    border-color: #10b981;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+}
+.bg-radio-option.active-inactive {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: #ef4444;
+    color: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+.bg-radio-option.active-inactive .bg-radio-dot {
+    border-color: #ef4444;
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+}
+.bg-radio-option.active-active:hover:not(.disabled) {
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.12);
+}
+.bg-radio-option.active-inactive:hover:not(.disabled) {
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.12);
+}
+.bg-radio-option.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ── Progress Bar ── */
+.bg-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.bg-progress-bar {
+    height: 7px;
+    background: var(--bg-card-border);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.bg-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+}
+.bg-progress-fill.warning {
+    background: var(--warning);
+}
+.bg-progress-fill.error {
+    background: var(--error);
+}
+.bg-progress-text {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+}
+.bg-progress-text.text-warning { color: var(--warning); font-weight: 600; }
+.bg-progress-text.text-error   { color: var(--error);   font-weight: 600; }
+
+/* ── Detail Table ── */
+.bg-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.bg-detail-table th,
+.bg-detail-table td {
+    padding: 11px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--bg-card-border);
+}
+.bg-detail-table th {
+    width: 35%;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.bg-detail-table td {
+    font-size: 13.5px;
+    color: var(--text-primary);
+}
+
+/* ── Expenses Modal Form ── */
+.bg-expenses-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    background: var(--accent-dim);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+}

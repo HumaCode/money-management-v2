@@ -25,5 +25,9 @@ interface SavingGoalRepositoryInterface
 
     public function delete(string $id);
 
-    public function addDeposit(string $id, array $data);
+    public function getAccountList(): array;
+
+    public function getCurrencyList(): array;
+
+    public function addSaving(string $id, array $data);
 }

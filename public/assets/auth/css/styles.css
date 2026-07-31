@@ -103,8 +103,8 @@ body {
   z-index: 1;
   display: flex;
   width: 100%;
-  max-width: 1100px;
-  min-height: 580px;
+  max-width: 1250px;
+  min-height: 620px;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
@@ -1111,26 +1111,77 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+  body {
+    overflow-y: auto;
+    align-items: center;
+    padding: 16px;
+    background: var(--bg-deep);
+  }
   .container {
     flex-direction: column;
-    max-width: 460px;
+    max-width: 440px;
     min-height: auto;
-    margin: 20px;
+    margin: 0 auto;
     border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    background: var(--bg-card);
+    border: 1px solid var(--bg-card-border);
   }
   .panel-brand {
-    padding: 40px 36px 36px;
-  }
-  .brand-features {
-    display: none;
-  }
-  .brand-tagline h2 {
-    font-size: 26px;
+    display: none !important; /* Hide branding panel on mobile to avoid scrolling */
   }
   .panel-form {
-    padding: 40px 36px 48px;
+    padding: 40px 28px;
+    max-height: none;
+    overflow: visible;
+  }
+  .form-header {
+    margin-bottom: 28px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  /* Show inline logo on mobile */
+  .form-header::before {
+    content: "";
+    display: block;
+    width: 42px;
+    height: 42px;
+    background-color: var(--accent-dim);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36' fill='none'%3E%3Cpath d='M10 24 L16 16 L21 20 L27 10' stroke='%237dd3a8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='27' cy='10' r='2.5' fill='%237dd3a8'/%3E%3C/svg%3E");
+    background-size: 26px;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+    margin-bottom: 16px;
   }
   .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 12px;
+  }
+  .container {
+    max-width: 100%;
+    border-radius: 16px;
+  }
+  .panel-form {
+    padding: 32px 20px;
+  }
+  .form-header h1 {
+    font-size: 26px;
+  }
+  .form-options {
+    margin-bottom: 20px;
+  }
+  .theme-toggle-fab {
+    bottom: 16px;
+    left: 16px;
+    width: 44px;
+    height: 44px;
   }
 }
