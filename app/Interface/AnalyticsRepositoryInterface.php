@@ -11,5 +11,6 @@ interface AnalyticsRepositoryInterface
     public function getDailySpendingChartData(?string $period = 'this_month', ?string $accountId = null, ?string $categoryId = null);
     public function getCashFlowChartData(?string $period = 'this_month', ?string $accountId = null, ?string $categoryId = null);
     public function getPaginatedTransactions(?string $period = 'this_month', ?string $accountId = null, ?string $categoryId = null, int $perPage = 10);
+    public function exportAllTransactions(?string $period = 'this_month', ?string $accountId = null, ?string $categoryId = null);
     public function getFilterOptions();
 }

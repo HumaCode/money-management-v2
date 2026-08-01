@@ -85,6 +85,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // analytics
     Route::get('/analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('/analytics/data', [\App\Http\Controllers\AnalyticsController::class, 'getData'])->name('analytics.data');
+    Route::get('/analytics/export-pdf', [\App\Http\Controllers\AnalyticsController::class, 'exportPdf'])->name('analytics.exportPdf');
+    Route::get('/analytics/export-excel', [\App\Http\Controllers\AnalyticsController::class, 'exportExcel'])->name('analytics.exportExcel');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

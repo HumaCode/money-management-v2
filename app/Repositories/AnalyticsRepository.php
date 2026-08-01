@@ -369,6 +369,20 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
         return $query->orderBy('transaction_date', 'desc')->paginate($perPage);
     }
 
+    public function exportAllTransactions(?string $period = 'this_month', ?string $accountId = null, ?string $categoryId = null)
+    {
+        $userId = $this->getUserId();
+        [$start, $end] = $this->parsePeriodDates($period);
+
+        $query = Transaction::with(['account', 'category', 'currency'])
+            ->where('user_id', $userId)
+            ->whereBetween('transaction_date', [$start->format('Y-m-d H:i:s'), $end->format('Y-m-d H:i:s')]);
+
+        $this->applyFilters($query, $accountId, $categoryId);
+
+        return $query->orderBy('transaction_date', 'desc')->get();
+    }
+
     public function getFilterOptions()
     {
         $userId = $this->getUserId();

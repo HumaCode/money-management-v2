@@ -195,10 +195,6 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                             <BarChart3 size={18} />
                             Analytics
                         </Link>
-                        <a href="#" className="nav-item">
-                            <FileText size={18} />
-                            Reports
-                        </a>
                     </div>
 
                     {/* Settings */}

@@ -5,7 +5,8 @@ import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
 import axios from 'axios';
 import { 
     TrendingUp, TrendingDown, DollarSign, Wallet, 
-    BarChart3, PieChart, Activity, Calendar, RotateCcw
+    BarChart3, PieChart, Activity, Calendar, RotateCcw,
+    Printer, FileSpreadsheet
 } from 'lucide-react';
 
 export default function Index({ 
@@ -445,6 +446,63 @@ export default function Index({
                             </option>
                         ))}
                     </select>
+                </div>
+
+                {/* Export Buttons */}
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <a
+                        href={route('analytics.exportPdf', {
+                            period: filters.period,
+                            account_id: filters.account_id === 'all' ? null : filters.account_id,
+                            category_id: filters.category_id === 'all' ? null : filters.category_id,
+                        })}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 16px',
+                            background: 'rgba(248, 113, 113, 0.12)',
+                            border: '1px solid rgba(248, 113, 113, 0.3)',
+                            borderRadius: '10px',
+                            color: '#f87171',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            textDecoration: 'none',
+                            transition: 'all 0.2s ease',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        <Printer size={16} />
+                        Cetak PDF
+                    </a>
+
+                    <a
+                        href={route('analytics.exportExcel', {
+                            period: filters.period,
+                            account_id: filters.account_id === 'all' ? null : filters.account_id,
+                            category_id: filters.category_id === 'all' ? null : filters.category_id,
+                        })}
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 16px',
+                            background: 'rgba(16, 185, 129, 0.12)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            borderRadius: '10px',
+                            color: '#34d399',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            textDecoration: 'none',
+                            transition: 'all 0.2s ease',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        <FileSpreadsheet size={16} />
+                        Export Excel
+                    </a>
                 </div>
             </div>
 

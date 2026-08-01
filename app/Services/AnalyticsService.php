@@ -35,4 +35,17 @@ class AnalyticsService
             'filterOptions'         => $filters,
         ];
     }
+
+    public function getExportData(?string $period = 'this_month', ?string $accountId = null, ?string $categoryId = null)
+    {
+        $overview      = $this->analyticsRepository->getOverviewStats($period, $accountId, $categoryId);
+        $topCategories = $this->analyticsRepository->getTopCategories($period, $accountId, $categoryId);
+        $transactions  = $this->analyticsRepository->exportAllTransactions($period, $accountId, $categoryId);
+
+        return [
+            'overview'      => $overview,
+            'topCategories' => $topCategories,
+            'transactions'  => $transactions,
+        ];
+    }
 }
