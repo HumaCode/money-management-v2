@@ -10,6 +10,7 @@ use App\Http\Resources\TransactionResource;
 use App\Models\Account;
 use App\Models\Category;
 use App\Models\Transaction;
+use App\Services\GeminiReceiptService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -78,6 +79,11 @@ class MobileTransactionController extends Controller
                     ->firstOrFail();
             }
 
+            $receiptPath = null;
+            if ($request->hasFile('receipt')) {
+                $receiptPath = $request->file('receipt')->store('receipts', 'public');
+            }
+
             // TransactionObserver automatically updates Account balances
             $transaction = Transaction::create([
                 'user_id'          => $userId,
@@ -90,6 +96,7 @@ class MobileTransactionController extends Controller
                 'transaction_date' => $request->transaction_date,
                 'description'      => $request->description,
                 'notes'            => $request->notes,
+                'receipt_path'     => $receiptPath,
             ]);
 
             return ResponseHelper::success(
@@ -185,5 +192,37 @@ class MobileTransactionController extends Controller
             ->get();
 
         return ResponseHelper::success($accounts, 'Daftar akun');
+    }
+
+    /**
+     * Scan Receipt Image via Google Gemini AI
+     */
+    public function scanReceipt(Request $request, GeminiReceiptService $geminiService)
+    {
+        $request->validate([
+            'receipt' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // max 5MB
+        ], [
+            'receipt.required' => 'File foto struk wajib diunggah.',
+            'receipt.image'    => 'File yang diunggah harus berupa gambar.',
+            'receipt.mimes'    => 'Format gambar harus berupa jpeg, png, jpg, atau webp.',
+            'receipt.max'      => 'Ukuran foto struk maksimal 5MB.',
+        ]);
+
+        try {
+            $file = $request->file('receipt');
+            $path = $file->store('temp_receipts', 'public');
+            $fullPath = storage_path('app/public/' . $path);
+
+            $scannedData = $geminiService->scanReceipt($fullPath);
+
+            // Clean up temporary image
+            if (file_exists($fullPath)) {
+                @unlink($fullPath);
+            }
+
+            return ResponseHelper::success($scannedData, 'Struk berhasil dianalisis oleh AI Gemini');
+        } catch (\Throwable $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 }

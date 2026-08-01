@@ -65,6 +65,8 @@ class TransactionResource extends JsonResource
                 'id'   => $this->toAccount->id,
                 'name' => $this->toAccount->name,
             ] : null,
+            'receipt_path'                => $this->receipt_path,
+            'receipt_url'                 => $this->receipt_path ? asset('storage/' . $this->receipt_path) : null,
             'created_at'                  => $this->created_at,
             'updated_at'                  => $this->updated_at,
         ];
