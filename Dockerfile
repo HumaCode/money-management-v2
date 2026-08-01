@@ -3,19 +3,6 @@ FROM dunglas/frankenphp:latest-php8.2-alpine
 # Copy Composer binary from official Composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install PHP extensions for Laravel (MySQL, BCMath, GD, Zip, OpCache, Intl, etc.)
-RUN install-php-extensions \
-    pdo_mysql \
-    gd \
-    bcmath \
-    zip \
-    intl \
-    opcache \
-    exif
-
-# Copy custom Caddyfile/FrankenPHP configuration
-COPY Caddyfile /etc/caddy/Caddyfile
-
 # Set working directory
 WORKDIR /app
 
