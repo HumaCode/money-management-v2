@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import LogoutConfirmationModal from '../Components/LogoutConfirmationModal';
 import Breadcrumb from '../Components/Breadcrumb';
+import { useCan } from '../Hooks/useCan';
 import { 
     LayoutDashboard, 
     FolderTree, 
@@ -28,6 +29,7 @@ import {
 
 export default function AuthenticatedLayout({ children, breadcrumbs }) {
     const { auth, menus } = usePage().props;
+    const { can } = useCan();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -286,19 +288,35 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
 
                             {/* User Dropdown */}
                             <div className={`user-dropdown ${isDropdownOpen ? 'show' : ''}`} id="userDropdown">
-                                <a href="#" className="dropdown-item">
-                                    <User size={16} style={{ marginRight: '8px' }} />
-                                    Profile
-                                </a>
-                                <a href="#" className="dropdown-item">
-                                    <Settings size={16} style={{ marginRight: '8px' }} />
-                                    Settings
-                                </a>
-                                <div className="dropdown-divider"></div>
-                                <a href="#" className="dropdown-item danger" onClick={handleLogout}>
-                                    <LogOut size={16} style={{ marginRight: '8px' }} />
+                                {(can('show profile') || can('update profile') || can('read profile') || can('menu profile')) && (
+                                    <>
+                                        <Link href={route('profile.edit')} className="dropdown-item">
+                                            <User size={16} style={{ marginRight: '8px' }} />
+                                            Profile
+                                        </Link>
+                                        <div className="dropdown-divider" style={{ margin: '4px 0' }}></div>
+                                    </>
+                                )}
+                                <button 
+                                    type="button" 
+                                    className="dropdown-item danger" 
+                                    onClick={handleLogout}
+                                    style={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: '#f87171',
+                                        cursor: 'pointer',
+                                        padding: '8px 16px',
+                                        fontSize: '14px',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    <LogOut size={16} style={{ marginRight: '8px', color: '#f87171' }} />
                                     Logout
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
