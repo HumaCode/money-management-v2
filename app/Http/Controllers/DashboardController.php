@@ -25,6 +25,11 @@ class DashboardController extends Controller
             'stats'              => $dashboardData['stats'],
             'recentTransactions' => $dashboardData['recent_transactions'],
             'chartData'          => $dashboardData['chart_data'],
+            'savingsHeatmap'     => $dashboardData['savings_heatmap'],
+            'savingsGoals'       => $dashboardData['savings_goals'],
+            'categoryExpenses'   => $dashboardData['category_expenses'],
+            'upcomingBills'      => $dashboardData['upcoming_bills'],
+            'smartInsights'      => $dashboardData['smart_insights'],
         ]);
     }
 }
