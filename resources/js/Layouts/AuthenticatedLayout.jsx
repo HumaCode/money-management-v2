@@ -39,6 +39,11 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
         } else {
             document.documentElement.classList.remove('light');
         }
+
+        if (typeof window !== 'undefined' && window.AOS) {
+            window.AOS.init({ duration: 600, once: true });
+            window.AOS.refresh();
+        }
     }, []);
 
     const toggleTheme = () => {
@@ -171,10 +176,13 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                             <RefreshCw size={18} />
                             Transfers
                         </Link>
-                        <a href="#" className="nav-item">
+                        <Link 
+                            href={route('recurring.index')} 
+                            className={`nav-item ${route().current('recurring.*') ? 'active' : ''}`}
+                        >
                             <History size={18} />
                             Recurring
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Reports */}

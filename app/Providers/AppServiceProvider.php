@@ -10,6 +10,8 @@ use App\Observers\SavingsGoalContributionObserver;
 use App\Observers\TransactionObserver;
 use App\Interface\TransactionRepositoryInterface;
 use App\Repositories\TransactionRepository;
+use App\Interface\RecurringTransactionRepositoryInterface;
+use App\Repositories\RecurringTransactionRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(TransactionRepositoryInterface::class, TransactionRepository::class);
+        $this->app->bind(RecurringTransactionRepositoryInterface::class, RecurringTransactionRepository::class);
     }
 
     /**
