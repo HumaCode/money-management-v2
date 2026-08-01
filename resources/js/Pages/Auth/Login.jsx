@@ -14,16 +14,47 @@ export default function Login() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    const SITE_KEY = '6Lfu-W8tAAAAAHD4ouVvYQU6UPKOTrxjKJfzbXnN';
+
+    useEffect(() => {
+        // Load Google reCAPTCHA v3 script
+        const scriptId = 'google-recaptcha-v3-script';
+        if (!document.getElementById(scriptId)) {
+            const script = document.createElement('script');
+            script.id = scriptId;
+            script.src = `https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`;
+            script.async = true;
+            script.defer = true;
+            document.body.appendChild(script);
+        }
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg(null);
         setIsSubmitting(true);
 
         try {
+            // Get v3 token from grecaptcha
+            let token = '';
+            if (window.grecaptcha) {
+                await new Promise((resolve) => {
+                    window.grecaptcha.ready(async () => {
+                        try {
+                            token = await window.grecaptcha.execute(SITE_KEY, { action: 'login' });
+                        } catch (err) {
+                            console.error('reCAPTCHA execution error:', err);
+                        }
+                        resolve();
+                    });
+                });
+            }
+
             const response = await axios.post(route('login'), {
                 identity,
                 password,
                 remember,
+                'g-recaptcha-response': token,
             });
 
             if (response.data.status === 'success') {
@@ -240,6 +271,7 @@ export default function Login() {
                                     </label>
                                     <a href="#" className="forgot-link">Forgot password?</a>
                                 </div>
+
                                 <button 
                                     type="submit" 
                                     className="btn-login" 

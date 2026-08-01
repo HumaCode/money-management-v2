@@ -22,6 +22,10 @@ services:
       DB_DATABASE: money_management_v2
       DB_USERNAME: money_management_v2
       DB_PASSWORD: ${DB_PASSWORD:-HumaCode2026}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-AQ.Ab8RN6KTlz4Ug70eqqHKvZz6nTqvpCrhq6BEjv9tRLoyjp_Kww}
+      RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:-6Lfu-W8tAAAAAHD4ouVvYQU6UPKOTrxjKJfzbXnN}
+      RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY:-6Lfu-W8tAAAAAJ4Ku7Qm0aIQkfuZZilcTxTygoLT}
+      VITE_RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:-6Lfu-W8tAAAAAHD4ouVvYQU6UPKOTrxjKJfzbXnN}
       SERVER_NAME: "cuan.humacode.my.id"
     volumes:
       - ./storage:/app/storage
