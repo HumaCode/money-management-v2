@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:latest-php8.4-alpine
+FROM dunglas/frankenphp:php8.4-alpine
 
 # Environment for Composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
