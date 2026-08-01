@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/budget-expenses/{budgetExpense}/destroy', [BudgetExpenseController::class, 'destroy'])->name('budget.expense.destroy');
 
     // saving goal
-    Route::get('/saving-goals', [SavingGoalController::class, 'index'])->name('saving.goals.index');
+    Route::get('/saving-goals', [SavingGoalController::class, 'index'])->name('saving-goals.index');
     Route::get('/saving-goals/getAllPagination', [SavingGoalController::class, 'getAllPaginated'])->name('saving.goals.allPagination');
     Route::get('/saving-goals/create', [SavingGoalController::class, 'create'])->name('saving.goals.create');
     Route::post('/saving-goals/store', [SavingGoalController::class, 'store'])->name('saving.goals.store');

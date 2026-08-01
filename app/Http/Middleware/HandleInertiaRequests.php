@@ -43,8 +43,19 @@ class HandleInertiaRequests extends Middleware
                     'name' => $request->user()->name,
                     'username' => $request->user()->username,
                     'email' => $request->user()->email,
+                    'permissions' => $request->user()->getAllPermissions()->pluck('name')->toArray(),
+                    'roles' => $request->user()->roles()->pluck('slug')->toArray(),
                 ] : null,
             ],
+            'menus' => fn () => $request->user() ? menus(true)->map(function ($items) use ($request) {
+                return $items->filter(function ($menu) use ($request) {
+                    $user = $request->user();
+                    if ($menu->url === 'dashboard' || $user->hasRole('developer') || $user->hasRole('dev')) {
+                        return true;
+                    }
+                    return $user->hasPermissionTo("menu {$menu->url}");
+                });
+            })->filter(fn ($items) => $items->isNotEmpty()) : [],
             'locale' => config('app.locale', 'id'),
         ];
     }
