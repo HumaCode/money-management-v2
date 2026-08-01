@@ -10,7 +10,7 @@ import {
     TrendingUp, TrendingDown, RefreshCw, ArrowLeftRight, Wallet 
 } from 'lucide-react';
 
-export default function Index({ title, subtitle, accounts = [], categories = [], currencies = [] }) {
+export default function Index({ title, subtitle, initialType = 'all', accounts = [], categories = [], currencies = [] }) {
     // ── Data state ──────────────────────────────────────────────
     const [transactions, setTransactions] = useState([]);
     const [meta, setMeta] = useState({
@@ -20,9 +20,19 @@ export default function Index({ title, subtitle, accounts = [], categories = [],
 
     // ── Filter / search state ────────────────────────────────────
     const [filters, setFilters] = useState({
-        search: '', type: 'all', category_id: 'all', account_id: 'all', perPage: 10, page: 1
+        search: '', type: initialType || 'all', category_id: 'all', account_id: 'all', perPage: 10, page: 1
     });
     const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        if (initialType) {
+            setFilters(prev => ({
+                ...prev,
+                type: initialType,
+                page: 1
+            }));
+        }
+    }, [initialType]);
 
     // ── Modal state ──────────────────────────────────────────────
     const [isModalOpen, setIsModalOpen]               = useState(false);

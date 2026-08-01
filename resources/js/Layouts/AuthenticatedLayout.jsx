@@ -145,23 +145,32 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                         <div className="nav-section-title">Transactions</div>
                         <Link 
                             href={route('transaction.index')} 
-                            className={`nav-item ${route().current('transaction.*') ? 'active' : ''}`}
+                            className={`nav-item ${route().current('transaction.*') && (!new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') || new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'all') ? 'active' : ''}`}
                         >
                             <ArrowLeftRight size={18} />
                             All Transactions
                         </Link>
-                        <a href="#" className="nav-item">
+                        <Link 
+                            href={route('transaction.index', { type: 'income' })} 
+                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'income' ? 'active' : ''}`}
+                        >
                             <TrendingUp size={18} />
                             Income
-                        </a>
-                        <a href="#" className="nav-item">
+                        </Link>
+                        <Link 
+                            href={route('transaction.index', { type: 'expense' })} 
+                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'expense' ? 'active' : ''}`}
+                        >
                             <TrendingDown size={18} />
                             Expenses
-                        </a>
-                        <a href="#" className="nav-item">
+                        </Link>
+                        <Link 
+                            href={route('transaction.index', { type: 'transfer' })} 
+                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'transfer' ? 'active' : ''}`}
+                        >
                             <RefreshCw size={18} />
                             Transfers
-                        </a>
+                        </Link>
                         <a href="#" className="nav-item">
                             <History size={18} />
                             Recurring

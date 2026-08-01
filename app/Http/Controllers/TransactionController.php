@@ -27,16 +27,35 @@ class TransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $formData = $this->transactionService->getFormData();
+        $type = $request->input('type', 'all');
+
+        $titleMap = [
+            'income'   => 'Income Transactions',
+            'expense'  => 'Expense Transactions',
+            'transfer' => 'Transfer Transactions',
+            'all'      => 'All Transactions',
+        ];
+
+        $subtitleMap = [
+            'income'   => 'Track all incoming money and revenue transactions',
+            'expense'  => 'Track all outgoing payments and spending transactions',
+            'transfer' => 'Track all inter-account balance transfers',
+            'all'      => 'Manage and track all income and expense transactions',
+        ];
+
+        $title = $titleMap[$type] ?? 'Transactions';
+        $subtitle = $subtitleMap[$type] ?? 'Manage and track transactions';
 
         return Inertia::render('Transactions/Index', [
-            'title'      => $this->title,
-            'subtitle'   => $this->subtitle,
-            'accounts'   => $formData['AccountList'] ?? [],
-            'categories' => $formData['CategoryList'] ?? [],
-            'currencies' => $formData['CurrencyList'] ?? [],
+            'title'       => $title,
+            'subtitle'    => $subtitle,
+            'initialType' => $type,
+            'accounts'    => $formData['AccountList'] ?? [],
+            'categories'  => $formData['CategoryList'] ?? [],
+            'currencies'  => $formData['CurrencyList'] ?? [],
         ]);
     }
 
