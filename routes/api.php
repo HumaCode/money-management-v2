@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\MobileDashboardController;
 use App\Http\Controllers\Api\V1\MobileSavingsGoalController;
+use App\Http\Controllers\Api\V1\MobileSummaryController;
 use App\Http\Controllers\Api\V1\MobileTransactionController;
 use App\Http\Middleware\ValidateMobileApiKey;
 use Illuminate\Support\Facades\Route;
@@ -26,8 +26,14 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-        // Dashboard Summary
-        Route::get('/dashboard', [MobileDashboardController::class, 'index']);
+        // Wallet Summary (Total Saldo, Pemasukan, Pengeluaran dari Rekening Aktif)
+        Route::get('/wallet-summary', [MobileSummaryController::class, 'walletSummary']);
+
+        // Top Expenses by Category (Pengeluaran Terbesar per Kategori Tipe Expense)
+        Route::get('/top-expenses', [MobileSummaryController::class, 'topExpenses']);
+
+        // Recent Transactions (15 Transaksi Terbaru dengan Subtitle & Formatted Amount)
+        Route::get('/recent-transactions', [MobileSummaryController::class, 'recentTransactions']);
 
         // Transactions
         Route::get('/transactions', [MobileTransactionController::class, 'index']);
