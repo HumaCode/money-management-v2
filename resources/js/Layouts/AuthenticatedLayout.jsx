@@ -200,10 +200,13 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                     {/* Settings */}
                     <div className="nav-section">
                         <div className="nav-section-title">Settings</div>
-                        <a href="#" className="nav-item">
+                        <Link 
+                            href={route('profile.edit')} 
+                            className={`nav-item ${route().current('profile.*') ? 'active' : ''}`}
+                        >
                             <User size={18} />
                             Profile
-                        </a>
+                        </Link>
                         <a href="#" className="nav-item">
                             <Settings size={18} />
                             Preferences

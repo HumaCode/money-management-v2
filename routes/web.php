@@ -89,7 +89,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/analytics/export-excel', [\App\Http\Controllers\AnalyticsController::class, 'exportExcel'])->name('analytics.exportExcel');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 

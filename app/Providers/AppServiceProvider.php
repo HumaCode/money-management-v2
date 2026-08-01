@@ -14,6 +14,8 @@ use App\Interface\RecurringTransactionRepositoryInterface;
 use App\Repositories\RecurringTransactionRepository;
 use App\Interface\AnalyticsRepositoryInterface;
 use App\Repositories\AnalyticsRepository;
+use App\Interface\ProfileRepositoryInterface;
+use App\Repositories\ProfileRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TransactionRepositoryInterface::class, TransactionRepository::class);
         $this->app->bind(RecurringTransactionRepositoryInterface::class, RecurringTransactionRepository::class);
         $this->app->bind(AnalyticsRepositoryInterface::class, AnalyticsRepository::class);
+        $this->app->bind(ProfileRepositoryInterface::class, ProfileRepository::class);
     }
 
     /**
