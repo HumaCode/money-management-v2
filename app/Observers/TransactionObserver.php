@@ -2,37 +2,28 @@
 
 namespace App\Observers;
 
-use App\Models\Account;
 use App\Models\Transaction;
+use Illuminate\Support\Facades\DB;
 
 class TransactionObserver
 {
     /**
      * Handle the Transaction "created" event.
+     * Uses atomic DB::table increment/decrement to avoid stale-read race conditions.
      */
     public function created(Transaction $transaction): void
     {
         $amount = (float) $transaction->amount;
+        $type   = strtolower($transaction->type);
 
-        // Source account (rekening asal)
-        $account = Account::find($transaction->account_id);
-        if ($account) {
-            if ($transaction->type === 'income') {
-                $account->balance = (float)$account->balance + $amount;
-                $account->save();
-            } elseif ($transaction->type === 'expense' || $transaction->type === 'transfer') {
-                $account->balance = (float)$account->balance - $amount;
-                $account->save();
-            }
+        if ($type === 'income') {
+            DB::table('accounts')->where('id', $transaction->account_id)->increment('current_balance', $amount);
+        } elseif ($type === 'expense' || $type === 'transfer') {
+            DB::table('accounts')->where('id', $transaction->account_id)->decrement('current_balance', $amount);
         }
 
-        // Destination account (rekening tujuan jika transfer)
-        if ($transaction->type === 'transfer' && $transaction->to_account_id) {
-            $toAccount = Account::find($transaction->to_account_id);
-            if ($toAccount) {
-                $toAccount->balance = (float)$toAccount->balance + $amount;
-                $toAccount->save();
-            }
+        if ($type === 'transfer' && $transaction->to_account_id) {
+            DB::table('accounts')->where('id', $transaction->to_account_id)->increment('current_balance', $amount);
         }
     }
 
@@ -42,78 +33,67 @@ class TransactionObserver
     public function updated(Transaction $transaction): void
     {
         if ($transaction->wasChanged(['account_id', 'to_account_id', 'amount', 'type'])) {
-            $originalAccountId = $transaction->getOriginal('account_id');
+            $originalAccountId   = $transaction->getOriginal('account_id');
             $originalToAccountId = $transaction->getOriginal('to_account_id');
-            $originalAmount = (float) $transaction->getOriginal('amount');
-            $originalType = $transaction->getOriginal('type');
+            $originalAmount      = (float) $transaction->getOriginal('amount');
+            $originalType        = strtolower($transaction->getOriginal('type'));
 
-            // 1. Revert original state
-            $oldAccount = Account::find($originalAccountId);
-            if ($oldAccount) {
-                if ($originalType === 'income') {
-                    $oldAccount->balance = (float)$oldAccount->balance - $originalAmount;
-                    $oldAccount->save();
-                } elseif ($originalType === 'expense' || $originalType === 'transfer') {
-                    $oldAccount->balance = (float)$oldAccount->balance + $originalAmount;
-                    $oldAccount->save();
-                }
+            // 1. Revert original source account balance
+            if ($originalType === 'income') {
+                DB::table('accounts')->where('id', $originalAccountId)->decrement('current_balance', $originalAmount);
+            } elseif ($originalType === 'expense' || $originalType === 'transfer') {
+                DB::table('accounts')->where('id', $originalAccountId)->increment('current_balance', $originalAmount);
             }
 
             if ($originalType === 'transfer' && $originalToAccountId) {
-                $oldToAccount = Account::find($originalToAccountId);
-                if ($oldToAccount) {
-                    $oldToAccount->balance = (float)$oldToAccount->balance - $originalAmount;
-                    $oldToAccount->save();
-                }
+                DB::table('accounts')->where('id', $originalToAccountId)->decrement('current_balance', $originalAmount);
             }
 
-            // 2. Apply new state
+            // 2. Apply new source account balance
             $newAmount = (float) $transaction->amount;
-            $newAccount = Account::find($transaction->account_id);
-            if ($newAccount) {
-                if ($transaction->type === 'income') {
-                    $newAccount->balance = (float)$newAccount->balance + $newAmount;
-                    $newAccount->save();
-                } elseif ($transaction->type === 'expense' || $transaction->type === 'transfer') {
-                    $newAccount->balance = (float)$newAccount->balance - $newAmount;
-                    $newAccount->save();
-                }
+            $newType   = strtolower($transaction->type);
+
+            if ($newType === 'income') {
+                DB::table('accounts')->where('id', $transaction->account_id)->increment('current_balance', $newAmount);
+            } elseif ($newType === 'expense' || $newType === 'transfer') {
+                DB::table('accounts')->where('id', $transaction->account_id)->decrement('current_balance', $newAmount);
             }
 
-            if ($transaction->type === 'transfer' && $transaction->to_account_id) {
-                $newToAccount = Account::find($transaction->to_account_id);
-                if ($newToAccount) {
-                    $newToAccount->balance = (float)$newToAccount->balance + $newAmount;
-                    $newToAccount->save();
-                }
+            if ($newType === 'transfer' && $transaction->to_account_id) {
+                DB::table('accounts')->where('id', $transaction->to_account_id)->increment('current_balance', $newAmount);
             }
         }
     }
 
     /**
-     * Handle the Transaction "deleted" event.
+     * Handle the Transaction "deleting" event.
+     *
+     * IMPORTANT: Must use "deleting" (not "deleted") because the Transaction model
+     * uses SoftDeletes. The "deleted" event fires AFTER the soft-delete timestamp is set,
+     * but "deleting" fires BEFORE — allowing us to safely revert the balance.
      */
-    public function deleted(Transaction $transaction): void
+    public function deleting(Transaction $transaction): void
     {
         $amount = (float) $transaction->amount;
+        $type   = strtolower($transaction->type);
 
-        $account = Account::find($transaction->account_id);
-        if ($account) {
-            if ($transaction->type === 'income') {
-                $account->balance = (float)$account->balance - $amount;
-                $account->save();
-            } elseif ($transaction->type === 'expense' || $transaction->type === 'transfer') {
-                $account->balance = (float)$account->balance + $amount;
-                $account->save();
-            }
+        if ($type === 'income') {
+            DB::table('accounts')->where('id', $transaction->account_id)->decrement('current_balance', $amount);
+        } elseif ($type === 'expense' || $type === 'transfer') {
+            DB::table('accounts')->where('id', $transaction->account_id)->increment('current_balance', $amount);
         }
 
-        if ($transaction->type === 'transfer' && $transaction->to_account_id) {
-            $toAccount = Account::find($transaction->to_account_id);
-            if ($toAccount) {
-                $toAccount->balance = (float)$toAccount->balance - $amount;
-                $toAccount->save();
-            }
+        if ($type === 'transfer' && $transaction->to_account_id) {
+            DB::table('accounts')->where('id', $transaction->to_account_id)->decrement('current_balance', $amount);
         }
+    }
+
+    /**
+     * Handle the Transaction "forceDeleted" event (hard delete after soft delete).
+     * Balance was already reverted in deleting() event — no additional action needed.
+     */
+    public function forceDeleted(Transaction $transaction): void
+    {
+        // No-op: balance already reverted when soft delete occurred (deleting event).
     }
 }

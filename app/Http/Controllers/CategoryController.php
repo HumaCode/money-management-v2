@@ -60,6 +60,7 @@ class CategoryController extends Controller
     public function store(CategoryStoreRequest $request)
     {
         $data = $request->validated();
+        $data['user_id'] = auth()->id(); // set user_id from authenticated user
 
         try {
             $category = $this->categoryService->createCategory($data);

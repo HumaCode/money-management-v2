@@ -27,7 +27,7 @@ class AccountResource extends JsonResource
             // ✅ masked version
             'masked_account_number' => $this->masked_account_number,
 
-            'balance'               => (float) $this->balance,
+            'balance'               => (float) $this->current_balance,
             'balance_formatted'     => $this->balance_formatted,
 
             'credit_limit'          => number_format($this->credit_limit, 2, '.', ''),

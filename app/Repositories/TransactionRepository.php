@@ -146,7 +146,7 @@ class TransactionRepository implements TransactionRepositoryInterface
             $query->where('user_id', user('id'));
         }
 
-        return $query->select('name', 'icon', 'id', 'balance')
+        return $query->select('name', 'icon', 'id', 'current_balance as balance')
             ->orderBy('name', 'asc')
             ->get()
             ->toArray();
