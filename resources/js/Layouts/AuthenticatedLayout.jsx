@@ -207,10 +207,13 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                             <User size={18} />
                             Profile
                         </Link>
-                        <a href="#" className="nav-item">
+                        <Link 
+                            href={route('preferences.index')} 
+                            className={`nav-item ${route().current('preferences.*') ? 'active' : ''}`}
+                        >
                             <Settings size={18} />
                             Preferences
-                        </a>
+                        </Link>
                     </div>
                 </nav>
 

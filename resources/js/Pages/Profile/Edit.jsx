@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import ConfirmModal from '../../Components/ConfirmModal';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
-import { useForm } from '@inertiajs/react';
+import { useForm, Head } from '@inertiajs/react';
 import axios from 'axios';
 import { 
     User, Mail, Lock, ShieldCheck, Trash2, 
@@ -115,6 +115,7 @@ export default function Edit({ title, subtitle, user, status }) {
 
     return (
         <AuthenticatedLayout>
+            <Head title={title || "User Profile"} />
             <style>{`
                 .profile-grid {
                     display: grid;

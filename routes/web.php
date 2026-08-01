@@ -92,6 +92,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // preferences
+    Route::get('/preferences', [\App\Http\Controllers\UserPreferenceController::class, 'index'])->name('preferences.index');
+    Route::put('/preferences', [\App\Http\Controllers\UserPreferenceController::class, 'update'])->name('preferences.update');
 });
 
 require __DIR__ . '/auth.php';
