@@ -1,0 +1,18 @@
+{
+    # Global options
+    admin off
+}
+
+:8080 {
+    # Set web root to Laravel public folder
+    root * /app/public
+
+    # Enable FrankenPHP worker / PHP execution
+    php_server
+
+    # Encode response with gzip/zstd
+    encode zstd gzip
+
+    # Handle static files directly
+    file_server
+}
