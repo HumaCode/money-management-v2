@@ -188,10 +188,13 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                     {/* Reports */}
                     <div className="nav-section">
                         <div className="nav-section-title">Reports</div>
-                        <a href="#" className="nav-item">
+                        <Link 
+                            href={route('analytics.index')} 
+                            className={`nav-item ${route().current('analytics.*') ? 'active' : ''}`}
+                        >
                             <BarChart3 size={18} />
                             Analytics
-                        </a>
+                        </Link>
                         <a href="#" className="nav-item">
                             <FileText size={18} />
                             Reports

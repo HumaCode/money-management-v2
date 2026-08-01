@@ -82,6 +82,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/recurring-transactions/{recurring}/update', [\App\Http\Controllers\RecurringTransactionController::class, 'update'])->name('recurring.update');
     Route::delete('/recurring-transactions/{recurring}/destroy', [\App\Http\Controllers\RecurringTransactionController::class, 'destroy'])->name('recurring.destroy');
 
+    // analytics
+    Route::get('/analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/data', [\App\Http\Controllers\AnalyticsController::class, 'getData'])->name('analytics.data');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
