@@ -9,5 +9,17 @@ class Role extends ModelsRole
 {
      use HasUuids;
 
-    protected $fillable = ['name', 'guard_name'];
+    protected $fillable = [
+        'name',
+        'slug',
+        'type_role',
+        'color',
+        'is_active',
+        'description',
+        'guard_name',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 }

@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/budget-expenses/{budgetExpense}/destroy', [BudgetExpenseController::class, 'destroy'])->name('budget.expense.destroy');
 
     // saving goal
-    Route::get('/saving-goals', [SavingGoalController::class, 'index'])->name('saving.goals.index');
+    Route::get('/saving-goals', [SavingGoalController::class, 'index'])->name('saving-goals.index');
     Route::get('/saving-goals/getAllPagination', [SavingGoalController::class, 'getAllPaginated'])->name('saving.goals.allPagination');
     Route::get('/saving-goals/create', [SavingGoalController::class, 'create'])->name('saving.goals.create');
     Route::post('/saving-goals/store', [SavingGoalController::class, 'store'])->name('saving.goals.store');
@@ -96,6 +96,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // preferences
     Route::get('/preferences', [\App\Http\Controllers\UserPreferenceController::class, 'index'])->name('preferences.index');
     Route::put('/preferences', [\App\Http\Controllers\UserPreferenceController::class, 'update'])->name('preferences.update');
+
+    // users management
+    Route::get('/users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+    Route::get('/users/getAllPagination', [\App\Http\Controllers\UserController::class, 'getAllPaginated'])->name('users.allPagination');
+    Route::post('/users/store', [\App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}/update', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}/destroy', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+
+    // role & permissions management
+    Route::get('/roles-permissions', [\App\Http\Controllers\RolePermissionController::class, 'index'])->name('roles-permissions.index');
+    Route::get('/roles-permissions/{role}/matrix', [\App\Http\Controllers\RolePermissionController::class, 'getMatrix'])->name('roles-permissions.matrix');
+    Route::post('/roles-permissions/store-role', [\App\Http\Controllers\RolePermissionController::class, 'storeRole'])->name('roles-permissions.storeRole');
+    Route::put('/roles-permissions/{role}/update-role', [\App\Http\Controllers\RolePermissionController::class, 'updateRole'])->name('roles-permissions.updateRole');
+    Route::delete('/roles-permissions/{role}/destroy-role', [\App\Http\Controllers\RolePermissionController::class, 'destroyRole'])->name('roles-permissions.destroyRole');
+    Route::post('/roles-permissions/{role}/sync-permissions', [\App\Http\Controllers\RolePermissionController::class, 'syncPermissions'])->name('roles-permissions.sync');
 });
 
 require __DIR__ . '/auth.php';

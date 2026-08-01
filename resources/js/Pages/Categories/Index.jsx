@@ -4,6 +4,7 @@ import CategoryModal from '../../Components/CategoryModal';
 import ConfirmModal from '../../Components/ConfirmModal';
 import EmptyState from '../../Components/EmptyState';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
+import { useCan } from '../../Hooks/useCan';
 import axios from 'axios';
 import { Eye, Edit, Trash2, Search, RotateCcw, Plus, LayoutDashboard, FolderTree } from 'lucide-react';
 
@@ -31,8 +32,9 @@ export default function Index({ title, subtitle, parentCategories }) {
     const [categoryToDelete, setCategoryToDelete] = useState(null);
     const [isDeleting, setIsDeleting]       = useState(false);
 
-    // ── Toast ────────────────────────────────────────────────────
+    // ── Toast & Permissions ─────────────────────────────────────
     const { toast, showToast, dismissToast } = useToast(3500);
+    const { can } = useCan();
 
     // ── Fetch ────────────────────────────────────────────────────
     const fetchCategories = useCallback(async () => {
@@ -244,14 +246,16 @@ export default function Index({ title, subtitle, parentCategories }) {
                         <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: '13px' }}>{subtitle}</p>
                     </div>
                 </div>
-                <button
-                    onClick={handleOpenCreate}
-                    className="btn-primary action"
-                    style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                >
-                    <Plus size={16} />
-                    Add Data
-                </button>
+                {can('create categories') && (
+                    <button
+                        onClick={handleOpenCreate}
+                        className="btn-primary action"
+                        style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                        <Plus size={16} />
+                        Add Data
+                    </button>
+                )}
             </div>
 
             {/* ── Table Card ── */}
@@ -382,29 +386,35 @@ export default function Index({ title, subtitle, parentCategories }) {
                                         <td>
                                             <div style={{ display: 'flex', gap: 7, justifyContent: 'center' }}>
                                                 {/* View */}
-                                                <button
-                                                    className="act-btn act-btn-view"
-                                                    onClick={() => handleOpenShow(row)}
-                                                    title="View Details"
-                                                >
-                                                    <Eye size={14} />
-                                                </button>
+                                                {can('show categories') && (
+                                                    <button
+                                                        className="act-btn act-btn-view"
+                                                        onClick={() => handleOpenShow(row)}
+                                                        title="View Details"
+                                                    >
+                                                        <Eye size={14} />
+                                                    </button>
+                                                )}
                                                 {/* Edit */}
-                                                <button
-                                                    className="act-btn act-btn-edit"
-                                                    onClick={() => handleOpenEdit(row)}
-                                                    title="Edit Category"
-                                                >
-                                                    <Edit size={14} />
-                                                </button>
+                                                {can('update categories') && (
+                                                    <button
+                                                        className="act-btn act-btn-edit"
+                                                        onClick={() => handleOpenEdit(row)}
+                                                        title="Edit Category"
+                                                    >
+                                                        <Edit size={14} />
+                                                    </button>
+                                                )}
                                                 {/* Delete */}
-                                                <button
-                                                    className="act-btn act-btn-delete"
-                                                    onClick={() => triggerDelete(row)}
-                                                    title="Delete Category"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
+                                                {can('delete categories') && (
+                                                    <button
+                                                        className="act-btn act-btn-delete"
+                                                        onClick={() => triggerDelete(row)}
+                                                        title="Delete Category"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Rules\Recaptcha;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ReactLoginRequest extends FormRequest
@@ -14,9 +15,10 @@ class ReactLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'identity' => ['required', 'string', 'max:50'],
-            'password' => ['required', 'string'],
-            'remember' => ['nullable', 'boolean'],
+            'identity'             => ['required', 'string', 'max:50'],
+            'password'             => ['required', 'string'],
+            'remember'             => ['nullable', 'boolean'],
+            'g-recaptcha-response' => ['required', new Recaptcha()],
         ];
     }
 

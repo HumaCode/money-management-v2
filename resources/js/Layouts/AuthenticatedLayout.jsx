@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import LogoutConfirmationModal from '../Components/LogoutConfirmationModal';
 import Breadcrumb from '../Components/Breadcrumb';
+import { useCan } from '../Hooks/useCan';
 import { 
     LayoutDashboard, 
     FolderTree, 
@@ -21,11 +22,14 @@ import {
     Menu,
     ChevronDown,
     Sun,
-    Moon
+    Moon,
+    Users,
+    ShieldCheck
 } from 'lucide-react';
 
 export default function AuthenticatedLayout({ children, breadcrumbs }) {
-    const { auth } = usePage().props;
+    const { auth, menus } = usePage().props;
+    const { can } = useCan();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -101,120 +105,94 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                 </div>
 
                 <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
-                    {/* Dashboard */}
-                    <div className="nav-section">
-                        <Link 
-                            href={route('dashboard')} 
-                            className={`nav-item ${route().current('dashboard') ? 'active' : ''}`}
-                        >
-                            <LayoutDashboard size={18} />
-                            Dashboard
-                        </Link>
-                    </div>
+                    {menus && typeof menus === 'object' && Object.keys(menus).length > 0 ? (
+                        Object.entries(menus).map(([category, items]) => {
+                            const iconMap = {
+                                LayoutDashboard,
+                                Tags: FolderTree,
+                                Wallet,
+                                PieChart: CalendarRange,
+                                Target: Bookmark,
+                                ArrowLeftRight,
+                                Repeat: History,
+                                BarChart3,
+                                Users,
+                                ShieldCheck,
+                                User,
+                                Settings,
+                            };
 
-                    {/* Master */}
-                    <div className="nav-section">
-                        <div className="nav-section-title">Master</div>
-                        <Link 
-                            href={route('category.index')} 
-                            className={`nav-item ${route().current('category.*') ? 'active' : ''}`}
-                        >
-                            <FolderTree size={18} />
-                            Categories
-                        </Link>
-                        <Link 
-                            href={route('account.index')} 
-                            className={`nav-item ${route().current('account.*') ? 'active' : ''}`}
-                        >
-                            <Wallet size={18} />
-                            Accounts
-                        </Link>
-                        <Link 
-                            href={route('budget.index')} 
-                            className={`nav-item ${route().current('budget.*') ? 'active' : ''}`}
-                        >
-                            <CalendarRange size={18} />
-                            Budgets
-                        </Link>
-                        <Link 
-                            href={route('saving.goals.index')} 
-                            className={`nav-item ${route().current('saving.goals.*') ? 'active' : ''}`}
-                        >
-                            <Bookmark size={18} />
-                            Savings Goals
-                        </Link>
-                    </div>
+                            const getRouteName = (url) => {
+                                const routeMap = {
+                                    'dashboard': 'dashboard',
+                                    'categories': 'category.index',
+                                    'accounts': 'account.index',
+                                    'budgets': 'budget.index',
+                                    'saving-goals': 'saving-goals.index',
+                                    'transactions': 'transaction.index',
+                                    'recurring-transactions': 'recurring.index',
+                                    'analytics': 'analytics.index',
+                                    'users': 'users.index',
+                                    'roles-permissions': 'roles-permissions.index',
+                                    'profile': 'profile.edit',
+                                    'preferences': 'preferences.index',
+                                };
+                                return routeMap[url] || url;
+                            };
 
-                    {/* Transactions */}
-                    <div className="nav-section">
-                        <div className="nav-section-title">Transactions</div>
-                        <Link 
-                            href={route('transaction.index')} 
-                            className={`nav-item ${route().current('transaction.*') && (!new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') || new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'all') ? 'active' : ''}`}
-                        >
-                            <ArrowLeftRight size={18} />
-                            All Transactions
-                        </Link>
-                        <Link 
-                            href={route('transaction.index', { type: 'income' })} 
-                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'income' ? 'active' : ''}`}
-                        >
-                            <TrendingUp size={18} />
-                            Income
-                        </Link>
-                        <Link 
-                            href={route('transaction.index', { type: 'expense' })} 
-                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'expense' ? 'active' : ''}`}
-                        >
-                            <TrendingDown size={18} />
-                            Expenses
-                        </Link>
-                        <Link 
-                            href={route('transaction.index', { type: 'transfer' })} 
-                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'transfer' ? 'active' : ''}`}
-                        >
-                            <RefreshCw size={18} />
-                            Transfers
-                        </Link>
-                        <Link 
-                            href={route('recurring.index')} 
-                            className={`nav-item ${route().current('recurring.*') ? 'active' : ''}`}
-                        >
-                            <History size={18} />
-                            Recurring
-                        </Link>
-                    </div>
+                            const isRouteActive = (url) => {
+                                const activeMap = {
+                                    'dashboard': 'dashboard',
+                                    'categories': 'category.*',
+                                    'accounts': 'account.*',
+                                    'budgets': 'budget.*',
+                                    'saving-goals': 'saving-goals.*',
+                                    'transactions': 'transaction.*',
+                                    'recurring-transactions': 'recurring.*',
+                                    'analytics': 'analytics.*',
+                                    'users': 'users.*',
+                                    'roles-permissions': 'roles-permissions.*',
+                                    'profile': 'profile.*',
+                                    'preferences': 'preferences.*',
+                                };
+                                const pattern = activeMap[url];
+                                return pattern ? route().current(pattern) : false;
+                            };
 
-                    {/* Reports */}
-                    <div className="nav-section">
-                        <div className="nav-section-title">Reports</div>
-                        <Link 
-                            href={route('analytics.index')} 
-                            className={`nav-item ${route().current('analytics.*') ? 'active' : ''}`}
-                        >
-                            <BarChart3 size={18} />
-                            Analytics
-                        </Link>
-                    </div>
-
-                    {/* Settings */}
-                    <div className="nav-section">
-                        <div className="nav-section-title">Settings</div>
-                        <Link 
-                            href={route('profile.edit')} 
-                            className={`nav-item ${route().current('profile.*') ? 'active' : ''}`}
-                        >
-                            <User size={18} />
-                            Profile
-                        </Link>
-                        <Link 
-                            href={route('preferences.index')} 
-                            className={`nav-item ${route().current('preferences.*') ? 'active' : ''}`}
-                        >
-                            <Settings size={18} />
-                            Preferences
-                        </Link>
-                    </div>
+                            return (
+                                <div className="nav-section" key={category}>
+                                    {category !== 'MAIN' && (
+                                        <div className="nav-section-title">{category}</div>
+                                    )}
+                                    {Array.isArray(items) && items.map((item) => {
+                                        const IconComponent = iconMap[item.icon] || LayoutDashboard;
+                                        const targetRoute = getRouteName(item.url);
+                                        
+                                        return (
+                                            <Link
+                                                key={item.id || item.url}
+                                                href={route().has(targetRoute) ? route(targetRoute) : '#'}
+                                                className={`nav-item ${isRouteActive(item.url) ? 'active' : ''}`}
+                                            >
+                                                <IconComponent size={18} />
+                                                {item.name}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="nav-section">
+                            <Link 
+                                href={route('dashboard')} 
+                                className={`nav-item ${route().current('dashboard') ? 'active' : ''}`}
+                            >
+                                <LayoutDashboard size={18} />
+                                Dashboard
+                            </Link>
+                        </div>
+                    )}
                 </nav>
 
                 <div className="sidebar-footer">
@@ -310,19 +288,35 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
 
                             {/* User Dropdown */}
                             <div className={`user-dropdown ${isDropdownOpen ? 'show' : ''}`} id="userDropdown">
-                                <a href="#" className="dropdown-item">
-                                    <User size={16} style={{ marginRight: '8px' }} />
-                                    Profile
-                                </a>
-                                <a href="#" className="dropdown-item">
-                                    <Settings size={16} style={{ marginRight: '8px' }} />
-                                    Settings
-                                </a>
-                                <div className="dropdown-divider"></div>
-                                <a href="#" className="dropdown-item danger" onClick={handleLogout}>
-                                    <LogOut size={16} style={{ marginRight: '8px' }} />
+                                {(can('show profile') || can('update profile') || can('read profile') || can('menu profile')) && (
+                                    <>
+                                        <Link href={route('profile.edit')} className="dropdown-item">
+                                            <User size={16} style={{ marginRight: '8px' }} />
+                                            Profile
+                                        </Link>
+                                        <div className="dropdown-divider" style={{ margin: '4px 0' }}></div>
+                                    </>
+                                )}
+                                <button 
+                                    type="button" 
+                                    className="dropdown-item danger" 
+                                    onClick={handleLogout}
+                                    style={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: '#f87171',
+                                        cursor: 'pointer',
+                                        padding: '8px 16px',
+                                        fontSize: '14px',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    <LogOut size={16} style={{ marginRight: '8px', color: '#f87171' }} />
                                     Logout
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>

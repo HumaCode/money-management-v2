@@ -1,19 +1,22 @@
 <?php
 
+use App\Models\Menu;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
-if (!function_exists('user')) {
+if (! function_exists('user')) {
     /**
      * Get authenticated user data
      *
-     * @param string|null $key
+     * @param  string|null  $key
      * @return mixed
      */
     function user($key = null)
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 
@@ -25,11 +28,11 @@ if (!function_exists('user')) {
     }
 }
 
-if (!function_exists('user_initials')) {
+if (! function_exists('user_initials')) {
     /**
      * Get user initials from name
      *
-     * @param string|null $name
+     * @param  string|null  $name
      * @return string
      */
     function user_initials($name = null)
@@ -39,7 +42,7 @@ if (!function_exists('user_initials')) {
             $name = user('name');
         }
 
-        if (!$name) {
+        if (! $name) {
             return '';
         }
 
@@ -55,15 +58,15 @@ if (!function_exists('user_initials')) {
         $firstInitial = substr($words[0], 0, 1);
         $lastInitial = substr($words[count($words) - 1], 0, 1);
 
-        return strtoupper($firstInitial . $lastInitial);
+        return strtoupper($firstInitial.$lastInitial);
     }
 }
 
-if (!function_exists('user_avatar')) {
+if (! function_exists('user_avatar')) {
     /**
      * Get user avatar URL or initials as fallback
      *
-     * @param bool $returnInitials
+     * @param  bool  $returnInitials
      * @return string
      */
     function user_avatar($returnInitials = false)
@@ -71,7 +74,7 @@ if (!function_exists('user_avatar')) {
         $avatar = user('avatar');
 
         if ($avatar) {
-            return asset('storage/' . $avatar);
+            return asset('storage/'.$avatar);
         }
 
         if ($returnInitials) {
@@ -82,7 +85,7 @@ if (!function_exists('user_avatar')) {
     }
 }
 
-if (!function_exists('user_full_name')) {
+if (! function_exists('user_full_name')) {
     /**
      * Get user full name
      *
@@ -94,7 +97,7 @@ if (!function_exists('user_full_name')) {
     }
 }
 
-if (!function_exists('user_is_active')) {
+if (! function_exists('user_is_active')) {
     /**
      * Check if user is active
      *
@@ -106,18 +109,18 @@ if (!function_exists('user_is_active')) {
     }
 }
 
-if (!function_exists('user_gender')) {
+if (! function_exists('user_gender')) {
     /**
      * Get user gender
      *
-     * @param bool $translate
+     * @param  bool  $translate
      * @return string|null
      */
     function user_gender($translate = false)
     {
         $gender = user('gender');
 
-        if (!$translate) {
+        if (! $translate) {
             return $gender;
         }
 
@@ -130,26 +133,26 @@ if (!function_exists('user_gender')) {
     }
 }
 
-if (!function_exists('user_last_login')) {
+if (! function_exists('user_last_login')) {
     /**
      * Get user last login timestamp
      *
-     * @param string $format
+     * @param  string  $format
      * @return string|null
      */
     function user_last_login($format = 'Y-m-d H:i:s')
     {
         $lastLogin = user('last_login_at');
 
-        if (!$lastLogin) {
+        if (! $lastLogin) {
             return null;
         }
 
-        return \Carbon\Carbon::parse($lastLogin)->format($format);
+        return Carbon::parse($lastLogin)->format($format);
     }
 }
 
-if (!function_exists('is_logged_in')) {
+if (! function_exists('is_logged_in')) {
     /**
      * Check if user is logged in
      *
@@ -161,7 +164,7 @@ if (!function_exists('is_logged_in')) {
     }
 }
 
-if (!function_exists('user_greeting')) {
+if (! function_exists('user_greeting')) {
     /**
      * Get greeting message based on time
      *
@@ -184,14 +187,14 @@ if (!function_exists('user_greeting')) {
     }
 }
 
-if (!function_exists('tgl_indo')) {
+if (! function_exists('tgl_indo')) {
     /**
      * Format tanggal ke format Indonesia.
      *
-     * @param  mixed       $tanggal   — string tanggal, Carbon, atau timestamp
-     * @param  bool        $hari      — true  → "Rabu, 2 September 2026"
-     *                                  false → "2 September 2026"
-     * @param  string|null $default   — nilai kembalian jika $tanggal kosong
+     * @param  mixed  $tanggal  — string tanggal, Carbon, atau timestamp
+     * @param  bool  $hari  — true  → "Rabu, 2 September 2026"
+     *                      false → "2 September 2026"
+     * @param  string|null  $default  — nilai kembalian jika $tanggal kosong
      * @return string
      *
      * Contoh:
@@ -205,10 +208,10 @@ if (!function_exists('tgl_indo')) {
         }
 
         $bulan = [
-            1  => 'Januari',   2  => 'Februari', 3  => 'Maret',
-            4  => 'April',     5  => 'Mei',       6  => 'Juni',
-            7  => 'Juli',      8  => 'Agustus',   9  => 'September',
-            10 => 'Oktober',  11  => 'November', 12  => 'Desember',
+            1 => 'Januari',   2 => 'Februari', 3 => 'Maret',
+            4 => 'April',     5 => 'Mei',       6 => 'Juni',
+            7 => 'Juli',      8 => 'Agustus',   9 => 'September',
+            10 => 'Oktober',  11 => 'November', 12 => 'Desember',
         ];
 
         $namaHari = [
@@ -217,17 +220,18 @@ if (!function_exists('tgl_indo')) {
         ];
 
         try {
-            $date = \Carbon\Carbon::parse($tanggal);
-        } catch (\Throwable $e) {
+            $date = Carbon::parse($tanggal);
+        } catch (Throwable $e) {
             return $default ?? '—';
         }
 
-        $tgl    = (int) $date->format('j');
-        $bln    = $bulan[(int) $date->format('n')];
-        $tahun  = $date->format('Y');
+        $tgl = (int) $date->format('j');
+        $bln = $bulan[(int) $date->format('n')];
+        $tahun = $date->format('Y');
 
         if ($hari) {
             $dayIndex = (int) $date->format('w');   // 0 (Minggu) – 6 (Sabtu)
+
             return "{$namaHari[$dayIndex]}, {$tgl} {$bln} {$tahun}";
         }
 
@@ -235,13 +239,13 @@ if (!function_exists('tgl_indo')) {
     }
 }
 
-if (!function_exists('tgl_indo_time')) {
+if (! function_exists('tgl_indo_time')) {
     /**
      * Format tanggal + jam ke format Indonesia.
      *
-     * @param  mixed       $tanggal  — string tanggal, Carbon, atau timestamp
-     * @param  bool        $hari     — sertakan nama hari?
-     * @param  string|null $default  — nilai kembalian jika $tanggal kosong
+     * @param  mixed  $tanggal  — string tanggal, Carbon, atau timestamp
+     * @param  bool  $hari  — sertakan nama hari?
+     * @param  string|null  $default  — nilai kembalian jika $tanggal kosong
      * @return string
      *
      * Contoh:
@@ -257,13 +261,53 @@ if (!function_exists('tgl_indo_time')) {
         }
 
         try {
-            $date = \Carbon\Carbon::parse($tanggal);
-        } catch (\Throwable $e) {
+            $date = Carbon::parse($tanggal);
+        } catch (Throwable $e) {
             return $default ?? '—';
         }
 
         $jam = $date->format('H:i');
 
-        return tgl_indo($tanggal, $hari) . ' ' . $jam;
+        return tgl_indo($tanggal, $hari).' '.$jam;
+    }
+}
+
+if (! function_exists('menus')) {
+    function menus($grouped = true)
+    {
+        // 1. Ambil data asli (flat) dari cache agar query hanya 1x (simpan sebagai array mentah)
+        $allMenus = Cache::rememberForever('menus_data', function () {
+            return Menu::active()
+                ->orderBy('orders')
+                ->get()
+                ->toArray();
+        });
+
+        // 2. Rekonstruksi array kembali menjadi Collection of Menu models
+        $allMenusCollection = collect($allMenus)->map(function ($item) {
+            $menu = new Menu;
+            $menu->forceFill($item);
+            $menu->exists = true;
+
+            return $menu;
+        });
+
+        // 3. Jika minta grouped (untuk Sidebar), lakukan grouping di memori PHP
+        if ($grouped) {
+            return $allMenusCollection->groupBy('category');
+        }
+
+        // 4. Jika tidak, kembalikan data flat (untuk urlMenu)
+        return $allMenusCollection;
+    }
+}
+
+if (! function_exists('urlMenu')) {
+    function urlMenu()
+    {
+        // Cache hasil akhir array URL agar tidak perlu pluck() di setiap request
+        return Cache::rememberForever('menus_url_list', function () {
+            return menus(false)->whereNotNull('url')->pluck('url')->toArray();
+        });
     }
 }
