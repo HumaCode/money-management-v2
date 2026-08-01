@@ -20,8 +20,8 @@ services:
       DB_HOST: cuan_money_db
       DB_PORT: 3306
       DB_DATABASE: money_management_v2
-      DB_USERNAME: money_user
-      DB_PASSWORD: ${DB_PASSWORD:-SecretMoney2026!}
+      DB_USERNAME: money_management_v2
+      DB_PASSWORD: ${DB_PASSWORD:-HumaCode2026}
       SERVER_NAME: "cuan.humacode.my.id"
     volumes:
       - ./storage:/app/storage
@@ -43,9 +43,9 @@ services:
       - "127.0.0.1:3309:3306"
     environment:
       MYSQL_DATABASE: money_management_v2
-      MYSQL_USER: money_user
-      MYSQL_PASSWORD: ${DB_PASSWORD:-SecretMoney2026!}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-RootMoney2026!}
+      MYSQL_USER: money_management_v2
+      MYSQL_PASSWORD: ${DB_PASSWORD:-HumaCode2026}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-HumaCode2026}
     volumes:
       - db_data:/var/lib/mysql
     networks:
