@@ -14,9 +14,9 @@ class TransactionService
         $this->transactionRepository = $transactionRepository;
     }
 
-    public function getAllPaginated(?string $search, ?string $type, ?string $categoryId, ?int $rowsPerPage)
+    public function getAllPaginated(?string $search = null, ?string $type = null, ?string $categoryId = null, ?string $accountId = null, ?string $startDate = null, ?string $endDate = null, ?int $rowsPerPage = 10)
     {
-        return $this->transactionRepository->getAllPaginated($search, $type, $categoryId, $rowsPerPage);
+        return $this->transactionRepository->getAllPaginated($search, $type, $categoryId, $accountId, $startDate, $endDate, $rowsPerPage);
     }
 
     public function createTransaction(array $data)

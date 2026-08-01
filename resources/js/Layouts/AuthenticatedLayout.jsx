@@ -143,10 +143,13 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                     {/* Transactions */}
                     <div className="nav-section">
                         <div className="nav-section-title">Transactions</div>
-                        <a href="#" className="nav-item">
+                        <Link 
+                            href={route('transaction.index')} 
+                            className={`nav-item ${route().current('transaction.*') ? 'active' : ''}`}
+                        >
                             <ArrowLeftRight size={18} />
                             All Transactions
-                        </a>
+                        </Link>
                         <a href="#" className="nav-item">
                             <TrendingUp size={18} />
                             Income

@@ -13,21 +13,12 @@ use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+use Inertia\Inertia;
+
 class TransactionController extends Controller
 {
     private string $title               = TransactionMessage::TITLE;
     private string $subtitle            = TransactionMessage::SUBTITLE;
-    private string $formView            = TransactionMessage::FORMVIEW;
-    private string $indexView           = TransactionMessage::INDEXVIEW;
-
-    private string $createUrl           = TransactionMessage::CREATEURL;
-    private string $editUrl             = TransactionMessage::EDITURL;
-    private string $storeUrl            = TransactionMessage::STOREURL;
-    private string $updateUrl           = TransactionMessage::UPDATEURL;
-    private string $destroyUrl          = TransactionMessage::DESTROYURL;
-
-    private string $dataUrl             = TransactionMessage::PAGINATIONURL;
-    private string $dataTableId         = TransactionMessage::TABLEID;
 
     protected TransactionService $transactionService;
 
@@ -38,18 +29,15 @@ class TransactionController extends Controller
 
     public function index()
     {
-        $data = [
-            'title'             => $this->title,
-            'subtitle'          => $this->subtitle,
-            'createUrl'         => route($this->createUrl),
-            'editUrl'           => route($this->editUrl, ['transaction' => '__ID__']),
-            'destroyUrl'        => route($this->destroyUrl, ['transaction' => '__ID__']),
-            'dataUrl'           => route($this->dataUrl),
-            'dataTableId'       => $this->dataTableId,
-            'formData'          => $this->transactionService->getFormData(),
-        ];
+        $formData = $this->transactionService->getFormData();
 
-        return view($this->indexView, $data);
+        return Inertia::render('Transactions/Index', [
+            'title'      => $this->title,
+            'subtitle'   => $this->subtitle,
+            'accounts'   => $formData['AccountList'] ?? [],
+            'categories' => $formData['CategoryList'] ?? [],
+            'currencies' => $formData['CurrencyList'] ?? [],
+        ]);
     }
 
     public function getAllPaginated(Request $request)
@@ -58,6 +46,9 @@ class TransactionController extends Controller
             'search'        => 'nullable|string',
             'type'          => 'nullable|string',
             'category_id'   => 'nullable|string',
+            'account_id'    => 'nullable|string',
+            'start_date'    => 'nullable|string',
+            'end_date'      => 'nullable|string',
             'row_per_page'  => 'required|integer'
         ]);
 
@@ -66,6 +57,9 @@ class TransactionController extends Controller
                 $request->input('search'),
                 $request->input('type'),
                 $request->input('category_id'),
+                $request->input('account_id'),
+                $request->input('start_date'),
+                $request->input('end_date'),
                 (int) $request->input('row_per_page', 10),
             );
 

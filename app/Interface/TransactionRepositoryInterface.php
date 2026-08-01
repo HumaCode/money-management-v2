@@ -5,18 +5,24 @@ namespace App\Interface;
 interface TransactionRepositoryInterface
 {
     public function getAll(
-        ?string $search,
-        ?string $type,
-        ?string $categoryId,
-        ?string $limit,
-        bool $execute
+        ?string $search = null,
+        ?string $type = null,
+        ?string $categoryId = null,
+        ?string $accountId = null,
+        ?string $startDate = null,
+        ?string $endDate = null,
+        ?string $limit = null,
+        bool $execute = true
     );
 
     public function getAllPaginated(
-        ?string $search,
-        ?string $type,
-        ?string $categoryId,
-        ?int $rowsPerPage
+        ?string $search = null,
+        ?string $type = null,
+        ?string $categoryId = null,
+        ?string $accountId = null,
+        ?string $startDate = null,
+        ?string $endDate = null,
+        ?int $rowsPerPage = 10
     );
 
     public function create(array $data);

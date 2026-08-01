@@ -11,7 +11,7 @@ use App\Models\Transaction;
 
 class TransactionRepository implements TransactionRepositoryInterface
 {
-    public function getAll(?string $search, ?string $type, ?string $categoryId, ?string $limit, bool $execute)
+    public function getAll(?string $search = null, ?string $type = null, ?string $categoryId = null, ?string $accountId = null, ?string $startDate = null, ?string $endDate = null, ?string $limit = null, bool $execute = true)
     {
         $query = Transaction::query()->with(['account', 'toAccount', 'category', 'currency']);
 
@@ -39,6 +39,23 @@ class TransactionRepository implements TransactionRepositoryInterface
             $query->where('category_id', $categoryId);
         }
 
+        // Account filter
+        if ($accountId && $accountId !== 'all') {
+            $query->where(function ($q) use ($accountId) {
+                $q->where('account_id', $accountId)
+                  ->orWhere('to_account_id', $accountId);
+            });
+        }
+
+        // Date range filter
+        if ($startDate) {
+            $query->whereDate('transaction_date', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('transaction_date', '<=', $endDate);
+        }
+
         // Limit
         if ($limit) {
             $query->take((int) $limit);
@@ -48,9 +65,6 @@ class TransactionRepository implements TransactionRepositoryInterface
         $query->orderBy('transaction_date', 'desc')
               ->orderBy('id', 'desc');
 
-        // Eager loading
-        $query->with(['account', 'category', 'currency']);
-
         if ($execute) {
             return $query->get();
         }
@@ -58,9 +72,9 @@ class TransactionRepository implements TransactionRepositoryInterface
         return $query;
     }
 
-    public function getAllPaginated(?string $search, ?string $type, ?string $categoryId, ?int $rowsPerPage)
+    public function getAllPaginated(?string $search = null, ?string $type = null, ?string $categoryId = null, ?string $accountId = null, ?string $startDate = null, ?string $endDate = null, ?int $rowsPerPage = 10)
     {
-        return $this->getAll($search, $type, $categoryId, null, false)
+        return $this->getAll($search, $type, $categoryId, $accountId, $startDate, $endDate, null, false)
             ->paginate($rowsPerPage);
     }
 

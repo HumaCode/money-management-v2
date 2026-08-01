@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavingGoalController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -66,6 +67,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/saving-goals/{saving}/contributions', [SavingGoalController::class, 'getContributions'])->name('saving.goals.contributions');
     Route::delete('/saving-goals/{saving}/destroy', [SavingGoalController::class, 'destroy'])->name('saving.goals.destroy');
 
+
+    // transaction
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transaction.index');
+    Route::get('/transactions/getAllPagination', [TransactionController::class, 'getAllPaginated'])->name('transaction.allPagination');
+    Route::post('/transactions/store', [TransactionController::class, 'store'])->name('transaction.store');
+    Route::put('/transactions/{transaction}/update', [TransactionController::class, 'update'])->name('transaction.update');
+    Route::delete('/transactions/{transaction}/destroy', [TransactionController::class, 'destroy'])->name('transaction.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

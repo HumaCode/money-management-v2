@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
                     'email' => $request->user()->email,
                 ] : null,
             ],
+            'locale' => config('app.locale', 'id'),
         ];
     }
 }
