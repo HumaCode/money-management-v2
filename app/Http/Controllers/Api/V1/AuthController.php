@@ -78,6 +78,57 @@ class AuthController extends Controller
     }
 
     /**
+     * Update Current User Profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email'    => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone'    => 'nullable|string|max:20',
+            'gender'   => 'nullable|in:male,female',
+        ]);
+
+        $user->update($request->only(['name', 'username', 'email', 'phone', 'gender']));
+
+        return ResponseHelper::success([
+            'id'       => $user->id,
+            'name'     => $user->name,
+            'username' => $user->username,
+            'email'    => $user->email,
+            'phone'    => $user->phone,
+            'gender'   => $user->gender,
+            'avatar'   => $user->avatar ? asset('storage/' . $user->avatar) : null,
+        ], 'Profil berhasil diperbarui');
+    }
+
+    /**
+     * Update Current User Password
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password'     => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return ResponseHelper::error('Password saat ini tidak cocok', 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return ResponseHelper::success(null, 'Password berhasil diperbarui');
+    }
+
+    /**
      * Logout & Revoke Mobile Token
      */
     public function logout(Request $request)

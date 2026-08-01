@@ -24,6 +24,8 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
         
         // Auth profile & logout
         Route::get('/auth/me', [AuthController::class, 'me']);
+        Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
+        Route::put('/auth/password', [AuthController::class, 'updatePassword']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
 
         // Wallet Summary (Total Saldo, Pemasukan, Pengeluaran dari Rekening Aktif)
