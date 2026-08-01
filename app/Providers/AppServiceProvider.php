@@ -18,6 +18,8 @@ use App\Interface\ProfileRepositoryInterface;
 use App\Repositories\ProfileRepository;
 use App\Interface\UserPreferenceRepositoryInterface;
 use App\Repositories\UserPreferenceRepository;
+use App\Interface\DashboardRepositoryInterface;
+use App\Repositories\DashboardRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AnalyticsRepositoryInterface::class, AnalyticsRepository::class);
         $this->app->bind(ProfileRepositoryInterface::class, ProfileRepository::class);
         $this->app->bind(UserPreferenceRepositoryInterface::class, UserPreferenceRepository::class);
+        $this->app->bind(DashboardRepositoryInterface::class, DashboardRepository::class);
     }
 
     /**
