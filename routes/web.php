@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavingGoalController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -66,6 +67,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/saving-goals/{saving}/contributions', [SavingGoalController::class, 'getContributions'])->name('saving.goals.contributions');
     Route::delete('/saving-goals/{saving}/destroy', [SavingGoalController::class, 'destroy'])->name('saving.goals.destroy');
 
+
+    // transaction
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transaction.index');
+    Route::get('/transactions/getAllPagination', [TransactionController::class, 'getAllPaginated'])->name('transaction.allPagination');
+    Route::post('/transactions/store', [TransactionController::class, 'store'])->name('transaction.store');
+    Route::put('/transactions/{transaction}/update', [TransactionController::class, 'update'])->name('transaction.update');
+    Route::delete('/transactions/{transaction}/destroy', [TransactionController::class, 'destroy'])->name('transaction.destroy');
+
+    // recurring transaction
+    Route::get('/recurring-transactions', [\App\Http\Controllers\RecurringTransactionController::class, 'index'])->name('recurring.index');
+    Route::get('/recurring-transactions/getAllPagination', [\App\Http\Controllers\RecurringTransactionController::class, 'getAllPaginated'])->name('recurring.allPagination');
+    Route::post('/recurring-transactions/store', [\App\Http\Controllers\RecurringTransactionController::class, 'store'])->name('recurring.store');
+    Route::put('/recurring-transactions/{recurring}/update', [\App\Http\Controllers\RecurringTransactionController::class, 'update'])->name('recurring.update');
+    Route::delete('/recurring-transactions/{recurring}/destroy', [\App\Http\Controllers\RecurringTransactionController::class, 'destroy'])->name('recurring.destroy');
+
+    // analytics
+    Route::get('/analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/data', [\App\Http\Controllers\AnalyticsController::class, 'getData'])->name('analytics.data');
+    Route::get('/analytics/export-pdf', [\App\Http\Controllers\AnalyticsController::class, 'exportPdf'])->name('analytics.exportPdf');
+    Route::get('/analytics/export-excel', [\App\Http\Controllers\AnalyticsController::class, 'exportExcel'])->name('analytics.exportExcel');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

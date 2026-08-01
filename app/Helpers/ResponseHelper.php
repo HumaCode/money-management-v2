@@ -14,4 +14,14 @@ class ResponseHelper
             'data'      => $data,
         ], $statusCode);
     }
+
+    public static function success($data = null, $message = 'Success', $statusCode = 200): JsonResponse
+    {
+        return self::jsonResponse(true, $message, $data, $statusCode);
+    }
+
+    public static function error($message = 'Error', $statusCode = 400, $data = null): JsonResponse
+    {
+        return self::jsonResponse(false, $message, $data, $statusCode);
+    }
 }

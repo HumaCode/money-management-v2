@@ -92,6 +92,7 @@ export default function BaseModal({ isOpen, onClose, title, size = 'md', footer,
                     border: 1px solid var(--bg-card-border);
                     border-radius: 22px;
                     width: 100%;
+                    max-height: 85vh;
                     display: flex;
                     flex-direction: column;
                     box-shadow:
@@ -116,6 +117,8 @@ export default function BaseModal({ isOpen, onClose, title, size = 'md', footer,
                     padding: 18px 24px;
                     border-bottom: 1px solid var(--bg-card-border);
                     gap: 12px;
+                    flex-shrink: 0;
+                    background: var(--bg-card);
                 }
                 .bm-header h3 {
                     font-family: 'Cormorant Garamond', serif;
@@ -151,8 +154,8 @@ export default function BaseModal({ isOpen, onClose, title, size = 'md', footer,
                 .bm-body {
                     padding: 24px;
                     overflow-y: auto;
-                    max-height: 70vh;
-                    flex: 1;
+                    flex: 1 1 auto;
+                    min-height: 0;
                 }
 
                 /* Footer */
@@ -162,7 +165,8 @@ export default function BaseModal({ isOpen, onClose, title, size = 'md', footer,
                     display: flex;
                     justify-content: flex-end;
                     gap: 10px;
-                    background: rgba(255, 255, 255, 0.015);
+                    flex-shrink: 0;
+                    background: var(--bg-card);
                 }
 
                 /* Shared button primitives that modals can use */

@@ -39,6 +39,11 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
         } else {
             document.documentElement.classList.remove('light');
         }
+
+        if (typeof window !== 'undefined' && window.AOS) {
+            window.AOS.init({ duration: 600, once: true });
+            window.AOS.refresh();
+        }
     }, []);
 
     const toggleTheme = () => {
@@ -143,39 +148,53 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                     {/* Transactions */}
                     <div className="nav-section">
                         <div className="nav-section-title">Transactions</div>
-                        <a href="#" className="nav-item">
+                        <Link 
+                            href={route('transaction.index')} 
+                            className={`nav-item ${route().current('transaction.*') && (!new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') || new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'all') ? 'active' : ''}`}
+                        >
                             <ArrowLeftRight size={18} />
                             All Transactions
-                        </a>
-                        <a href="#" className="nav-item">
+                        </Link>
+                        <Link 
+                            href={route('transaction.index', { type: 'income' })} 
+                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'income' ? 'active' : ''}`}
+                        >
                             <TrendingUp size={18} />
                             Income
-                        </a>
-                        <a href="#" className="nav-item">
+                        </Link>
+                        <Link 
+                            href={route('transaction.index', { type: 'expense' })} 
+                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'expense' ? 'active' : ''}`}
+                        >
                             <TrendingDown size={18} />
                             Expenses
-                        </a>
-                        <a href="#" className="nav-item">
+                        </Link>
+                        <Link 
+                            href={route('transaction.index', { type: 'transfer' })} 
+                            className={`nav-item ${route().current('transaction.*') && new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'transfer' ? 'active' : ''}`}
+                        >
                             <RefreshCw size={18} />
                             Transfers
-                        </a>
-                        <a href="#" className="nav-item">
+                        </Link>
+                        <Link 
+                            href={route('recurring.index')} 
+                            className={`nav-item ${route().current('recurring.*') ? 'active' : ''}`}
+                        >
                             <History size={18} />
                             Recurring
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Reports */}
                     <div className="nav-section">
                         <div className="nav-section-title">Reports</div>
-                        <a href="#" className="nav-item">
+                        <Link 
+                            href={route('analytics.index')} 
+                            className={`nav-item ${route().current('analytics.*') ? 'active' : ''}`}
+                        >
                             <BarChart3 size={18} />
                             Analytics
-                        </a>
-                        <a href="#" className="nav-item">
-                            <FileText size={18} />
-                            Reports
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Settings */}
