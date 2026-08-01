@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_preferences', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->unique()->constrained()->onDelete('cascade');
-            $table->unsignedInteger('default_currency_id')->nullable();
+            $table->foreignUuid('default_currency_id')->nullable()->constrained('currencies')->nullOnDelete();
             $table->tinyInteger('fiscal_year_start_month')->default(1); // 1-12
             $table->string('theme')->default('system'); // light, dark, system
             $table->string('language', 5)->default('en'); // en, id
