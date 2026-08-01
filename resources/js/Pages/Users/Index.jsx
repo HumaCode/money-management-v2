@@ -5,6 +5,7 @@ import ConfirmModal from '../../Components/ConfirmModal';
 import EmptyState from '../../Components/EmptyState';
 import TableSkeleton from '../../Components/TableSkeleton';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
+import { useCan } from '../../Hooks/useCan';
 import axios from 'axios';
 import { Eye, Edit, Trash2, Search, RotateCcw, Plus, Users, Shield, CheckCircle, XCircle } from 'lucide-react';
 
@@ -28,8 +29,9 @@ export default function Index({ title, subtitle, roles }) {
     const [userToDelete, setUserToDelete] = useState(null);
     const [isDeleting, setIsDeleting]     = useState(false);
 
-    // ── Toast ────────────────────────────────────────────────────
+    // ── Toast & Permissions ─────────────────────────────────────
     const { toast, showToast, dismissToast } = useToast(3500);
+    const { can } = useCan();
 
     // ── Fetch Users ──────────────────────────────────────────────
     const fetchUsers = useCallback(async () => {
@@ -162,18 +164,20 @@ export default function Index({ title, subtitle, roles }) {
                     </div>
                 </div>
 
-                <button
-                    onClick={handleOpenCreateModal}
-                    style={{
-                        background: '#7dd3a8', color: '#0a0e1a', fontWeight: 600,
-                        padding: '0.65rem 1.25rem', borderRadius: '12px', border: 'none',
-                        display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer',
-                        fontSize: '0.875rem'
-                    }}
-                >
-                    <Plus size={18} />
-                    <span>Add User</span>
-                </button>
+                {can('create users') && (
+                    <button
+                        onClick={handleOpenCreateModal}
+                        style={{
+                            background: '#7dd3a8', color: '#0a0e1a', fontWeight: 600,
+                            padding: '0.65rem 1.25rem', borderRadius: '12px', border: 'none',
+                            display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer',
+                            fontSize: '0.875rem'
+                        }}
+                    >
+                        <Plus size={18} />
+                        <span>Add User</span>
+                    </button>
+                )}
             </div>
 
             {/* Filter Bar */}
@@ -329,27 +333,33 @@ export default function Index({ title, subtitle, roles }) {
                                         <td style={{ padding: '1rem 1.25rem', color: '#6b7280', fontSize: '0.8rem' }}>{userItem.last_login_at}</td>
                                         <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.4rem' }}>
-                                                <button
-                                                    onClick={() => handleOpenViewModal(userItem)}
-                                                    style={{ background: 'transparent', border: 'none', color: '#60a5fa', padding: '6px', cursor: 'pointer' }}
-                                                    title="View"
-                                                >
-                                                    <Eye size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleOpenEditModal(userItem)}
-                                                    style={{ background: 'transparent', border: 'none', color: '#7dd3a8', padding: '6px', cursor: 'pointer' }}
-                                                    title="Edit"
-                                                >
-                                                    <Edit size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleOpenDelete(userItem)}
-                                                    style={{ background: 'transparent', border: 'none', color: '#f87171', padding: '6px', cursor: 'pointer' }}
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
+                                                {can('show users') && (
+                                                    <button
+                                                        onClick={() => handleOpenViewModal(userItem)}
+                                                        style={{ background: 'transparent', border: 'none', color: '#60a5fa', padding: '6px', cursor: 'pointer' }}
+                                                        title="View"
+                                                    >
+                                                        <Eye size={16} />
+                                                    </button>
+                                                )}
+                                                {can('update users') && (
+                                                    <button
+                                                        onClick={() => handleOpenEditModal(userItem)}
+                                                        style={{ background: 'transparent', border: 'none', color: '#7dd3a8', padding: '6px', cursor: 'pointer' }}
+                                                        title="Edit"
+                                                    >
+                                                        <Edit size={16} />
+                                                    </button>
+                                                )}
+                                                {can('delete users') && (
+                                                    <button
+                                                        onClick={() => handleOpenDelete(userItem)}
+                                                        style={{ background: 'transparent', border: 'none', color: '#f87171', padding: '6px', cursor: 'pointer' }}
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

@@ -103,6 +103,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/users/store', [\App\Http\Controllers\UserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}/update', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}/destroy', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+
+    // role & permissions management
+    Route::get('/roles-permissions', [\App\Http\Controllers\RolePermissionController::class, 'index'])->name('roles-permissions.index');
+    Route::get('/roles-permissions/{role}/matrix', [\App\Http\Controllers\RolePermissionController::class, 'getMatrix'])->name('roles-permissions.matrix');
+    Route::post('/roles-permissions/store-role', [\App\Http\Controllers\RolePermissionController::class, 'storeRole'])->name('roles-permissions.storeRole');
+    Route::put('/roles-permissions/{role}/update-role', [\App\Http\Controllers\RolePermissionController::class, 'updateRole'])->name('roles-permissions.updateRole');
+    Route::delete('/roles-permissions/{role}/destroy-role', [\App\Http\Controllers\RolePermissionController::class, 'destroyRole'])->name('roles-permissions.destroyRole');
+    Route::post('/roles-permissions/{role}/sync-permissions', [\App\Http\Controllers\RolePermissionController::class, 'syncPermissions'])->name('roles-permissions.sync');
 });
 
 require __DIR__ . '/auth.php';

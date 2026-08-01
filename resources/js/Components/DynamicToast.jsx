@@ -216,7 +216,7 @@ export function DynamicToastContainer({ toast, onDismiss }) {
 
                     /* pill dimensions */
                     min-width: 52px;
-                    max-width: 420px;
+                    max-width: 650px;
                     height: 52px;
                     padding: 0 10px;
 
@@ -275,7 +275,7 @@ export function DynamicToastContainer({ toast, onDismiss }) {
                     white-space: nowrap;
                 }
                 .di-pill.di-expanded .di-content {
-                    max-width: 280px;
+                    max-width: 550px;
                     opacity: 1;
                     pointer-events: auto;
                 }
