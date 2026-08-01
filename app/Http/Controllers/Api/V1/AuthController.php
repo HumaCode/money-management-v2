@@ -4,28 +4,18 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Auth\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     /**
-     * Login for Mobile App (accepts username or email + password)
+     * Login for Mobile App (accepts username or email + password via LoginRequest)
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'login'       => 'required|string',
-            'password'    => 'required|string',
-            'device_name' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return ResponseHelper::error('Validasi gagal', 422, $validator->errors());
-        }
-
         $loginInput = $request->input('login');
         $password   = $request->input('password');
 

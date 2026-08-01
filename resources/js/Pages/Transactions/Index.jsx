@@ -511,7 +511,59 @@ export default function Index({ title, subtitle, initialType = 'all', accounts =
                                             </td>
 
                                             <td>
-                                                {row.category ? row.category.name : (isTransfer ? '— (Transfer)' : 'Uncategorized')}
+                                                {row.category ? (
+                                                    <span style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        borderRadius: '20px',
+                                                        fontSize: '11.5px',
+                                                        fontWeight: 600,
+                                                        color: row.category.color || row.color || 'var(--text-primary)',
+                                                        background: row.category.color ? `${row.category.color}18` : 'var(--bg-input)',
+                                                        border: `1px solid ${row.category.color ? `${row.category.color}35` : 'var(--bg-card-border)'}`,
+                                                    }}>
+                                                        <span style={{
+                                                            width: 6,
+                                                            height: 6,
+                                                            borderRadius: '50%',
+                                                            background: row.category.color || row.color || 'var(--accent)',
+                                                            boxShadow: `0 0 6px ${row.category.color || row.color}`
+                                                        }} />
+                                                        {row.category.name}
+                                                    </span>
+                                                ) : isTransfer ? (
+                                                    <span style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        borderRadius: '20px',
+                                                        fontSize: '11.5px',
+                                                        fontWeight: 600,
+                                                        color: '#60a5fa',
+                                                        background: 'rgba(96, 165, 250, 0.12)',
+                                                        border: '1px solid rgba(96, 165, 250, 0.25)',
+                                                    }}>
+                                                        Transfer
+                                                    </span>
+                                                ) : (
+                                                    <span style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        borderRadius: '20px',
+                                                        fontSize: '11.5px',
+                                                        fontWeight: 500,
+                                                        color: 'var(--text-secondary)',
+                                                        background: 'var(--bg-input)',
+                                                        border: '1px solid var(--bg-card-border)',
+                                                    }}>
+                                                        Uncategorized
+                                                    </span>
+                                                )}
                                             </td>
 
                                             <td>

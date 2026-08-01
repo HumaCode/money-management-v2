@@ -242,18 +242,232 @@ export default function TransactionModal({
     const titleMap = { create: 'Add Transaction', edit: 'Edit Transaction', show: 'Transaction Details' };
     const modalTitle = titleMap[mode] || 'Transaction';
 
+    // ── Dedicated Detail Card View for `isShow` ──────────────────────────
+    if (isShow) {
+        const isIncome = formData.type === 'income';
+        const isExpense = formData.type === 'expense';
+        const isTransfer = formData.type === 'transfer';
+
+        const typeColor = isIncome ? '#34d399' : (isExpense ? '#f87171' : '#60a5fa');
+        const typeBg = isIncome ? 'rgba(52, 211, 153, 0.12)' : (isExpense ? 'rgba(248, 113, 113, 0.12)' : 'rgba(96, 165, 250, 0.12)');
+        const typeBorder = isIncome ? 'rgba(52, 211, 153, 0.25)' : (isExpense ? 'rgba(248, 113, 113, 0.25)' : 'rgba(96, 165, 250, 0.25)');
+        const TypeIcon = isIncome ? TrendingUp : (isExpense ? TrendingDown : RefreshCw);
+
+        const accountObj = accounts.find(a => String(a.id) === String(formData.account_id)) || transaction?.account;
+        const toAccountObj = accounts.find(a => String(a.id) === String(formData.to_account_id)) || transaction?.to_account;
+        const categoryObj = categories.find(c => String(c.id) === String(formData.category_id)) || transaction?.category;
+        const currencyObj = currencies.find(c => String(c.id) === String(formData.currency_id)) || transaction?.currency;
+
+        const formattedDate = transaction?.transaction_date_formatted 
+            || transaction?.formatted_date 
+            || formData.transaction_date;
+
+        return (
+            <BaseModal
+                isOpen={isOpen}
+                onClose={onClose}
+                title="Transaction Details"
+                size="md"
+                footer={
+                    <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
+                        <button 
+                            type="button"
+                            className="bm-btn bm-btn-cancel" 
+                            onClick={onClose}
+                            style={{ minWidth: '100px' }}
+                        >
+                            Close
+                        </button>
+                    </div>
+                }
+            >
+                <style>{`
+                    .td-hero {
+                        background: linear-gradient(135deg, ${typeBg}, rgba(15, 23, 42, 0.8));
+                        border: 1px solid ${typeBorder};
+                        border-radius: 16px;
+                        padding: 24px 20px;
+                        text-align: center;
+                        position: relative;
+                        overflow: hidden;
+                        margin-bottom: 20px;
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+                    }
+                    .td-type-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 5px 14px;
+                        border-radius: 20px;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: ${typeColor};
+                        background: ${typeBg};
+                        border: 1px solid ${typeBorder};
+                        text-transform: uppercase;
+                        letter-spacing: 0.6px;
+                        margin-bottom: 12px;
+                    }
+                    .td-amount {
+                        font-size: 30px;
+                        font-weight: 800;
+                        color: ${typeColor};
+                        letter-spacing: -0.5px;
+                        margin-bottom: 6px;
+                        font-family: 'Inter', sans-serif;
+                    }
+                    .td-description {
+                        font-size: 14px;
+                        color: var(--text-secondary);
+                        font-weight: 500;
+                    }
+                    .td-grid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 12px;
+                    }
+                    @media (max-width: 480px) {
+                        .td-grid { grid-template-columns: 1fr; }
+                    }
+                    .td-item {
+                        background: var(--bg-input);
+                        border: 1px solid var(--bg-card-border);
+                        border-radius: 12px;
+                        padding: 13px 15px;
+                        transition: border-color 0.2s ease;
+                    }
+                    .td-item:hover {
+                        border-color: rgba(255, 255, 255, 0.15);
+                    }
+                    .td-item-full {
+                        grid-column: 1 / -1;
+                        background: var(--bg-input);
+                        border: 1px solid var(--bg-card-border);
+                        border-radius: 12px;
+                        padding: 14px 16px;
+                    }
+                    .td-label {
+                        font-size: 11px;
+                        color: var(--text-secondary);
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        margin-bottom: 5px;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                    }
+                    .td-val {
+                        font-size: 13.5px;
+                        font-weight: 600;
+                        color: var(--text-primary);
+                    }
+                `}</style>
+
+                <div className="td-hero">
+                    <div className="td-type-badge">
+                        <TypeIcon size={14} />
+                        {formData.type}
+                    </div>
+                    <div className="td-amount">
+                        {formData.type === 'income' ? '+ ' : (formData.type === 'expense' ? '- ' : '')}
+                        Rp {formData.amount || '0'}
+                    </div>
+                    <div className="td-description">
+                        {formData.description || 'No Description'}
+                    </div>
+                </div>
+
+                <div className="td-grid">
+                    <div className="td-item">
+                        <div className="td-label">
+                            📅 Transaction Date
+                        </div>
+                        <div className="td-val">
+                            {formattedDate}
+                        </div>
+                    </div>
+
+                    <div className="td-item">
+                        <div className="td-label">
+                            🏷️ Category
+                        </div>
+                        <div className="td-val" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {categoryObj ? (
+                                <>
+                                    <span style={{
+                                        display: 'inline-block',
+                                        width: 10,
+                                        height: 10,
+                                        borderRadius: '50%',
+                                        background: categoryObj.color || typeColor
+                                    }} />
+                                    {categoryObj.name}
+                                </>
+                            ) : (
+                                isTransfer ? '— (Transfer)' : 'Uncategorized'
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="td-item">
+                        <div className="td-label">
+                            🏦 Account
+                        </div>
+                        <div className="td-val">
+                            {isTransfer ? (
+                                <span>{accountObj?.name || 'Account'} &rarr; {toAccountObj?.name || 'Target'}</span>
+                            ) : (
+                                accountObj?.name || '—'
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="td-item">
+                        <div className="td-label">
+                            💱 Currency
+                        </div>
+                        <div className="td-val">
+                            {currencyObj ? `${currencyObj.name} (${currencyObj.symbol || currencyObj.code})` : 'Indonesian Rupiah (Rp)'}
+                        </div>
+                    </div>
+
+                    {formData.reference_number && (
+                        <div className="td-item">
+                            <div className="td-label">
+                                🔢 Reference Number
+                            </div>
+                            <div className="td-val" style={{ fontFamily: 'monospace' }}>
+                                {formData.reference_number}
+                            </div>
+                        </div>
+                    )}
+
+                    {formData.notes && (
+                        <div className="td-item-full">
+                            <div className="td-label">
+                                📝 Notes / Catatan
+                            </div>
+                            <div className="td-val" style={{ fontWeight: 400, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                                {formData.notes}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </BaseModal>
+        );
+    }
+
     const footer = (
         <>
             <button className="bm-btn bm-btn-cancel" onClick={onClose} disabled={isSubmitting}>
-                {isShow ? 'Close' : 'Cancel'}
+                Cancel
             </button>
-            {!isShow && (
-                <button className="bm-btn bm-btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? (
-                        <><span className="bm-spinner" /> Saving...</>
-                    ) : (isEdit ? 'Update Transaction' : 'Save Data')}
-                </button>
-            )}
+            <button className="bm-btn bm-btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+                {isSubmitting ? (
+                    <><span className="bm-spinner" /> Saving...</>
+                ) : (isEdit ? 'Update Transaction' : 'Save Data')}
+            </button>
         </>
     );
 

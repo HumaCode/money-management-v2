@@ -62,7 +62,7 @@ class Account extends Model
     protected function balanceFormatted(): Attribute
     {
         return Attribute::get(function () {
-            $amount = (float) $this->balance;
+            $amount = (float) $this->current_balance;
             $formatted = number_format($amount, 2, '.', ',');
 
             if ($this->relationLoaded('currency') && $this->currency) {

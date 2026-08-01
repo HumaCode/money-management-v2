@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\SavingsGoal\AddSavingRequest;
+use App\Http\Requests\Api\SavingsGoal\StoreSavingsGoalRequest;
 use App\Models\SavingsGoal;
 use App\Models\SavingsGoalContribution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class MobileSavingsGoalController extends Controller
 {
@@ -26,24 +27,11 @@ class MobileSavingsGoalController extends Controller
     }
 
     /**
-     * Create New Savings Goal
+     * Create New Savings Goal via StoreSavingsGoalRequest
      */
-    public function store(Request $request)
+    public function store(StoreSavingsGoalRequest $request)
     {
         $userId = $request->user()->id;
-
-        $validator = Validator::make($request->all(), [
-            'name'          => 'required|string|max:255',
-            'target_amount' => 'required|numeric|min:1',
-            'target_date'   => 'nullable|date',
-            'color'         => 'nullable|string|max:50',
-            'icon'          => 'nullable|string|max:50',
-            'notes'         => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return ResponseHelper::error('Validasi gagal', 422, $validator->errors());
-        }
 
         $goal = SavingsGoal::create([
             'user_id'        => $userId,
@@ -61,25 +49,15 @@ class MobileSavingsGoalController extends Controller
     }
 
     /**
-     * Add Contribution Deposit to Savings Goal
+     * Add Contribution Deposit to Savings Goal via AddSavingRequest
      */
-    public function addSaving(Request $request, $id)
+    public function addSaving(AddSavingRequest $request, $id)
     {
         $userId = $request->user()->id;
 
         $goal = SavingsGoal::where('user_id', $userId)->where('id', $id)->first();
         if (!$goal) {
-            return ResponseHelper::error('Target tabungan tidak ditemukan', 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'amount'         => 'required|numeric|min:1',
-            'contributed_at' => 'nullable|date',
-            'notes'          => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return ResponseHelper::error('Validasi gagal', 422, $validator->errors());
+            return ResponseHelper::notFound('Target tabungan tidak ditemukan');
         }
 
         DB::beginTransaction();

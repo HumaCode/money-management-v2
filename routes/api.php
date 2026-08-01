@@ -38,6 +38,8 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
         // Transactions
         Route::get('/transactions', [MobileTransactionController::class, 'index']);
         Route::post('/transactions', [MobileTransactionController::class, 'store']);
+        Route::put('/transactions/{id}', [MobileTransactionController::class, 'update']);
+        Route::patch('/transactions/{id}', [MobileTransactionController::class, 'update']);
         Route::delete('/transactions/{id}', [MobileTransactionController::class, 'destroy']);
 
         // Master Data Dropdowns

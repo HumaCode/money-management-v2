@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Transaction\StoreTransactionRequest;
+use App\Http\Requests\Api\Transaction\UpdateTransactionRequest;
+use App\Http\Resources\TransactionResource;
 use App\Models\Account;
 use App\Models\Category;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class MobileTransactionController extends Controller
 {
@@ -48,45 +50,41 @@ class MobileTransactionController extends Controller
             $query->whereYear('transaction_date', $request->input('year'));
         }
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = (int) $request->input('per_page', 15);
         $transactions = $query->orderBy('transaction_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
-        return ResponseHelper::success($transactions, 'Daftar transaksi');
+        return ResponseHelper::paginatedResource($transactions, TransactionResource::class, 'Daftar transaksi');
     }
 
     /**
-     * Create New Transaction
+     * Create New Transaction via StoreTransactionRequest
+     * Uses DB Transaction & TransactionObserver for automated balance adjustments
      */
-    public function store(Request $request)
+    public function store(StoreTransactionRequest $request)
     {
         $userId = $request->user()->id;
 
-        $validator = Validator::make($request->all(), [
-            'type'             => 'required|in:income,expense,transfer',
-            'amount'           => 'required|numeric|min:0.01',
-            'account_id'       => 'required|exists:accounts,id',
-            'to_account_id'    => 'required_if:type,transfer|nullable|exists:accounts,id',
-            'category_id'      => 'required_if:type,income,expense|nullable|exists:categories,id',
-            'transaction_date' => 'required|date',
-            'description'      => 'nullable|string|max:255',
-            'notes'            => 'nullable|string',
-        ]);
+        return DB::transaction(function () use ($request, $userId) {
+            // Verify Account Ownership
+            $account = Account::where('user_id', $userId)
+                ->where('id', $request->account_id)
+                ->firstOrFail();
 
-        if ($validator->fails()) {
-            return ResponseHelper::error('Validasi gagal', 422, $validator->errors());
-        }
+            if (strtolower($request->type) === 'transfer' && $request->to_account_id) {
+                Account::where('user_id', $userId)
+                    ->where('id', $request->to_account_id)
+                    ->firstOrFail();
+            }
 
-        DB::beginTransaction();
-        try {
-            $account = Account::where('user_id', $userId)->where('id', $request->account_id)->firstOrFail();
-
+            // TransactionObserver automatically updates Account balances
             $transaction = Transaction::create([
                 'user_id'          => $userId,
                 'account_id'       => $request->account_id,
                 'to_account_id'    => $request->to_account_id,
                 'category_id'      => $request->category_id,
+                'currency_id'      => $account->currency_id,
                 'amount'           => $request->amount,
                 'type'             => strtolower($request->type),
                 'transaction_date' => $request->transaction_date,
@@ -94,28 +92,57 @@ class MobileTransactionController extends Controller
                 'notes'            => $request->notes,
             ]);
 
-            // Adjust Account Balances
-            if (strtolower($request->type) === 'income') {
-                $account->increment('current_balance', $request->amount);
-            } elseif (strtolower($request->type) === 'expense') {
-                $account->decrement('current_balance', $request->amount);
-            } elseif (strtolower($request->type) === 'transfer' && $request->to_account_id) {
-                $toAccount = Account::where('user_id', $userId)->where('id', $request->to_account_id)->firstOrFail();
-                $account->decrement('current_balance', $request->amount);
-                $toAccount->increment('current_balance', $request->amount);
+            return ResponseHelper::success(
+                new TransactionResource($transaction->load(['category', 'account', 'toAccount'])),
+                'Transaksi berhasil ditambahkan',
+                201
+            );
+        });
+    }
+
+    /**
+     * Update Existing Transaction
+     * Uses DB Transaction & TransactionObserver for automated balance recalculation
+     */
+    public function update(UpdateTransactionRequest $request, $id)
+    {
+        $userId = $request->user()->id;
+        $transaction = Transaction::where('user_id', $userId)->where('id', $id)->first();
+
+        if (!$transaction) {
+            return ResponseHelper::notFound('Transaksi tidak ditemukan');
+        }
+
+        return DB::transaction(function () use ($request, $transaction, $userId) {
+            $accountId = $request->input('account_id', $transaction->account_id);
+            $account   = Account::where('user_id', $userId)->where('id', $accountId)->firstOrFail();
+
+            if ($request->has('to_account_id') && $request->to_account_id) {
+                Account::where('user_id', $userId)->where('id', $request->to_account_id)->firstOrFail();
             }
 
-            DB::commit();
+            $transaction->update([
+                'account_id'       => $accountId,
+                'to_account_id'    => $request->has('to_account_id') ? $request->to_account_id : $transaction->to_account_id,
+                'category_id'      => $request->has('category_id') ? $request->category_id : $transaction->category_id,
+                'currency_id'      => $account->currency_id,
+                'amount'           => $request->input('amount', $transaction->amount),
+                'type'             => $request->has('type') ? strtolower($request->type) : $transaction->type,
+                'transaction_date' => $request->input('transaction_date', $transaction->transaction_date),
+                'description'      => $request->input('description', $transaction->description),
+                'notes'            => $request->input('notes', $transaction->notes),
+            ]);
 
-            return ResponseHelper::success($transaction->load(['category', 'account', 'toAccount']), 'Transaksi berhasil ditambahkan', 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return ResponseHelper::error('Gagal menambahkan transaksi: ' . $e->getMessage(), 500);
-        }
+            return ResponseHelper::success(
+                new TransactionResource($transaction->fresh(['category', 'account', 'toAccount'])),
+                'Transaksi berhasil diperbarui'
+            );
+        });
     }
 
     /**
      * Delete Transaction
+     * Uses DB Transaction & TransactionObserver for automated balance reversion
      */
     public function destroy(Request $request, $id)
     {
@@ -123,35 +150,14 @@ class MobileTransactionController extends Controller
         $transaction = Transaction::where('user_id', $userId)->where('id', $id)->first();
 
         if (!$transaction) {
-            return ResponseHelper::error('Transaksi tidak ditemukan', 404);
+            return ResponseHelper::notFound('Transaksi tidak ditemukan');
         }
 
-        DB::beginTransaction();
-        try {
-            // Revert balance changes
-            $account = Account::find($transaction->account_id);
-            if ($account) {
-                if (strtolower($transaction->type) === 'income') {
-                    $account->decrement('current_balance', $transaction->amount);
-                } elseif (strtolower($transaction->type) === 'expense') {
-                    $account->increment('current_balance', $transaction->amount);
-                } elseif (strtolower($transaction->type) === 'transfer' && $transaction->to_account_id) {
-                    $toAccount = Account::find($transaction->to_account_id);
-                    $account->increment('current_balance', $transaction->amount);
-                    if ($toAccount) {
-                        $toAccount->decrement('current_balance', $transaction->amount);
-                    }
-                }
-            }
-
+        return DB::transaction(function () use ($transaction) {
+            // TransactionObserver automatically reverts Account balances
             $transaction->delete();
-            DB::commit();
-
             return ResponseHelper::success(null, 'Transaksi berhasil dihapus');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return ResponseHelper::error('Gagal menghapus transaksi', 500);
-        }
+        });
     }
 
     /**

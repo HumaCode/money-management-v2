@@ -41,6 +41,33 @@ class ResponseHelper
     }
 
     /**
+     * Standard Paginated Resource Response Format
+     */
+    public static function paginatedResource($paginator, string $resourceClass, string $message = 'Success'): JsonResponse
+    {
+        $items = $resourceClass::collection($paginator->getCollection());
+
+        return response()->json([
+            'success'    => true,
+            'message'    => $message,
+            'data'       => $items,
+            'pagination' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+                'has_more'     => $paginator->hasMorePages(),
+            ],
+            'links' => [
+                'first' => $paginator->url(1),
+                'last'  => $paginator->url($paginator->lastPage()),
+                'prev'  => $paginator->previousPageUrl(),
+                'next'  => $paginator->nextPageUrl(),
+            ],
+        ], 200);
+    }
+
+    /**
      * Standard Validation Error Response (422 Unprocessable Entity)
      */
     public static function validationError(mixed $errors, string $message = 'Validasi gagal'): JsonResponse
