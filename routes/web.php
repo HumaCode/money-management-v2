@@ -96,6 +96,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // preferences
     Route::get('/preferences', [\App\Http\Controllers\UserPreferenceController::class, 'index'])->name('preferences.index');
     Route::put('/preferences', [\App\Http\Controllers\UserPreferenceController::class, 'update'])->name('preferences.update');
+
+    // users management
+    Route::get('/users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+    Route::get('/users/getAllPagination', [\App\Http\Controllers\UserController::class, 'getAllPaginated'])->name('users.allPagination');
+    Route::post('/users/store', [\App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}/update', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}/destroy', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
 });
 
 require __DIR__ . '/auth.php';
