@@ -4,10 +4,12 @@ import axios from 'axios';
 import '../../../../public/assets/auth/css/styles.css';
 import ThemeToggleFAB from '../../Components/ThemeToggleFAB';
 
-export default function Login() {
-    const [identity, setIdentity] = useState('');
+export default function Register() {
+    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [remember, setRemember] = useState(false);
+    const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [focusedField, setFocusedField] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -32,6 +34,12 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg(null);
+
+        if (password !== passwordConfirmation) {
+            setErrorMsg('Password confirmation does not match.');
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -41,7 +49,7 @@ export default function Login() {
                 await new Promise((resolve) => {
                     window.grecaptcha.ready(async () => {
                         try {
-                            token = await window.grecaptcha.execute(SITE_KEY, { action: 'login' });
+                            token = await window.grecaptcha.execute(SITE_KEY, { action: 'register' });
                         } catch (err) {
                             console.error('reCAPTCHA execution error:', err);
                         }
@@ -50,10 +58,12 @@ export default function Login() {
                 });
             }
 
-            const response = await axios.post(route('login'), {
-                identity,
+            const response = await axios.post(route('register'), {
+                name,
+                username,
+                email,
                 password,
-                remember,
+                password_confirmation: passwordConfirmation,
                 'g-recaptcha-response': token,
             });
 
@@ -64,7 +74,7 @@ export default function Login() {
                 }, 2000);
             }
         } catch (error) {
-            let message = 'Login failed.';
+            let message = 'Registration failed.';
             if (error.response) {
                 if (error.response.status === 422 && error.response.data.errors) {
                     message = Object.values(error.response.data.errors)[0][0];
@@ -79,12 +89,11 @@ export default function Login() {
 
     return (
         <>
-            <Head title="Login — MoneyFlow" />
+            <Head title="Register — MoneyFlow" />
             
             <div className="ambient"></div>
             <div className="grid-overlay"></div>
 
-            {/* Inline Spin Animation keyframes */}
             <style>{`
                 @keyframes spin {
                     to { transform: rotate(360deg); }
@@ -115,7 +124,7 @@ export default function Login() {
                 <div className="panel-brand">
                     <div className="brand-logo">
                         <svg viewBox="0 0 36 36" fill="none" style={{ width: '36px', height: '36px' }}>
-                            <rect width="36" height="36" rx="10" fill="#7dd3a8" opacity="0.15" />
+                            <rect width="36" height="36" rx="10" fill="#7dd3a8" fillOpacity="0.15" />
                             <path d="M10 24 L16 16 L21 20 L27 10" stroke="#7dd3a8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                             <circle cx="27" cy="10" r="2.5" fill="#7dd3a8" />
                         </svg>
@@ -123,10 +132,9 @@ export default function Login() {
                     </div>
 
                     <div className="brand-tagline">
-                        <h2>Take control of<br /><em>your finances</em></h2>
+                        <h2>Start your<br /><em>financial journey</em></h2>
                         <p>
-                            A smarter way to track, budget, and grow your wealth — all in one
-                            elegant dashboard.
+                            Join MoneyFlow today and take full control of your personal finances with smart budgeting tools.
                         </p>
                     </div>
 
@@ -140,8 +148,8 @@ export default function Login() {
                                 </svg>
                             </div>
                             <div className="feature-text">
-                                <h4>Real-time Tracking</h4>
-                                <p>Monitor every transaction instantly</p>
+                                <h4>Free Account</h4>
+                                <p>Get instant access to all core features</p>
                             </div>
                         </div>
                         <div className="feature-item">
@@ -152,37 +160,25 @@ export default function Login() {
                                 </svg>
                             </div>
                             <div className="feature-text">
-                                <h4>Smart Budgeting</h4>
-                                <p>Set goals and stay on track</p>
-                            </div>
-                        </div>
-                        <div className="feature-item">
-                            <div className="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                    <circle cx="12" cy="7" r="4" />
-                                </svg>
-                            </div>
-                            <div className="feature-text">
-                                <h4>Secure & Private</h4>
-                                <p>Bank-level encryption on all data</p>
+                                <h4>Smart Categorization</h4>
+                                <p>Effortlessly organize income & expenses</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Right: Login Form */}
-                <div className="panel-form" style={{ position: 'relative', minHeight: '420px' }}>
+                {/* Right: Register Form */}
+                <div className="panel-form" style={{ position: 'relative', minHeight: '480px' }}>
                     {!isSuccess ? (
                         <>
                             <div className="form-header">
-                                <h1>Welcome back</h1>
-                                <p>Sign in to your MoneyFlow account</p>
+                                <h1>Create account</h1>
+                                <p>Start managing your MoneyFlow account</p>
                             </div>
 
                             {errorMsg && (
                                 <div className="error-msg show" id="errorMsg">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px', marginRight: '8px' }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px', marginRight: '8px', flexShrink: 0 }}>
                                         <circle cx="12" cy="12" r="10" />
                                         <line x1="12" y1="8" x2="12" y2="12" />
                                         <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -191,33 +187,77 @@ export default function Login() {
                                 </div>
                             )}
 
-                            <form onSubmit={handleSubmit} id="loginForm">
+                            <form onSubmit={handleSubmit} id="registerForm">
+                                {/* Full Name */}
                                 <div className="form-group">
-                                    <label htmlFor="identity">Username</label>
-                                    <div className={`input-wrapper ${focusedField === 'identity' ? 'focused' : ''}`} id="usernameWrapper">
+                                    <label htmlFor="name">Full Name</label>
+                                    <div className={`input-wrapper ${focusedField === 'name' ? 'focused' : ''}`}>
                                         <svg className="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
                                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                                             <circle cx="12" cy="7" r="4" />
                                         </svg>
                                         <input 
                                             type="text" 
-                                            id="identity" 
-                                            name="identity" 
-                                            autoFocus 
-                                            placeholder="Enter your username"
-                                            value={identity}
-                                            onChange={(e) => setIdentity(e.target.value)}
-                                            onFocus={() => setFocusedField('identity')}
+                                            id="name" 
+                                            placeholder="Enter your full name"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            onFocus={() => setFocusedField('name')}
                                             onBlur={() => setFocusedField(null)}
-                                            autoComplete="off" 
                                             disabled={isSubmitting}
+                                            required
                                         />
                                     </div>
                                 </div>
 
+                                {/* Username */}
+                                <div className="form-group">
+                                    <label htmlFor="username">Username</label>
+                                    <div className={`input-wrapper ${focusedField === 'username' ? 'focused' : ''}`}>
+                                        <svg className="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
+                                            <circle cx="12" cy="12" r="4" />
+                                            <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8" />
+                                        </svg>
+                                        <input 
+                                            type="text" 
+                                            id="username" 
+                                            placeholder="Choose a username"
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                            onFocus={() => setFocusedField('username')}
+                                            onBlur={() => setFocusedField(null)}
+                                            disabled={isSubmitting}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Email */}
+                                <div className="form-group">
+                                    <label htmlFor="email">Email Address</label>
+                                    <div className={`input-wrapper ${focusedField === 'email' ? 'focused' : ''}`}>
+                                        <svg className="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                            <polyline points="22,6 12,13 2,6" />
+                                        </svg>
+                                        <input 
+                                            type="email" 
+                                            id="email" 
+                                            placeholder="Enter your email address"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            onFocus={() => setFocusedField('email')}
+                                            onBlur={() => setFocusedField(null)}
+                                            disabled={isSubmitting}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Password */}
                                 <div className="form-group">
                                     <label htmlFor="password">Password</label>
-                                    <div className={`input-wrapper ${focusedField === 'password' ? 'focused' : ''}`} id="passwordWrapper">
+                                    <div className={`input-wrapper ${focusedField === 'password' ? 'focused' : ''}`}>
                                         <svg className="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
                                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                                             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -225,14 +265,13 @@ export default function Login() {
                                         <input 
                                             type={passwordVisible ? "text" : "password"} 
                                             id="password" 
-                                            name="password" 
-                                            placeholder="Enter your password"
+                                            placeholder="Create a password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             onFocus={() => setFocusedField('password')}
                                             onBlur={() => setFocusedField(null)}
-                                            autoComplete="off" 
                                             disabled={isSubmitting}
+                                            required
                                         />
                                         <button 
                                             className="toggle-password" 
@@ -257,19 +296,26 @@ export default function Login() {
                                     </div>
                                 </div>
 
-                                <div className="form-options">
-                                    <label className="remember-me">
+                                {/* Password Confirmation */}
+                                <div className="form-group">
+                                    <label htmlFor="passwordConfirmation">Confirm Password</label>
+                                    <div className={`input-wrapper ${focusedField === 'passwordConfirmation' ? 'focused' : ''}`}>
+                                        <svg className="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                        </svg>
                                         <input 
-                                            type="checkbox" 
-                                            name="remember" 
-                                            id="rememberMe" 
-                                            checked={remember}
-                                            onChange={(e) => setRemember(e.target.checked)}
+                                            type={passwordVisible ? "text" : "password"} 
+                                            id="passwordConfirmation" 
+                                            placeholder="Confirm your password"
+                                            value={passwordConfirmation}
+                                            onChange={(e) => setPasswordConfirmation(e.target.value)}
+                                            onFocus={() => setFocusedField('passwordConfirmation')}
+                                            onBlur={() => setFocusedField(null)}
                                             disabled={isSubmitting}
+                                            required
                                         />
-                                        <span>Remember me</span>
-                                    </label>
-                                    <a href="#" className="forgot-link">Forgot password?</a>
+                                    </div>
                                 </div>
 
                                 <button 
@@ -280,21 +326,22 @@ export default function Login() {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        gap: '8px'
+                                        gap: '8px',
+                                        marginTop: '24px'
                                     }}
                                 >
                                     {isSubmitting ? (
                                         <>
                                             <span className="btn-spinner"></span>
-                                            Mohon tunggu sebentar...
+                                            Creating account...
                                         </>
                                     ) : (
-                                        'Sign In'
+                                        'Sign Up'
                                     )}
                                 </button>
                             </form>
                             <div className="signup-link" id="link">
-                                Don't have an account? <Link href={route('register')}>Sign up</Link>
+                                Already have an account? <Link href={route('login')}>Sign in</Link>
                             </div>
                         </>
                     ) : (
@@ -322,15 +369,16 @@ export default function Login() {
                                     <polyline points="20 6 9 17 4 12" />
                                 </svg>
                             </div>
-                            <h3 style={{ fontSize: '22px', fontWeight: '600', marginBottom: '8px', color: 'var(--text-primary)' }}>Login successful!</h3>
+                            <h3 style={{ fontSize: '22px', fontWeight: '600', marginBottom: '8px', color: 'var(--text-primary)' }}>Account created!</h3>
                             <p style={{ fontSize: '14px', color: '#94a3b8', maxWidth: '360px', lineHeight: '1.6' }}>
-                                Welcome back to MoneyFlow. You’ve been successfully logged in.
+                                Welcome to MoneyFlow. Your account has been registered successfully.
                                 Redirecting you to your dashboard.
                             </p>
                         </div>
                     )}
                 </div>
             </div>
+
             <ThemeToggleFAB />
         </>
     );

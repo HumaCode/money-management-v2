@@ -21,7 +21,9 @@ import {
     Menu,
     ChevronDown,
     Sun,
-    Moon
+    Moon,
+    Users,
+    ShieldCheck
 } from 'lucide-react';
 
 export default function AuthenticatedLayout({ children, breadcrumbs }) {
@@ -112,6 +114,8 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                                 ArrowLeftRight,
                                 Repeat: History,
                                 BarChart3,
+                                Users,
+                                ShieldCheck,
                                 User,
                                 Settings,
                             };
@@ -126,6 +130,8 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                                     'transactions': 'transaction.index',
                                     'recurring-transactions': 'recurring.index',
                                     'analytics': 'analytics.index',
+                                    'users': 'users.index',
+                                    'roles-permissions': 'roles-permissions.index',
                                     'profile': 'profile.edit',
                                     'preferences': 'preferences.index',
                                 };
@@ -142,6 +148,8 @@ export default function AuthenticatedLayout({ children, breadcrumbs }) {
                                     'transactions': 'transaction.*',
                                     'recurring-transactions': 'recurring.*',
                                     'analytics': 'analytics.*',
+                                    'users': 'users.*',
+                                    'roles-permissions': 'roles-permissions.*',
                                     'profile': 'profile.*',
                                     'preferences': 'preferences.*',
                                 };

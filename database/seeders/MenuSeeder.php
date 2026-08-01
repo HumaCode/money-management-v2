@@ -86,30 +86,50 @@ class MenuSeeder extends Seeder
 
             // Category: REPORTS
             [
-                'name' => 'Analytics',
-                'url' => 'analytics',
-                'category' => 'REPORTS',
-                'icon' => 'BarChart3',
+                'name'      => 'Analytics',
+                'url'       => 'analytics',
+                'category'  => 'REPORTS',
+                'icon'      => 'BarChart3',
                 'is_active' => 1,
-                'orders' => 8,
+                'orders'    => 8,
+            ],
+
+            // Category: USER MANAGEMENT
+            [
+                'name'        => 'Users',
+                'url'         => 'users',
+                'category'    => 'USER MANAGEMENT',
+                'icon'        => 'Users',
+                'is_active'   => 1,
+                'orders'      => 9,
+                'permissions' => ['menu', 'create', 'read', 'show', 'update', 'delete'],
+            ],
+            [
+                'name'        => 'Role & Permissions',
+                'url'         => 'roles-permissions',
+                'category'    => 'USER MANAGEMENT',
+                'icon'        => 'ShieldCheck',
+                'is_active'   => 1,
+                'orders'      => 10,
+                'permissions' => ['menu', 'create', 'read', 'show', 'update', 'delete'],
             ],
 
             // Category: SETTINGS
             [
-                'name' => 'Profile',
-                'url' => 'profile',
-                'category' => 'SETTINGS',
-                'icon' => 'User',
+                'name'      => 'Profile',
+                'url'       => 'profile',
+                'category'  => 'SETTINGS',
+                'icon'      => 'User',
                 'is_active' => 1,
-                'orders' => 9,
+                'orders'    => 11,
             ],
             [
-                'name' => 'Preferences',
-                'url' => 'preferences',
-                'category' => 'SETTINGS',
-                'icon' => 'Settings',
+                'name'      => 'Preferences',
+                'url'       => 'preferences',
+                'category'  => 'SETTINGS',
+                'icon'      => 'Settings',
                 'is_active' => 1,
-                'orders' => 10,
+                'orders'    => 12,
             ],
         ];
 

@@ -30,8 +30,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   position: relative;
+  padding: 20px 0;
 }
 
 /* Ambient background shapes */
@@ -247,11 +247,22 @@ body {
 .panel-form {
   flex: 1;
   background: var(--bg-card);
-  padding: 56px 52px;
+  padding: 48px 52px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.panel-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-form::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 .form-header {
