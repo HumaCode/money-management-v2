@@ -13,7 +13,7 @@ services:
       - "8095:8080"
     environment:
       APP_ENV: production
-      APP_DEBUG: "false"
+      APP_DEBUG: "true"
       APP_URL: "https://cuan.humacode.my.id"
       DB_HOST: cuan_money_db
       DB_PORT: 3306
@@ -50,7 +50,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:-HumaCode2026}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-HumaCode2026}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pHumaCode2026"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pHumaCode2026" ]
       interval: 5s
       timeout: 5s
       retries: 10
