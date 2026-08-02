@@ -11,6 +11,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
+# Install Node.js and NPM for Vite build
+RUN apk add --no-cache nodejs npm
+
 # Copy application files
 COPY . /app
 
@@ -19,6 +22,10 @@ RUN cp -n .env.example .env || true
 
 # Install composer dependencies ignoring platform requirement checks during build
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --ignore-platform-reqs
+
+# Install frontend dependencies and build assets via Vite
+RUN npm ci || npm install
+RUN npm run build
 
 # Ensure correct permissions for storage and bootstrap/cache
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
