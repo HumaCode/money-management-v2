@@ -15,6 +15,7 @@ services:
       APP_ENV: production
       APP_DEBUG: "true"
       APP_URL: "https://cuan.humacode.my.id"
+      ASSET_URL: "https://cuan.humacode.my.id"
       DB_HOST: cuan_money_db
       DB_PORT: 3306
       DB_DATABASE: money_management_v2
