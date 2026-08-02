@@ -26,4 +26,4 @@ RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
 
 EXPOSE 8080
 
-CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
