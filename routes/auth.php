@@ -8,8 +8,14 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SsoCallbackController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+
+// SSO OAuth2 routes (accessible by guests)
+Route::get('/auth/sso', [SsoCallbackController::class, 'redirect'])->name('sso.redirect');
+Route::get('/auth/callback', [SsoCallbackController::class, 'callback'])->name('sso.callback');
+
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])

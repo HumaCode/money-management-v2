@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
 import axios from 'axios';
 import { 
     Settings, Globe, Moon, Calendar, DollarSign, 
-    Bell, CheckCircle2, Sliders, Layout, Hash
+    Bell, CheckCircle2, Sliders, Layout, Hash,
+    Link2, Shield, KeyRound, ExternalLink, AlertCircle, CheckCircle
 } from 'lucide-react';
 
 export default function Index({ title, subtitle, preference, currencies = [] }) {
-    const prefData = preference?.data || preference || {};
+    const prefData  = preference?.data || preference || {};
+    const { sso_config } = usePage().props;
 
     const [form, setForm] = useState({
         theme:                   prefData.theme || 'dark',
@@ -25,6 +27,68 @@ export default function Index({ title, subtitle, preference, currencies = [] }) 
     const [errors, setErrors] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const { toast, showToast, dismissToast } = useToast(3500);
+
+    // SSO Settings — load initial values from Inertia shared props
+    const [ssoForm, setSsoForm] = useState({
+        sso_enabled:      sso_config?.sso_enabled      ?? false,
+        sso_provider_url: sso_config?.sso_provider_url || 'http://localhost:8000',
+        sso_client_id:    '',
+        sso_redirect_uri: window.location.origin + '/auth/sso/callback',
+    });
+    const [isSavingSso, setIsSavingSso] = useState(false);
+    const [ssoStatus, setSsoStatus] = useState(null); // 'testing' | 'connected' | 'error'
+
+    // Load SSO config (client_secret excluded — stored server-side only)
+    React.useEffect(() => {
+        axios.get(route('sso.config'))
+            .then(res => {
+                if (res.data?.data) {
+                    const { sso_client_secret: _dropped, ...rest } = res.data.data;
+                    setSsoForm(prev => ({
+                        ...prev,
+                        ...rest,
+                        sso_redirect_uri: prev.sso_redirect_uri,
+                    }));
+                }
+            })
+            .catch(() => {});
+    }, []);
+
+    const handleTestSsoConnection = async () => {
+        setSsoStatus('testing');
+        try {
+            const res = await axios.post(route('sso.testConnection'), {
+                sso_provider_url: ssoForm.sso_provider_url,
+            });
+            if (res.data?.success) {
+                setSsoStatus('connected');
+                showToast('Berhasil terhubung ke SSO server!', 'success');
+            } else {
+                setSsoStatus('error');
+                showToast(res.data?.message || 'Gagal terhubung ke SSO server', 'error');
+            }
+        } catch (err) {
+            setSsoStatus('error');
+            showToast(err.response?.data?.message || 'Gagal terhubung ke SSO server', 'error');
+        }
+    };
+
+    const handleSsoSave = async (e) => {
+        e.preventDefault();
+        setIsSavingSso(true);
+        try {
+            const res = await axios.post(route('sso.saveConfig'), ssoForm);
+            if (res.data?.success) {
+                showToast('Konfigurasi SSO berhasil disimpan!', 'success');
+            } else {
+                showToast(res.data?.message || 'Gagal menyimpan konfigurasi SSO', 'error');
+            }
+        } catch (err) {
+            showToast(err.response?.data?.message || 'Terjadi kesalahan', 'error');
+        } finally {
+            setIsSavingSso(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -380,6 +444,289 @@ export default function Index({ title, subtitle, preference, currencies = [] }) 
                     </button>
                 </div>
             </form>
+
+            {/* ===== SSO Settings Card (standalone, outside main pref form) ===== */}
+            <style>{`
+                .sso-card {
+                    background: var(--bg-card);
+                    border: 1px solid var(--bg-card-border);
+                    border-radius: var(--radius);
+                    margin-top: 24px;
+                    overflow: hidden;
+                }
+                .sso-card-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 16px;
+                    padding: 24px 28px 20px;
+                    border-bottom: 1px solid var(--bg-card-border);
+                    flex-wrap: wrap;
+                }
+                .sso-badge-enabled {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    background: rgba(34,197,94,0.12);
+                    color: #22c55e;
+                    border: 1px solid rgba(34,197,94,0.25);
+                }
+                .sso-badge-disabled {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    background: rgba(148,163,184,0.1);
+                    color: var(--text-secondary);
+                    border: 1px solid var(--bg-card-border);
+                }
+                .sso-body {
+                    padding: 28px;
+                }
+                .sso-info-banner {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 12px;
+                    padding: 14px 18px;
+                    border-radius: 10px;
+                    background: rgba(99,102,241,0.08);
+                    border: 1px solid rgba(99,102,241,0.2);
+                    margin-bottom: 24px;
+                    font-size: 13px;
+                    color: var(--text-secondary);
+                    line-height: 1.6;
+                }
+                .sso-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 18px;
+                    margin-bottom: 18px;
+                }
+                .sso-connection-status {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 13px;
+                    font-weight: 500;
+                    padding: 8px 14px;
+                    border-radius: 8px;
+                }
+                .sso-connection-status.testing {
+                    background: rgba(234,179,8,0.1);
+                    color: #eab308;
+                    border: 1px solid rgba(234,179,8,0.2);
+                }
+                .sso-connection-status.connected {
+                    background: rgba(34,197,94,0.1);
+                    color: #22c55e;
+                    border: 1px solid rgba(34,197,94,0.2);
+                }
+                .sso-connection-status.error {
+                    background: rgba(239,68,68,0.1);
+                    color: #ef4444;
+                    border: 1px solid rgba(239,68,68,0.2);
+                }
+                .sso-footer {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 14px;
+                    padding: 20px 28px;
+                    border-top: 1px solid var(--bg-card-border);
+                    background: rgba(0,0,0,0.1);
+                }
+                @media (max-width: 768px) {
+                    .sso-grid { grid-template-columns: 1fr; }
+                }
+            `}</style>
+
+            <div className="sso-card">
+                {/* SSO Card Header */}
+                <div className="sso-card-header">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div style={{
+                            width: '42px', height: '42px', borderRadius: '12px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: 'rgba(99,102,241,0.12)', color: '#6366f1', flexShrink: 0
+                        }}>
+                            <Shield size={20} />
+                        </div>
+                        <div>
+                            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>
+                                SSO — Single Sign-On
+                            </h3>
+                            <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                                Hubungkan aplikasi ini dengan HumaCode SSO untuk login terpusat.
+                            </p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        {ssoForm.sso_enabled
+                            ? <span className="sso-badge-enabled"><CheckCircle size={12} /> Aktif</span>
+                            : <span className="sso-badge-disabled">Nonaktif</span>
+                        }
+                        {/* Enable/disable SSO toggle */}
+                        <label className="switch" title="Aktifkan SSO">
+                            <input
+                                type="checkbox"
+                                checked={ssoForm.sso_enabled}
+                                onChange={(e) => setSsoForm(prev => ({ ...prev, sso_enabled: e.target.checked }))}
+                            />
+                            <span className="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                {/* SSO Body */}
+                <form onSubmit={handleSsoSave}>
+                    <div className="sso-body">
+                        {/* Info Banner */}
+                        <div className="sso-info-banner">
+                            <AlertCircle size={16} style={{ color: '#6366f1', flexShrink: 0, marginTop: 1 }} />
+                            <span>
+                                Konfigurasi ini digunakan untuk menghubungkan <strong>Money Management</strong> dengan
+                                server <strong>HumaCode SSO</strong>. Masukkan <em>Client ID</em> yang terdaftar
+                                di dashboard SSO, lalu aktifkan toggle di atas.{' '}
+                                <a
+                                    href={ssoForm.sso_provider_url || '#'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: '#6366f1', textDecoration: 'underline', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+                                >
+                                    Buka SSO Dashboard <ExternalLink size={11} />
+                                </a>
+                            </span>
+                        </div>
+
+                        {/* Fields */}
+                        <div className="sso-grid">
+                            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                                <label className="form-label">
+                                    <Link2 size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                                    SSO Provider URL
+                                </label>
+                                <input
+                                    type="url"
+                                    className="form-control"
+                                    placeholder="http://localhost:8000"
+                                    value={ssoForm.sso_provider_url}
+                                    onChange={(e) => setSsoForm(prev => ({ ...prev, sso_provider_url: e.target.value }))}
+                                    disabled={!ssoForm.sso_enabled}
+                                />
+                                <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+                                    URL root dari server HumaCode SSO. Contoh: <code style={{ background: 'var(--bg-input)', padding: '1px 5px', borderRadius: '4px' }}>https://sso.humacode.id</code>
+                                </small>
+                            </div>
+
+                            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                                <label className="form-label">
+                                    <KeyRound size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                                    Client ID
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Masukkan Client ID dari SSO"
+                                    value={ssoForm.sso_client_id}
+                                    onChange={(e) => setSsoForm(prev => ({ ...prev, sso_client_id: e.target.value }))}
+                                    disabled={!ssoForm.sso_enabled}
+                                    autoComplete="off"
+                                />
+                                <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+                                    Client ID didapat dari halaman <strong>Apps</strong> di dashboard SSO HumaCode.
+                                </small>
+                            </div>
+
+                            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                                <label className="form-label">Redirect URI (Callback)</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={ssoForm.sso_redirect_uri}
+                                        onChange={(e) => setSsoForm(prev => ({ ...prev, sso_redirect_uri: e.target.value }))}
+                                        disabled={!ssoForm.sso_enabled}
+                                        style={{ paddingRight: '110px' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        style={{
+                                            position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)',
+                                            padding: '4px 10px', fontSize: '11px', borderRadius: '6px',
+                                            background: 'var(--bg-input)', border: '1px solid var(--bg-card-border)',
+                                            color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600
+                                        }}
+                                        onClick={() => {
+                                            navigator.clipboard?.writeText(ssoForm.sso_redirect_uri);
+                                            showToast('Redirect URI disalin!', 'success');
+                                        }}
+                                    >
+                                        Salin
+                                    </button>
+                                </div>
+                                <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+                                    Daftarkan URI ini di panel SSO sebagai Authorized Redirect URI.
+                                </small>
+                            </div>
+                        </div>
+
+                        {/* Connection status */}
+                        {ssoStatus && (
+                            <div className={`sso-connection-status ${ssoStatus}`}>
+                                {ssoStatus === 'testing' && (
+                                    <><span style={{ width: 14, height: 14, border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }}></span> Menguji koneksi ke SSO...</>
+                                )}
+                                {ssoStatus === 'connected' && (
+                                    <><CheckCircle size={14} /> Berhasil terhubung ke SSO server</>
+                                )}
+                                {ssoStatus === 'error' && (
+                                    <><AlertCircle size={14} /> Gagal terhubung — periksa URL dan credentials</>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* SSO Footer */}
+                    <div className="sso-footer">
+                        <button
+                            type="button"
+                            onClick={handleTestSsoConnection}
+                            disabled={!ssoForm.sso_enabled || ssoStatus === 'testing'}
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '7px',
+                                padding: '9px 18px', fontSize: '13px', fontWeight: 600,
+                                borderRadius: '8px', border: '1px solid rgba(99,102,241,0.4)',
+                                background: 'rgba(99,102,241,0.1)', color: '#6366f1',
+                                cursor: ssoForm.sso_enabled ? 'pointer' : 'not-allowed',
+                                opacity: ssoForm.sso_enabled ? 1 : 0.5,
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <Link2 size={14} />
+                            Test Koneksi
+                        </button>
+
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={isSavingSso || !ssoForm.sso_enabled}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', opacity: ssoForm.sso_enabled ? 1 : 0.5 }}
+                        >
+                            <CheckCircle2 size={18} />
+                            {isSavingSso ? 'Menyimpan...' : 'Simpan Konfigurasi SSO'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
         </AuthenticatedLayout>
     );
 }

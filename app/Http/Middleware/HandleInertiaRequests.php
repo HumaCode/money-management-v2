@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Helpers\SsoConfig;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,16 +36,18 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $ssoConfig = SsoConfig::get();
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user() ? [
-                    'id' => $request->user()->id,
-                    'name' => $request->user()->name,
-                    'username' => $request->user()->username,
-                    'email' => $request->user()->email,
+                    'id'          => $request->user()->id,
+                    'name'        => $request->user()->name,
+                    'username'    => $request->user()->username,
+                    'email'       => $request->user()->email,
                     'permissions' => $request->user()->getAllPermissions()->pluck('name')->toArray(),
-                    'roles' => $request->user()->roles()->pluck('slug')->toArray(),
+                    'roles'       => $request->user()->roles()->pluck('slug')->toArray(),
                 ] : null,
             ],
             'menus' => fn () => $request->user() ? menus(true)->map(function ($items) use ($request) {
@@ -56,7 +59,11 @@ class HandleInertiaRequests extends Middleware
                     return $user->hasPermissionTo("menu {$menu->url}");
                 });
             })->filter(fn ($items) => $items->isNotEmpty()) : [],
-            'locale' => config('app.locale', 'id'),
+            'locale'     => config('app.locale', 'id'),
+            'sso_config' => [
+                'sso_enabled'      => $ssoConfig['sso_enabled'] ?? false,
+                'sso_provider_url' => $ssoConfig['sso_provider_url'] ?? '',
+            ],
         ];
     }
 }
