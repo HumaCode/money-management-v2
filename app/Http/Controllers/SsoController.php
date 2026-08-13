@@ -14,8 +14,6 @@ class SsoController extends Controller
     public function getConfig(): JsonResponse
     {
         $config = SsoConfig::get();
-        // Never expose secret to frontend
-        unset($config['sso_client_secret']);
 
         return response()->json([
             'success' => true,
@@ -29,15 +27,12 @@ class SsoController extends Controller
     public function saveConfig(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'sso_enabled'      => ['required', 'boolean'],
-            'sso_provider_url' => ['nullable', 'url', 'max:255'],
-            'sso_client_id'    => ['nullable', 'string', 'max:255'],
-            'sso_redirect_uri' => ['nullable', 'string', 'max:500'],
+            'sso_enabled'       => ['required', 'boolean'],
+            'sso_provider_url'  => ['nullable', 'url', 'max:255'],
+            'sso_client_id'     => ['nullable', 'string', 'max:255'],
+            'sso_client_secret' => ['nullable', 'string', 'max:500'],
+            'sso_redirect_uri'  => ['nullable', 'string', 'max:500'],
         ]);
-
-        // Preserve existing secret from storage (never overwrite from frontend)
-        $existing                      = SsoConfig::get();
-        $validated['sso_client_secret'] = $existing['sso_client_secret'] ?? '';
 
         SsoConfig::save($validated);
 
