@@ -30,23 +30,23 @@ export default function Index({ title, subtitle, preference, currencies = [] }) 
 
     // SSO Settings — load initial values from Inertia shared props
     const [ssoForm, setSsoForm] = useState({
-        sso_enabled:      sso_config?.sso_enabled      ?? false,
-        sso_provider_url: sso_config?.sso_provider_url || 'http://localhost:8000',
-        sso_client_id:    '',
-        sso_redirect_uri: window.location.origin + '/auth/sso/callback',
+        sso_enabled:       sso_config?.sso_enabled       ?? false,
+        sso_provider_url:  sso_config?.sso_provider_url  || 'http://localhost:8000',
+        sso_client_id:     '',
+        sso_client_secret: '',
+        sso_redirect_uri:  window.location.origin + '/auth/sso/callback',
     });
     const [isSavingSso, setIsSavingSso] = useState(false);
     const [ssoStatus, setSsoStatus] = useState(null); // 'testing' | 'connected' | 'error'
 
-    // Load SSO config (client_secret excluded — stored server-side only)
+    // Load SSO config from backend on mount
     React.useEffect(() => {
         axios.get(route('sso.config'))
             .then(res => {
                 if (res.data?.data) {
-                    const { sso_client_secret: _dropped, ...rest } = res.data.data;
                     setSsoForm(prev => ({
                         ...prev,
-                        ...rest,
+                        ...res.data.data,
                         sso_redirect_uri: prev.sso_redirect_uri,
                     }));
                 }
@@ -626,7 +626,7 @@ export default function Index({ title, subtitle, preference, currencies = [] }) 
                                 </small>
                             </div>
 
-                            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                            <div className="form-group">
                                 <label className="form-label">
                                     <KeyRound size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
                                     Client ID
@@ -640,9 +640,22 @@ export default function Index({ title, subtitle, preference, currencies = [] }) 
                                     disabled={!ssoForm.sso_enabled}
                                     autoComplete="off"
                                 />
-                                <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '5px', display: 'block' }}>
-                                    Client ID didapat dari halaman <strong>Apps</strong> di dashboard SSO HumaCode.
-                                </small>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">
+                                    <KeyRound size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                                    Client Secret
+                                </label>
+                                <input
+                                    type="password"
+                                    className="form-control"
+                                    placeholder="Masukkan Client Secret"
+                                    value={ssoForm.sso_client_secret}
+                                    onChange={(e) => setSsoForm(prev => ({ ...prev, sso_client_secret: e.target.value }))}
+                                    disabled={!ssoForm.sso_enabled}
+                                    autoComplete="new-password"
+                                />
                             </div>
 
                             <div className="form-group" style={{ gridColumn: '1 / -1' }}>

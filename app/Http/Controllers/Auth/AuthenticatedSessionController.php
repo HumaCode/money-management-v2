@@ -79,7 +79,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         $this->authService->logout();
 
@@ -88,11 +88,14 @@ class AuthenticatedSessionController extends Controller
 
         // Check if SSO is enabled
         if (\App\Helpers\SsoConfig::isEnabled()) {
-            $ssoConfig   = \App\Helpers\SsoConfig::get();
-            $providerUrl = rtrim($ssoConfig['sso_provider_url'] ?? 'http://localhost:8000', '/');
+            $ssoConfig    = \App\Helpers\SsoConfig::get();
+            $providerUrl  = rtrim($ssoConfig['sso_provider_url'] ?? 'http://localhost:8000', '/');
             $redirectBack = route('login');
 
-            return redirect($providerUrl . '/sso/logout?redirect_uri=' . urlencode($redirectBack));
+            $targetUrl = $providerUrl . '/sso/logout?redirect_uri=' . urlencode($redirectBack);
+
+            // Use Inertia::location to trigger a full browser window navigation (bypasses CORS)
+            return \Inertia\Inertia::location($targetUrl);
         }
 
         return redirect('/');
