@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import '../../../../public/assets/auth/css/styles.css';
 import ThemeToggleFAB from '../../Components/ThemeToggleFAB';
 
 export default function Login() {
+    const { sso_config } = usePage().props;
+    const ssoEnabled      = sso_config?.sso_enabled ?? false;
+    const ssoProviderUrl  = sso_config?.sso_provider_url ?? '';
     const [identity, setIdentity] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
@@ -294,6 +297,58 @@ export default function Login() {
                                         'Sign In'
                                     )}
                                 </button>
+
+                                {/* SSO Login Button — shown only when SSO is enabled */}
+                                {ssoEnabled && (
+                                    <>
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '12px',
+                                            margin: '4px 0',
+                                        }}>
+                                            <div style={{ flex: 1, height: '1px', background: 'var(--input-border, rgba(255,255,255,0.1))' }}></div>
+                                            <span style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', whiteSpace: 'nowrap' }}>atau masuk dengan</span>
+                                            <div style={{ flex: 1, height: '1px', background: 'var(--input-border, rgba(255,255,255,0.1))' }}></div>
+                                        </div>
+
+                                        <a
+                                            href="/auth/sso"
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '10px',
+                                                width: '100%',
+                                                padding: '13px 20px',
+                                                borderRadius: '10px',
+                                                border: '1px solid rgba(99,102,241,0.4)',
+                                                background: 'rgba(99,102,241,0.08)',
+                                                color: '#818cf8',
+                                                fontWeight: 600,
+                                                fontSize: '14px',
+                                                textDecoration: 'none',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                letterSpacing: '0.01em',
+                                            }}
+                                            onMouseEnter={e => {
+                                                e.currentTarget.style.background = 'rgba(99,102,241,0.16)';
+                                                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.7)';
+                                            }}
+                                            onMouseLeave={e => {
+                                                e.currentTarget.style.background = 'rgba(99,102,241,0.08)';
+                                                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)';
+                                            }}
+                                        >
+                                            {/* HumaCode Shield Icon */}
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '18px', height: '18px' }}>
+                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                            </svg>
+                                            Masuk dengan HumaCode SSO
+                                        </a>
+                                    </>
+                                )}
                             </form>
                             <div className="signup-link" id="link">
                                 Don't have an account? <Link href={route('register')}>Sign up</Link>

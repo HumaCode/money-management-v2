@@ -111,6 +111,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/roles-permissions/{role}/update-role', [\App\Http\Controllers\RolePermissionController::class, 'updateRole'])->name('roles-permissions.updateRole');
     Route::delete('/roles-permissions/{role}/destroy-role', [\App\Http\Controllers\RolePermissionController::class, 'destroyRole'])->name('roles-permissions.destroyRole');
     Route::post('/roles-permissions/{role}/sync-permissions', [\App\Http\Controllers\RolePermissionController::class, 'syncPermissions'])->name('roles-permissions.sync');
+
+    // SSO configuration
+    Route::get('/sso/config', [\App\Http\Controllers\SsoController::class, 'getConfig'])->name('sso.config');
+    Route::post('/sso/config', [\App\Http\Controllers\SsoController::class, 'saveConfig'])->name('sso.saveConfig');
+    Route::post('/sso/test-connection', [\App\Http\Controllers\SsoController::class, 'testConnection'])->name('sso.testConnection');
 });
 
 require __DIR__ . '/auth.php';

@@ -86,6 +86,15 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        // Check if SSO is enabled
+        if (\App\Helpers\SsoConfig::isEnabled()) {
+            $ssoConfig   = \App\Helpers\SsoConfig::get();
+            $providerUrl = rtrim($ssoConfig['sso_provider_url'] ?? 'http://localhost:8000', '/');
+            $redirectBack = route('login');
+
+            return redirect($providerUrl . '/sso/logout?redirect_uri=' . urlencode($redirectBack));
+        }
+
         return redirect('/');
     }
 }
