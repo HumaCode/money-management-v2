@@ -18,7 +18,7 @@ class ReactLoginRequest extends FormRequest
             'identity'             => ['required', 'string', 'max:50'],
             'password'             => ['required', 'string'],
             'remember'             => ['nullable', 'boolean'],
-            'g-recaptcha-response' => ['required', new Recaptcha()],
+            'g-recaptcha-response' => ['nullable', 'string', new Recaptcha()],
         ];
     }
 

@@ -42,7 +42,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\URL::forceScheme('https');
+        // Force URL scheme based on APP_URL in .env
+        // Set APP_URL=https://... to force HTTPS, or APP_URL=http://... to use HTTP
+        $scheme = parse_url(config('app.url'), PHP_URL_SCHEME);
+        if ($scheme === 'https') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
 
         BudgetCategory::observe(BudgetCategoryObserver::class);
         SavingsGoalContribution::observe(SavingsGoalContributionObserver::class);

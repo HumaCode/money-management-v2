@@ -14,7 +14,7 @@ export default function Login() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    const SITE_KEY = '6Lfu-W8tAAAAAHD4ouVvYQU6UPKOTrxjKJfzbXnN';
+    const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6Lfu-W8tAAAAAHD4ouVvYQU6UPKOTrxjKJfzbXnN';
 
     useEffect(() => {
         // Load Google reCAPTCHA v3 script
@@ -67,8 +67,10 @@ export default function Login() {
             let message = 'Login failed.';
             if (error.response) {
                 if (error.response.status === 422 && error.response.data.errors) {
-                    message = Object.values(error.response.data.errors)[0][0];
-                } else if (error.response.data.message) {
+                    const firstErrorKey = Object.keys(error.response.data.errors)[0];
+                    const firstErrorMsg = error.response.data.errors[firstErrorKey][0];
+                    message = firstErrorMsg;
+                } else if (error.response.data && error.response.data.message) {
                     message = error.response.data.message;
                 }
             }

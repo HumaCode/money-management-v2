@@ -18,6 +18,10 @@ class Recaptcha implements ValidationRule
     {
         $secretKey = env('RECAPTCHA_SECRET_KEY', '6Lfu-W8tAAAAAJ4Ku7Qm0aIQkfuZZilcTxTygoLT');
 
+        if (app()->environment('local')) {
+            return;
+        }
+
         if (empty($value)) {
             $fail('Verifikasi reCAPTCHA wajib dicentang.');
             return;
