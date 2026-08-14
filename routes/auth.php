@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 
 // SSO OAuth2 routes (accessible by guests)
 Route::get('/auth/sso', [SsoCallbackController::class, 'redirect'])->name('sso.redirect');
-Route::get('/auth/callback', [SsoCallbackController::class, 'callback'])->name('sso.callback');
+Route::get('/auth/sso/callback', [SsoCallbackController::class, 'callback'])->name('sso.callback');
+Route::get('/auth/callback', [SsoCallbackController::class, 'callback']);
+
 
 
 Route::middleware('guest')->group(function () {

@@ -30,7 +30,7 @@ class SsoCallbackController extends Controller
 
         $params = http_build_query([
             'client_id'     => $config['sso_client_id'],
-            'redirect_uri'  => $config['sso_redirect_uri'] ?: url('/auth/callback'),
+            'redirect_uri'  => $config['sso_redirect_uri'] ?: url('/auth/sso/callback'),
             'response_type' => 'code',
             'scope'         => 'profile roles',
             'state'         => $state,
@@ -70,7 +70,7 @@ class SsoCallbackController extends Controller
                 'grant_type'    => 'authorization_code',
                 'client_id'     => $config['sso_client_id'],
                 'client_secret' => $config['sso_client_secret'],
-                'redirect_uri'  => $config['sso_redirect_uri'] ?: url('/auth/callback'),
+                'redirect_uri'  => $config['sso_redirect_uri'] ?: url('/auth/sso/callback'),
                 'code'          => $code,
             ]);
 

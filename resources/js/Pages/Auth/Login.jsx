@@ -15,6 +15,7 @@ export default function Login() {
     const [focusedField, setFocusedField] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSsoConnecting, setIsSsoConnecting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
     const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6Lfu-W8tAAAAAHD4ouVvYQU6UPKOTrxjKJfzbXnN';
@@ -314,6 +315,14 @@ export default function Login() {
 
                                         <a
                                             href="/auth/sso"
+                                            onClick={(e) => {
+                                                if (isSsoConnecting) {
+                                                    e.preventDefault();
+                                                    return;
+                                                }
+                                                setIsSsoConnecting(true);
+                                                window.location.href = '/auth/sso';
+                                            }}
                                             style={{
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -328,24 +337,49 @@ export default function Login() {
                                                 fontWeight: 600,
                                                 fontSize: '14px',
                                                 textDecoration: 'none',
-                                                cursor: 'pointer',
+                                                cursor: isSsoConnecting ? 'wait' : 'pointer',
+                                                opacity: isSsoConnecting ? 0.75 : 1,
+                                                pointerEvents: isSsoConnecting ? 'none' : 'auto',
                                                 transition: 'all 0.2s',
                                                 letterSpacing: '0.01em',
                                             }}
                                             onMouseEnter={e => {
-                                                e.currentTarget.style.background = 'rgba(99,102,241,0.16)';
-                                                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.7)';
+                                                if (!isSsoConnecting) {
+                                                    e.currentTarget.style.background = 'rgba(99,102,241,0.16)';
+                                                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.7)';
+                                                }
                                             }}
                                             onMouseLeave={e => {
-                                                e.currentTarget.style.background = 'rgba(99,102,241,0.08)';
-                                                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)';
+                                                if (!isSsoConnecting) {
+                                                    e.currentTarget.style.background = 'rgba(99,102,241,0.08)';
+                                                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)';
+                                                }
                                             }}
                                         >
-                                            {/* HumaCode Shield Icon */}
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '18px', height: '18px' }}>
-                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                            </svg>
-                                            Masuk dengan HumaCode SSO
+                                            {isSsoConnecting ? (
+                                                <>
+                                                    <span
+                                                        style={{
+                                                            width: '18px',
+                                                            height: '18px',
+                                                            border: '2px solid rgba(129, 140, 248, 0.3)',
+                                                            borderTop: '2px solid #818cf8',
+                                                            borderRadius: '50%',
+                                                            animation: 'spin 0.8s linear infinite',
+                                                            display: 'inline-block',
+                                                        }}
+                                                    ></span>
+                                                    Sedang menghubungkan...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {/* HumaCode Shield Icon */}
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '18px', height: '18px' }}>
+                                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                                    </svg>
+                                                    Masuk dengan HumaCode SSO
+                                                </>
+                                            )}
                                         </a>
                                     </>
                                 )}
