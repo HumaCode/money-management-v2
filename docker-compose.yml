@@ -10,7 +10,7 @@ services:
     container_name: cuan_money_app
     restart: always
     ports:
-      - "8095:8080"
+      - "8096:8080"
     environment:
       APP_ENV: production
       APP_DEBUG: "true"
@@ -37,14 +37,14 @@ services:
 
   # --------------------------------------------------------------------------
   # 🗄️ MySQL Database
-  # Port Container: 3306 -> Port Host: 3309 (Aman dari 3306, 3307, 3308 di 1Panel)
+  # Port Container: 3306 -> Port Host: 3311 (Aman dari 3306, 3310, dll di Host)
   # --------------------------------------------------------------------------
   db:
     image: mysql:8.0
     container_name: cuan_money_db
     restart: always
     ports:
-      - "127.0.0.1:3309:3306"
+      - "127.0.0.1:3311:3306"
     environment:
       MYSQL_DATABASE: money_management_v2
       MYSQL_USER: money_management_v2
