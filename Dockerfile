@@ -3,16 +3,16 @@ FROM dunglas/frankenphp:php8.4-alpine
 # Environment for Composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Install pdo_mysql extension for MySQL database connection
-RUN install-php-extensions pdo_mysql
+# Install required PHP extensions for Laravel and Composer
+RUN install-php-extensions pdo_mysql pcntl bcmath zip intl gd
 
 # Copy Composer binary from official Composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Install Node.js and NPM for Vite build
-RUN apk add --no-cache nodejs npm
+# Install Node.js, NPM, and Git (required by composer/npm for dependencies)
+RUN apk add --no-cache nodejs npm git unzip
 
 # Copy application files
 COPY . /app
