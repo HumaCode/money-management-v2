@@ -29,6 +29,7 @@ class Account extends Model
     protected $appends = ['masked_account_number', 'balance_formatted'];
     
     protected $casts = [
+        'account_number' => 'encrypted',
         'balance'       => 'decimal:2',
         'credit_limit'  => 'decimal:2',
         'is_active'     => 'boolean',
