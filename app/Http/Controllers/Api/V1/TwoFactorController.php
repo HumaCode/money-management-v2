@@ -198,4 +198,50 @@ class TwoFactorController extends Controller
             ],
         ], 'Verifikasi 2FA Login Berhasil');
     }
+
+    /**
+     * Resend 2FA Login OTP Code via WhatsApp
+     */
+    public function resendLogin2fa(Request $request, WhatsAppService $waService)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseHelper::jsonResponse(false, $validator->errors()->first(), null, 422);
+        }
+
+        $user = \App\Models\User::find($request->input('user_id'));
+
+        if (!$user) {
+            return ResponseHelper::error('Pengguna tidak ditemukan', 404);
+        }
+
+        if (empty($user->phone)) {
+            return ResponseHelper::error('Nomor WhatsApp tidak ditemukan pada akun ini.', 400);
+        }
+
+        // Generate new OTP
+        $otpCode = (string) mt_rand(100000, 999999);
+        $user->two_factor_code = $otpCode;
+        $user->two_factor_expires_at = Carbon::now()->addMinutes(5);
+        $user->save();
+
+        // Send WhatsApp OTP
+        $msg = "🔒 *KODE OTP MONEY MANAGEMENT*\n\n"
+             . "Kode OTP 2FA Anda: *{$otpCode}*\n"
+             . "Berlaku selama 5 menit.\n\n"
+             . "⚠️ Jangan berikan kode ini kepada siapapun demi keamanan akun Anda.";
+
+        $waService->sendMessage($user->phone, $msg);
+
+        $len = strlen($user->phone);
+        $maskedPhone = $len > 6 ? substr($user->phone, 0, 4) . '****' . substr($user->phone, -4) : $user->phone;
+
+        return ResponseHelper::success([
+            'masked_phone'       => $maskedPhone,
+            'expires_in_seconds' => 300,
+        ], "Kode OTP baru telah berhasil dikirim ulang ke {$maskedPhone}");
+    }
 }

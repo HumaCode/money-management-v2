@@ -20,6 +20,7 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
     // Public Authentication
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/login/verify-2fa', [TwoFactorController::class, 'verifyLogin2fa']);
+    Route::post('/auth/login/resend-2fa', [TwoFactorController::class, 'resendLogin2fa']);
 
     // Protected Routes (Sanctum Bearer Token Required)
     Route::middleware('auth:sanctum')->group(function () {
