@@ -26,6 +26,8 @@ services:
       RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:-6Lfu-W8tAAAAAHD4ouVvYQU6UPKOTrxjKJfzbXnN}
       RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY:-6Lfu-W8tAAAAAJ4Ku7Qm0aIQkfuZZilcTxTygoLT}
       VITE_RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:-6Lfu-W8tAAAAAHD4ouVvYQU6UPKOTrxjKJfzbXnN}
+      WA_GATEWAY_URL: ${WA_GATEWAY_URL:-https://wa.humacode.my.id/api/v1/whatsapp/messages}
+      WA_GATEWAY_KEY: ${WA_GATEWAY_KEY}
       SERVER_NAME: "cuan.humacode.my.id"
     volumes:
       - ./storage:/app/storage
