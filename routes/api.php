@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\MobileSavingsGoalController;
 use App\Http\Controllers\Api\V1\MobileSummaryController;
 use App\Http\Controllers\Api\V1\MobileTransactionController;
+use App\Http\Controllers\Api\V1\TwoFactorController;
 use App\Http\Middleware\ValidateMobileApiKey;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,7 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
     
     // Public Authentication
     Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/login/verify-2fa', [TwoFactorController::class, 'verifyLogin2fa']);
 
     // Protected Routes (Sanctum Bearer Token Required)
     Route::middleware('auth:sanctum')->group(function () {
@@ -27,6 +29,12 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
         Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
         Route::put('/auth/password', [AuthController::class, 'updatePassword']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+        // 2FA Security Routes (WhatsApp OTP)
+        Route::get('/auth/2fa/status', [TwoFactorController::class, 'status']);
+        Route::post('/auth/2fa/send-otp', [TwoFactorController::class, 'sendOtp']);
+        Route::post('/auth/2fa/verify-otp', [TwoFactorController::class, 'verifyOtp']);
+        Route::post('/auth/2fa/disable', [TwoFactorController::class, 'disable2fa']);
 
         // Wallet Summary (Total Saldo, Pemasukan, Pengeluaran dari Rekening Aktif)
         Route::get('/wallet-summary', [MobileSummaryController::class, 'walletSummary']);

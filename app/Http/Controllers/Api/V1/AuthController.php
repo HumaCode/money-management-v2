@@ -32,6 +32,30 @@ class AuthController extends Controller
             return ResponseHelper::error('Akun Anda sedang dinonaktifkan', 403);
         }
 
+        // If 2FA is enabled, trigger WhatsApp OTP and require 2FA verification
+        if ($user->is_2fa_enabled) {
+            $waService = app(\App\Services\WhatsAppService::class);
+            $otpCode = (string) mt_rand(100000, 999999);
+            $user->two_factor_code = $otpCode;
+            $user->two_factor_expires_at = \Carbon\Carbon::now()->addMinutes(5);
+            $user->save();
+
+            $msg = "🔒 *KODE OTP LOGIN MONEY MANAGEMENT*\n\n"
+                 . "Kode OTP 2FA Anda: *{$otpCode}*\n"
+                 . "Berlaku selama 5 menit.\n\n"
+                 . "⚠️ Jangan berikan kode ini kepada siapapun.";
+            $waService->sendMessage($user->phone, $msg);
+
+            $len = strlen($user->phone ?? '');
+            $maskedPhone = $len > 6 ? substr($user->phone, 0, 4) . '****' . substr($user->phone, -4) : $user->phone;
+
+            return ResponseHelper::success([
+                'requires_2fa' => true,
+                'user_id'      => $user->id,
+                'masked_phone' => $maskedPhone,
+            ], 'Verifikasi 2FA Diperlukan. Kode OTP telah dikirim via WhatsApp.');
+        }
+
         // Update login stats
         $user->update([
             'last_login_at' => now(),
