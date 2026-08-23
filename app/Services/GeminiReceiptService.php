@@ -13,7 +13,8 @@ class GeminiReceiptService
     public function __construct()
     {
         $this->apiKey = env('GEMINI_API_KEY', '');
-        $this->apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $this->apiKey;
+        $model = env('GEMINI_MODEL', 'gemini-3.1-flash-lite');
+        $this->apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . $this->apiKey;
     }
 
     /**
@@ -36,28 +37,41 @@ class GeminiReceiptService
         $mimeType  = mime_content_type($imagePath) ?: 'image/jpeg';
 
         $prompt = <<<PROMPT
-Anda adalah asisten AI ekstraksi struk belanja. Analisis gambar struk/nota ini dan berikan output HANYA dalam format JSON valid tanpa tanda markdown (tanpa ```json ... ```) dengan struktur berikut:
+Anda adalah asisten AI ekstraksi struk belanja. Analisis gambar struk/nota ini secara presisi dan berikan output HANYA dalam format JSON valid tanpa tanda markdown (tanpa ```json ... ```) dengan struktur JSON berikut:
 {
     "merchant_name": "Nama toko / tempat transaksi (misal: Indomaret, Alfamart, Starbucks)",
-    "total_amount": 15000,
+    "total_amount": 0,
+    "discount": 0,
+    "discount_title": "Nama/keterangan persis dari diskon yang tertera pada struk (misal: Diskon Frisian Flag, Voucher Belanja, Member Discount)",
+    "discounts": [
+        {
+            "name": "Nama voucher / diskon persis dari struk (contoh: VC SAYAP MAS UTA, VC PT SMU, VC AKASHA WIRA I, VC MEMBER 5000/INDOMARET)",
+            "amount": 1700
+        }
+    ],
     "transaction_date": "YYYY-MM-DD",
-    "description": "Ringkasan transaksi singkat (misal: Pembelian Indomaret - JAVANA TEH MLATI 350)",
+    "description": "Ringkasan transaksi singkat",
     "suggested_category": "Rekomendasi nama kategori (misal: Groceries, Food & Dining, Fuel, Entertainment, Shopping)",
     "items": [
         {
-            "name": "Nama barang/item",
+            "name": "Nama barang/item persis dari struk",
             "qty": 1,
-            "price": 15000
+            "price": 0,
+            "total_price": 0
         }
     ]
 }
-Catatan:
-1. "total_amount" HARUS berupa angka murni (number), ambil dari nilai TOTAL / HARGA JUAL bersih setelah diskon.
-2. "transaction_date" sesuaikan dengan tanggal di struk dalam format YYYY-MM-DD. Jika tidak ada tahun/tanggal, gunakan tanggal hari ini.
-3. HANYA kembalikan JSON murni.
+Catatan Penting:
+1. "total_amount": Angka murni (integer) total bayar/bersih akhir yang ada di struk.
+2. "discount": Angka murni (integer) total potongan harga / hemat jika ada, jika tidak ada isi 0.
+3. "discount_title": Tuliskan nama/keterangan label diskon persis seperti yang tertulis di struk jika ada (contoh: "DISKON FRISIAN FLAG"). Jika tidak ada label khusus, isi null.
+4. "discounts": Ekstrak SEMUA rincian voucher / potongan diskon individual yang tertera pada struk ke dalam daftar `discounts` (dengan `name` persis seperti label di struk dan `amount` nominal angka positifnya). Jangan lewatkan voucher/diskon apapun yang ada di struk. Jika tidak ada rincian voucher, isi [].
+5. "items": Ekstrak SEMUA baris barang/produk yang tertera pada gambar struk beserta jumlah (qty), harga satuan (price), dan subtotal item (total_price). Jangan abaikan item apapun.
+6. "transaction_date": Tanggal transaksi dari struk (YYYY-MM-DD). Jika tidak ada, gunakan tanggal hari ini.
+7. HANYA kembalikan string JSON valid tanpa penjelasan tambahan.
 PROMPT;
 
-        $response = Http::withHeaders([
+        $response = Http::timeout(90)->withHeaders([
             'Content-Type' => 'application/json',
         ])->post($this->apiUrl, [
             'contents' => [

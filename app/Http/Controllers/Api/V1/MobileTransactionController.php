@@ -189,7 +189,17 @@ class MobileTransactionController extends Controller
         $accounts = Account::where('user_id', $userId)
             ->where('is_active', true)
             ->orderBy('name', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($acc) {
+                return [
+                    'id'             => (string) $acc->id,
+                    'name'           => $acc->name,
+                    'account_number' => $acc->account_number ?? '',
+                    'balance'        => (float) ($acc->current_balance ?? $acc->balance),
+                    'current_balance'=> (float) ($acc->current_balance ?? $acc->balance),
+                    'currency'       => 'IDR',
+                ];
+            });
 
         return ResponseHelper::success($accounts, 'Daftar akun');
     }
