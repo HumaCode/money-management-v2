@@ -57,10 +57,15 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
         // Master Data Dropdowns
         Route::get('/categories', [MobileTransactionController::class, 'categories']);
         Route::get('/accounts', [MobileTransactionController::class, 'accounts']);
+        Route::get('/currencies', [MobileSavingsGoalController::class, 'currencies']);
 
         // Savings Goals
         Route::get('/saving-goals', [MobileSavingsGoalController::class, 'index']);
+        Route::get('/saving-goals/{id}', [MobileSavingsGoalController::class, 'show']);
         Route::post('/saving-goals', [MobileSavingsGoalController::class, 'store']);
+        Route::put('/saving-goals/{id}', [MobileSavingsGoalController::class, 'update']);
+        Route::patch('/saving-goals/{id}', [MobileSavingsGoalController::class, 'update']);
+        Route::delete('/saving-goals/{id}', [MobileSavingsGoalController::class, 'destroy']);
         Route::post('/saving-goals/{id}/add-saving', [MobileSavingsGoalController::class, 'addSaving']);
     });
 });
