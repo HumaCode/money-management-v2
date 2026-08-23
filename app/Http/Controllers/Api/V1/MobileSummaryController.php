@@ -21,14 +21,25 @@ class MobileSummaryController extends Controller
         $startOfMonth = $now->copy()->startOfMonth();
         $endOfMonth   = $now->copy()->endOfMonth();
 
-        // 1. Total Balance strictly from Active Accounts belonging to the Authenticated User
-        $accounts = Account::where('user_id', $userId)
+        $accountsList = Account::where('user_id', $userId)
             ->where('is_active', true)
-            ->select('id', 'name', 'account_number', 'current_balance', 'color', 'icon')
             ->orderBy('name', 'asc')
             ->get();
 
-        $totalBalance = (float) $accounts->sum('current_balance');
+        $totalBalance = (float) $accountsList->sum('current_balance');
+
+        $mappedAccounts = $accountsList->map(function ($acc) {
+            return [
+                'id'             => (string) $acc->id,
+                'name'           => $acc->name,
+                'account_number' => $acc->account_number ?? '',
+                'balance'        => (float) ($acc->current_balance ?? $acc->balance),
+                'current_balance'=> (float) ($acc->current_balance ?? $acc->balance),
+                'color'          => $acc->color ?? '#00FFA3',
+                'icon'           => $acc->icon ?? 'account_balance',
+                'currency'       => 'IDR',
+            ];
+        });
 
         // 2. Income This Month for Authenticated User
         $incomeThisMonth = (float) Transaction::where('user_id', $userId)
@@ -47,8 +58,8 @@ class MobileSummaryController extends Controller
             'income_this_month'     => $incomeThisMonth,
             'expenses_this_month'   => $expensesThisMonth,
             'net_cashflow'          => $incomeThisMonth - $expensesThisMonth,
-            'active_accounts_count' => $accounts->count(),
-            'accounts'              => $accounts,
+            'active_accounts_count' => $accountsList->count(),
+            'accounts'              => $mappedAccounts,
         ], 'Ringkasan saldo & transaksi rekening aktif');
     }
 
