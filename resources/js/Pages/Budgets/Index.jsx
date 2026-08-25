@@ -325,10 +325,12 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
                                     <tr key={row.id}>
                                         <td style={{ fontWeight: 500 }}>{row.name}</td>
                                         <td style={{ textTransform: 'capitalize' }}>{row.period || '—'}</td>
-                                        <td style={{ fontWeight: 600 }}>{row.amount_formatted || row.total_amount || '0'}</td>
+                                        <td style={{ fontWeight: 600 }}>
+                                            {row.total_amount_formatted || row.amount_formatted || (row.total_amount ? Number(row.total_amount).toLocaleString('id-ID') : '0')}
+                                        </td>
                                         <td>
                                             <div style={{ fontSize: '13px', fontWeight: 500 }}>
-                                                {row.spent_formatted || '0'}
+                                                {row.spent_amount_formatted || row.spent_formatted || (row.total_spent ? Number(row.total_spent).toLocaleString('id-ID') : '0')}
                                             </div>
                                             {row.progress_percentage !== undefined && (
                                                 <div style={{ width: '100px', height: '4px', background: 'var(--bg-card-border)', borderRadius: '2px', marginTop: '4px', overflow: 'hidden' }}>
