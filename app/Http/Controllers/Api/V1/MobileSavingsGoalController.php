@@ -63,10 +63,21 @@ class MobileSavingsGoalController extends Controller
         $currentAmount = (float) ($request->current_amount ?? 0);
         $status        = $currentAmount >= $targetAmount && $targetAmount > 0 ? 'completed' : 'active';
 
+        $currencyId = $request->currency_id;
+        if (!$currencyId && $request->account_id) {
+            $account = Account::find($request->account_id);
+            if ($account) {
+                $currencyId = $account->currency_id;
+            }
+        }
+        if (!$currencyId) {
+            $currencyId = Currency::where('is_active', true)->value('id') ?? Currency::value('id');
+        }
+
         $goal = SavingsGoal::create([
             'user_id'        => $userId,
             'account_id'     => $request->account_id,
-            'currency_id'    => $request->currency_id,
+            'currency_id'    => $currencyId,
             'name'           => $request->name,
             'description'    => $request->description ?? $request->notes,
             'target_amount'  => $targetAmount,
@@ -135,9 +146,16 @@ class MobileSavingsGoalController extends Controller
             return ResponseHelper::notFound('Target tabungan tidak ditemukan');
         }
 
-        $goal->delete();
+        DB::beginTransaction();
+        try {
+            $goal->delete();
+            DB::commit();
 
-        return ResponseHelper::success(null, 'Target tabungan berhasil dihapus');
+            return ResponseHelper::success(null, 'Target tabungan berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseHelper::error('Gagal menghapus target tabungan: ' . $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -153,9 +171,23 @@ class MobileSavingsGoalController extends Controller
         }
 
         DB::beginTransaction();
+        try {
             $amount          = (float) $request->amount;
             $contributedAt   = $request->input('contributed_at', now());
             $sourceAccountId = $request->account_id;
+
+            if ($sourceAccountId) {
+                $sourceAccount = Account::find($sourceAccountId);
+                if ($sourceAccount) {
+                    $availableBalance = (float) ($sourceAccount->current_balance ?? $sourceAccount->balance);
+                    if ($amount > $availableBalance) {
+                        return ResponseHelper::error(
+                            'Saldo rekening ' . $sourceAccount->name . ' tidak mencukupi (Tersedia: Rp ' . number_format($availableBalance, 0, ',', '.') . ', Dibutuhkan: Rp ' . number_format($amount, 0, ',', '.') . ')',
+                            422
+                        );
+                    }
+                }
+            }
 
             // Create contribution record
             $contribution = SavingsGoalContribution::create([

@@ -184,6 +184,16 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
             $contributedAt = $data['contributed_at'] ?? now();
             $sourceAccountId = $data['account_id'] ?? null;
 
+            if ($sourceAccountId) {
+                $sourceAccount = Account::find($sourceAccountId);
+                if ($sourceAccount) {
+                    $availableBalance = (float) ($sourceAccount->current_balance ?? $sourceAccount->balance);
+                    if ($amount > $availableBalance) {
+                        throw new \Exception('Saldo rekening ' . $sourceAccount->name . ' tidak mencukupi untuk melakukan setoran ini (Tersedia: Rp ' . number_format($availableBalance, 0, ',', '.') . ').');
+                    }
+                }
+            }
+
             // 1. Create contribution record
             $contribution = $saving->contributions()->create([
                 'amount'         => $amount,
