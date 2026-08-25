@@ -25,8 +25,22 @@ class BudgetStoreExpenseRequest extends FormRequest
             'category_id'       => ['required', 'exists:categories,id'],
             'notes'             => ['nullable', 'string', 'max:1000'],
             'spent_date'        => ['required', 'date'],
-            'allocated_amount'  => ['required', 'numeric', 'min:0'],
-            'spent_amount'      => ['nullable', 'numeric', 'min:0'],
+            'spent_amount'      => ['required', 'numeric', 'min:0.01'],
+            'allocated_amount'  => ['nullable', 'numeric', 'min:0'],
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'category_id.required'   => 'Kategori pengeluaran wajib dipilih.',
+            'category_id.exists'     => 'Kategori tidak valid.',
+            'spent_date.required'    => 'Tanggal pengeluaran wajib diisi.',
+            'spent_amount.required'  => 'Nominal pengeluaran (Spent Amount) wajib diisi.',
+            'spent_amount.min'       => 'Nominal pengeluaran harus lebih besar dari 0.',
         ];
     }
 
@@ -35,9 +49,10 @@ class BudgetStoreExpenseRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $spent = $this->spent_amount ?? $this->allocated_amount ?? 0;
         $this->merge([
-            'allocated_amount'  => $this->allocated_amount ?? 0,
-            'spent_amount'      => $this->spent_amount ?? 0,
+            'spent_amount'      => $spent,
+            'allocated_amount'  => $this->allocated_amount ?? $spent,
         ]);
     }
 }
