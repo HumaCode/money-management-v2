@@ -73,6 +73,20 @@ export default function Index({ title, subtitle, preference, currencies = [] }) 
         }
     };
 
+    const handleSsoToggle = async (enabled) => {
+        const updatedForm = { ...ssoForm, sso_enabled: enabled };
+        setSsoForm(updatedForm);
+        try {
+            const res = await axios.post(route('sso.saveConfig'), updatedForm);
+            if (res.data?.success) {
+                showToast(enabled ? 'SSO berhasil diaktifkan!' : 'SSO berhasil dinonaktifkan!', 'info');
+            }
+        } catch (err) {
+            showToast('Gagal mengubah status SSO', 'error');
+            setSsoForm(prev => ({ ...prev, sso_enabled: !enabled }));
+        }
+    };
+
     const handleSsoSave = async (e) => {
         e.preventDefault();
         setIsSavingSso(true);
@@ -573,12 +587,11 @@ export default function Index({ title, subtitle, preference, currencies = [] }) 
                             ? <span className="sso-badge-enabled"><CheckCircle size={12} /> Aktif</span>
                             : <span className="sso-badge-disabled">Nonaktif</span>
                         }
-                        {/* Enable/disable SSO toggle */}
-                        <label className="switch" title="Aktifkan SSO">
+                        <label className="switch" title="Aktifkan / Nonaktifkan SSO">
                             <input
                                 type="checkbox"
                                 checked={ssoForm.sso_enabled}
-                                onChange={(e) => setSsoForm(prev => ({ ...prev, sso_enabled: e.target.checked }))}
+                                onChange={(e) => handleSsoToggle(e.target.checked)}
                             />
                             <span className="slider"></span>
                         </label>
