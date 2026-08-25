@@ -67,5 +67,7 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
         Route::patch('/saving-goals/{id}', [MobileSavingsGoalController::class, 'update']);
         Route::delete('/saving-goals/{id}', [MobileSavingsGoalController::class, 'destroy']);
         Route::post('/saving-goals/{id}/add-saving', [MobileSavingsGoalController::class, 'addSaving']);
+        Route::put('/saving-goals/{goalId}/contributions/{contributionId}', [MobileSavingsGoalController::class, 'updateContribution']);
+        Route::delete('/saving-goals/{goalId}/contributions/{contributionId}', [MobileSavingsGoalController::class, 'deleteContribution']);
     });
 });

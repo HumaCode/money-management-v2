@@ -576,11 +576,21 @@ export default function AccountModal({
                                             </tr>
                                         ) : (
                                             accountTransactions.map(tx => {
+                                                const isSaving = tx.type === 'saving' || (tx.description && tx.description.toLowerCase().includes('tabungan'));
                                                 const isIncome = tx.type === 'income';
                                                 const isExpense = tx.type === 'expense';
-                                                const isTransfer = tx.type === 'transfer';
-                                                const typeColor = isIncome ? '#34d399' : (isExpense ? '#f87171' : '#60a5fa');
-                                                const typeBg = isIncome ? 'rgba(52, 211, 153, 0.12)' : (isExpense ? 'rgba(248, 113, 113, 0.12)' : 'rgba(96, 165, 250, 0.12)');
+                                                const isTransfer = tx.type === 'transfer' && !isSaving;
+
+                                                const isIncoming = tx.to_account_id === data?.id || isIncome;
+
+                                                const typeColor = isSaving ? '#10b981' : (isIncoming ? '#34d399' : (isExpense ? '#f87171' : '#60a5fa'));
+                                                const typeBg = isSaving ? 'rgba(16, 185, 129, 0.15)' : (isIncoming ? 'rgba(52, 211, 153, 0.12)' : (isExpense ? 'rgba(248, 113, 113, 0.12)' : 'rgba(96, 165, 250, 0.12)'));
+                                                const typeLabel = isSaving ? 'Saving' : (tx.type_label || tx.type);
+
+                                                const rawAmountStr = tx.amount_formatted || `Rp ${Number(tx.amount || 0).toLocaleString('id-ID')}`;
+                                                const displayAmount = isIncoming 
+                                                    ? (rawAmountStr.startsWith('+') ? rawAmountStr : '+ ' + rawAmountStr)
+                                                    : (rawAmountStr.startsWith('-') ? rawAmountStr : '- ' + rawAmountStr);
 
                                                 return (
                                                     <tr key={tx.id} style={{ borderBottom: '1px solid var(--bg-card-border)' }}>
@@ -598,21 +608,21 @@ export default function AccountModal({
                                                                 display: 'inline-block',
                                                                 textTransform: 'capitalize'
                                                             }}>
-                                                                {tx.type_label || tx.type}
+                                                                {typeLabel}
                                                             </span>
                                                         </td>
                                                         <td style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--text-primary)' }}>
                                                             {tx.description}
                                                         </td>
                                                         <td style={{ padding: '10px 14px', color: 'var(--text-secondary)' }}>
-                                                            {isTransfer ? (
-                                                                `${tx.account?.name || 'Account'} → ${tx.to_account?.name || 'Target'}`
+                                                            {isTransfer || isSaving ? (
+                                                                `${tx.account?.name || 'Source'} → ${tx.to_account?.name || 'Target'}`
                                                             ) : (
                                                                 tx.category?.name || '—'
                                                             )}
                                                         </td>
-                                                        <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 600, color: typeColor, whiteSpace: 'nowrap' }}>
-                                                            {tx.amount_formatted}
+                                                        <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 600, color: isIncoming ? '#10b981' : '#f87171', whiteSpace: 'nowrap' }}>
+                                                            {displayAmount}
                                                         </td>
                                                     </tr>
                                                 );

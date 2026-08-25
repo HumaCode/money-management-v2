@@ -228,7 +228,14 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const currencyOptions = currencies.map(c => ({ id: c.id, name: `${c.code} — ${c.name}` }));
-    const accountOptions  = accounts.map(a => ({ id: a.id, name: a.name }));
+    const accountOptions = accounts.map(a => {
+        const rawBal = a.current_balance !== undefined && a.current_balance !== null 
+            ? a.current_balance 
+            : (a.balance !== undefined && a.balance !== null ? a.balance : 0);
+        const num = Number(rawBal) || 0;
+        const formatted = a.balance_formatted || ('Rp ' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        return { id: a.id, name: `${a.name} - ${formatted}` };
+    });
 
     const isReadOnly = mode === 'show';
     const isAddSaving = mode === 'addSaving';
@@ -236,9 +243,14 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
     useEffect(() => {
         if (isOpen) {
             setErrors({});
+            const validSourceAccounts = (accounts || []).filter(acc => String(acc.id) !== String(data?.account?.id));
+            const defaultSourceAccId = validSourceAccounts[0] ? validSourceAccounts[0].id : '';
+
             setSavingData({
                 amount: '',
                 notes: '',
+                account_id: defaultSourceAccId,
+                destination_account_id: data?.account?.id || (accounts && accounts[0] ? accounts[0].id : ''),
                 contributed_at: new Date().toISOString().split('T')[0]
             });
             if (data && (mode === 'edit' || mode === 'show')) {
@@ -560,9 +572,22 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
                         marginBottom: '20px',
                         color: 'var(--text-primary)',
                         fontSize: '14px',
-                        lineHeight: 1.5
+                        lineHeight: 1.6,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '10px'
                     }}>
-                        Adding saving contribution to <strong>{data?.name}</strong> — Target: <strong>{data?.target_amount_formatted}</strong>
+                        <div>
+                            Adding saving contribution to <strong>{data?.name}</strong> — Target: <strong>{data?.target_amount_formatted}</strong>
+                        </div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>Target Rekening:</span>
+                            <span className="badge info" style={{ background: 'var(--accent-dim)', color: 'var(--accent)', borderColor: 'var(--accent)', fontWeight: 600 }}>
+                                🏦 {data?.account?.name || 'Rekening Tujuan'}
+                            </span>
+                        </div>
                     </div>
 
                     <div className="sg-row">
@@ -580,19 +605,32 @@ export default function SavingGoalModal({ isOpen, mode, data, currencies, accoun
                             {errors.amount && <span className="sg-field-error">{errors.amount[0]}</span>}
                         </div>
                         <div className="sg-group">
-                            <label htmlFor="sav_date">Saving Date <span className="sg-required">*</span></label>
-                            <CustomDatePicker 
-                                id="sav_date" 
-                                value={savingData.contributed_at}
-                                onChange={val => handleSavingFieldChange('contributed_at', val)} 
+                            <label htmlFor="sav_account">Source Account (Rekening Sumber) <span className="sg-required">*</span></label>
+                            <SearchableSelect 
+                                id="sav_account" 
+                                options={accountOptions.filter(acc => String(acc.id) !== String(data?.account?.id))}
+                                value={savingData.account_id}
+                                onChange={val => handleSavingFieldChange('account_id', val)}
+                                placeholder="Select Source Account..."
                                 disabled={isSubmitting}
-                                required
                             />
-                            {errors.contributed_at && <span className="sg-field-error">{errors.contributed_at[0]}</span>}
+                            {errors.account_id && <span className="sg-field-error">{errors.account_id[0]}</span>}
                         </div>
                     </div>
 
-                    <div className="sg-group">
+                    <div className="sg-group" style={{ marginTop: '14px' }}>
+                        <label htmlFor="sav_date">Saving Date <span className="sg-required">*</span></label>
+                        <CustomDatePicker 
+                            id="sav_date" 
+                            value={savingData.contributed_at}
+                            onChange={val => handleSavingFieldChange('contributed_at', val)} 
+                            disabled={isSubmitting}
+                            required
+                        />
+                        {errors.contributed_at && <span className="sg-field-error">{errors.contributed_at[0]}</span>}
+                    </div>
+
+                    <div className="sg-group" style={{ marginTop: '14px' }}>
                         <label htmlFor="sav_notes">Notes / Remarks</label>
                         <textarea 
                             id="sav_notes" 

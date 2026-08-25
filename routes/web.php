@@ -65,6 +65,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/saving-goals/{saving}/update', [SavingGoalController::class, 'update'])->name('saving.goals.update');
     Route::post('/saving-goals/{saving}/add-saving', [SavingGoalController::class, 'addSaving'])->name('saving.goals.addSaving');
     Route::get('/saving-goals/{saving}/contributions', [SavingGoalController::class, 'getContributions'])->name('saving.goals.contributions');
+    Route::put('/saving-goals/{saving}/contributions/{contribution}', [SavingGoalController::class, 'updateContribution'])->name('saving.goals.contributions.update');
+    Route::delete('/saving-goals/{saving}/contributions/{contribution}', [SavingGoalController::class, 'deleteContribution'])->name('saving.goals.contributions.delete');
     Route::delete('/saving-goals/{saving}/destroy', [SavingGoalController::class, 'destroy'])->name('saving.goals.destroy');
 
 

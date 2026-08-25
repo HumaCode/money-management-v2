@@ -15,6 +15,7 @@ class AddSavingRequest extends BaseApiRequest
     {
         return [
             'amount'         => 'required|numeric|min:1',
+            'account_id'     => 'nullable|string',
             'contributed_at' => 'nullable|date',
             'notes'          => 'nullable|string',
         ];

@@ -6,7 +6,9 @@ use App\Constants\GlobalMessage;
 use App\Interface\SavingGoalRepositoryInterface;
 use App\Models\SavingsGoal;
 use App\Models\Account;
+use App\Models\Category;
 use App\Models\Currency;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 
 class SavingGoalRepository implements SavingGoalRepositoryInterface
@@ -133,10 +135,35 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
 
     public function getAccountList(): array
     {
-        return Account::select('name', 'id')
-            ->distinct()
+        $userId = auth()->id();
+        if (!$userId && function_exists('user')) {
+            $userId = user('id');
+        }
+
+        $query = Account::query();
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        return $query->where(function ($q) {
+            $q->where('is_active', 1)->orWhere('is_active', true)->orWhere('is_active', '1');
+        })
+            ->with(['currency'])
             ->orderBy('name', 'asc')
             ->get()
+            ->map(function ($acc) {
+                $bal = (float) ($acc->current_balance ?? $acc->balance);
+                $symbol = $acc->currency ? $acc->currency->symbol : 'Rp';
+                $formatted = $symbol . ' ' . number_format($bal, 2, '.', ',');
+                return [
+                    'id'                => $acc->id,
+                    'name'              => $acc->name,
+                    'balance'           => $bal,
+                    'current_balance'   => $bal,
+                    'balance_formatted' => $formatted,
+                    'display_name'      => $acc->name . ' - ' . $formatted,
+                ];
+            })
             ->toArray();
     }
 
@@ -153,23 +180,53 @@ class SavingGoalRepository implements SavingGoalRepositoryInterface
     {
         return DB::transaction(function () use ($id, $data) {
             $saving = SavingsGoal::findOrFail($id);
+            $amount = (float) $data['amount'];
+            $contributedAt = $data['contributed_at'] ?? now();
+            $sourceAccountId = $data['account_id'] ?? null;
 
             // 1. Create contribution record
-            $saving->contributions()->create([
-                'amount'         => $data['amount'],
+            $contribution = $saving->contributions()->create([
+                'amount'         => $amount,
                 'notes'          => $data['notes'] ?? null,
-                'contributed_at' => $data['contributed_at'] ?? now(),
+                'contributed_at' => $contributedAt,
             ]);
 
             // 2. Recalculate current_amount
             $totalSaved = (float) $saving->contributions()->sum('amount');
             $saving->current_amount = $totalSaved;
 
-            // 3. Update status automatically if target is met
             if ($saving->current_amount >= $saving->target_amount) {
                 $saving->status = 'completed';
             }
             $saving->save();
+
+            // 3. Create Transaction history & atomic balance adjustment via TransactionObserver
+            if ($sourceAccountId && $saving->account_id) {
+                $category = Category::where('type', 'transfer')->first() 
+                    ?? Category::where('user_id', $saving->user_id)->first() 
+                    ?? Category::first();
+
+                $sourceAccount = Account::find($sourceAccountId);
+                $currencyId = $sourceAccount ? $sourceAccount->currency_id : $saving->currency_id;
+
+                $tx = Transaction::create([
+                    'user_id'          => $saving->user_id,
+                    'account_id'       => $sourceAccountId,      // Rekening Sumber (BRI) -> Saldo berkurang!
+                    'to_account_id'    => $saving->account_id,   // Rekening Tujuan Tabungan (BCA) -> Saldo bertambah!
+                    'category_id'      => $category ? $category->id : null,
+                    'currency_id'      => $currencyId,
+                    'amount'           => $amount,
+                    'type'             => 'transfer',
+                    'description'      => 'Setoran Tabungan ' . $saving->name,
+                    'notes'            => $data['notes'] ?? null,
+                    'transaction_date' => $contributedAt,
+                ]);
+
+                $contribution->update(['transaction_id' => $tx->id]);
+            } else if ($saving->account_id) {
+                // Fallback if source account is not explicitly selected
+                DB::table('accounts')->where('id', $saving->account_id)->increment('current_balance', $amount);
+            }
 
             $saving->load(['currency', 'account']);
             return $saving;
