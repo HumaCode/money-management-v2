@@ -299,7 +299,6 @@ export default function BudgetExpensesListModal({ isOpen, budget, onClose, onBac
                                     }}>
                                         <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Category</th>
                                         <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Spent Date</th>
-                                        <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Allocated</th>
                                         <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Spent Amount</th>
                                         <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-input)' }}>Notes</th>
                                     </tr>
@@ -338,17 +337,6 @@ export default function BudgetExpensesListModal({ isOpen, budget, onClose, onBac
                                                     <Calendar size={13} style={{ opacity: 0.7 }} />
                                                     <span>{exp.spent_date}</span>
                                                 </div>
-                                            </td>
-
-                                            {/* Allocated */}
-                                            <td style={{ padding: '12px 18px', fontSize: '13.5px', color: 'var(--text-secondary)' }}>
-                                                {exp.allocated_amount > 0 ? (
-                                                    <span style={{ background: 'var(--bg-input)', padding: '3px 8px', borderRadius: '6px', border: '1px solid var(--bg-card-border)' }}>
-                                                        {Number(exp.allocated_amount).toLocaleString('de-DE')}
-                                                    </span>
-                                                ) : (
-                                                    <span style={{ opacity: 0.4 }}>—</span>
-                                                )}
                                             </td>
 
                                             {/* Spent Amount */}

@@ -32,6 +32,15 @@ class SavingsGoal extends Model
         'target_date' => 'date',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (SavingsGoal $goal) {
+            $goal->contributions->each(function (SavingsGoalContribution $contribution) {
+                $contribution->delete();
+            });
+        });
+    }
+
     // Relationships
     public function user()
     {

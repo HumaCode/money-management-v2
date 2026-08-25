@@ -2,6 +2,8 @@
 
 namespace App\Observers;
 
+use App\Models\Budget;
+use App\Models\BudgetCategory;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 
@@ -9,13 +11,15 @@ class TransactionObserver
 {
     /**
      * Handle the Transaction "created" event.
-     * Uses atomic DB::table increment/decrement to avoid stale-read race conditions.
+     * 1. Updates Account balance.
+     * 2. Auto-syncs Expense transactions with active Budgets.
      */
     public function created(Transaction $transaction): void
     {
         $amount = (float) $transaction->amount;
         $type   = strtolower($transaction->type);
 
+        // ── 1. Update Account Balance ─────────────────────────────
         if ($type === 'income') {
             DB::table('accounts')->where('id', $transaction->account_id)->increment('current_balance', $amount);
         } elseif ($type === 'expense' || $type === 'transfer') {
@@ -24,6 +28,11 @@ class TransactionObserver
 
         if ($type === 'transfer' && $transaction->to_account_id) {
             DB::table('accounts')->where('id', $transaction->to_account_id)->increment('current_balance', $amount);
+        }
+
+        // ── 2. Auto-sync Expense Transaction to Active Budgets ────
+        if ($type === 'expense') {
+            $this->syncExpenseToBudgets($transaction);
         }
     }
 
@@ -63,14 +72,18 @@ class TransactionObserver
                 DB::table('accounts')->where('id', $transaction->to_account_id)->increment('current_balance', $newAmount);
             }
         }
+
+        // Auto-resync expense if amount, type, category_id, or transaction_date changed
+        if ($transaction->wasChanged(['amount', 'type', 'category_id', 'transaction_date'])) {
+            $this->removeExpenseFromBudgets($transaction);
+            if (strtolower($transaction->type) === 'expense') {
+                $this->syncExpenseToBudgets($transaction);
+            }
+        }
     }
 
     /**
      * Handle the Transaction "deleting" event.
-     *
-     * IMPORTANT: Must use "deleting" (not "deleted") because the Transaction model
-     * uses SoftDeletes. The "deleted" event fires AFTER the soft-delete timestamp is set,
-     * but "deleting" fires BEFORE — allowing us to safely revert the balance.
      */
     public function deleting(Transaction $transaction): void
     {
@@ -86,14 +99,66 @@ class TransactionObserver
         if ($type === 'transfer' && $transaction->to_account_id) {
             DB::table('accounts')->where('id', $transaction->to_account_id)->decrement('current_balance', $amount);
         }
+
+        // Revert budget expenses when transaction is deleted
+        if ($type === 'expense') {
+            $this->removeExpenseFromBudgets($transaction);
+        }
     }
 
     /**
-     * Handle the Transaction "forceDeleted" event (hard delete after soft delete).
-     * Balance was already reverted in deleting() event — no additional action needed.
+     * Handle the Transaction "forceDeleted" event.
      */
     public function forceDeleted(Transaction $transaction): void
     {
-        // No-op: balance already reverted when soft delete occurred (deleting event).
+        $this->removeExpenseFromBudgets($transaction);
+    }
+
+    /**
+     * Helper: Sync an Expense transaction to matching active Budgets
+     */
+    private function syncExpenseToBudgets(Transaction $transaction): void
+    {
+        $userId = $transaction->user_id;
+        $txDate = $transaction->transaction_date ? $transaction->transaction_date->format('Y-m-d') : date('Y-m-d');
+
+        // Find active budgets for this user
+        $budgets = Budget::where('user_id', $userId)
+            ->where('is_active', true)
+            ->get();
+
+        foreach ($budgets as $budget) {
+            // Check if transaction_date falls within budget's date range (if set)
+            if ($budget->start_date && $txDate < $budget->start_date->format('Y-m-d')) {
+                continue;
+            }
+            if ($budget->end_date && $txDate > $budget->end_date->format('Y-m-d')) {
+                continue;
+            }
+
+            // Create BudgetCategory ledger record linked to this transaction
+            BudgetCategory::create([
+                'budget_id'      => $budget->id,
+                'category_id'    => $transaction->category_id,
+                'transaction_id' => $transaction->id,
+                'spent_amount'   => (float) $transaction->amount,
+                'allocated_amount' => 0,
+                'spent_date'     => $txDate,
+                'notes'          => $transaction->description ?? $transaction->notes,
+            ]);
+            // Note: BudgetCategory created event automatically calls $budget->recalculateSpent()
+        }
+    }
+
+    /**
+     * Helper: Remove expense linked to a transaction from Budgets
+     */
+    private function removeExpenseFromBudgets(Transaction $transaction): void
+    {
+        $linkedCategories = BudgetCategory::where('transaction_id', $transaction->id)->get();
+        foreach ($linkedCategories as $bc) {
+            $budget = $bc->budget;
+            $bc->delete(); // Automatically triggers $budget->recalculateSpent()
+        }
     }
 }

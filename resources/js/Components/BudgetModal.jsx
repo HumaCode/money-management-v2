@@ -325,25 +325,17 @@ export default function BudgetModal({ isOpen, mode, data, currencies, periods, c
                         {errors.spent_date && <span className="bg-field-error">{errors.spent_date[0]}</span>}
                     </div>
 
-                    <div className="bg-row">
-                        <div className="bg-group">
-                            <label htmlFor="expAllocated">Allocated Amount <span className="bg-required">*</span></label>
-                            <AmountInput id="expAllocated" name="allocated_amount"
-                                value={expenseData.allocated_amount}
-                                onChange={handleExpenseAmountChange}
-                                placeholder="0" required disabled={isSubmitting}
-                            />
-                            {errors.allocated_amount && <span className="bg-field-error">{errors.allocated_amount[0]}</span>}
-                        </div>
-                        <div className="bg-group">
-                            <label htmlFor="expSpent">Spent Amount</label>
-                            <AmountInput id="expSpent" name="spent_amount"
-                                value={expenseData.spent_amount}
-                                onChange={handleExpenseAmountChange}
-                                placeholder="0" disabled={isSubmitting}
-                            />
-                            {errors.spent_amount && <span className="bg-field-error">{errors.spent_amount[0]}</span>}
-                        </div>
+                    <div className="bg-group">
+                        <label htmlFor="expSpent">Spent Amount (Nominal Pengeluaran) <span className="bg-required">*</span></label>
+                        <AmountInput id="expSpent" name="spent_amount"
+                            value={expenseData.spent_amount}
+                            onChange={(name, num) => {
+                                setExpenseData(prev => ({ ...prev, spent_amount: num, allocated_amount: num }));
+                                if (errors.spent_amount) setErrors(prev => ({ ...prev, spent_amount: null }));
+                            }}
+                            placeholder="e.g. 150.000" required disabled={isSubmitting}
+                        />
+                        {errors.spent_amount && <span className="bg-field-error">{errors.spent_amount[0]}</span>}
                     </div>
 
                     <div className="bg-group">

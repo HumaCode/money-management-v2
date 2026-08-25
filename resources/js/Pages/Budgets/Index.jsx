@@ -1,18 +1,43 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
+import BudgetModal from '../../Components/BudgetModal';
+import BudgetExpensesListModal from '../../Components/BudgetExpensesListModal';
+import ConfirmModal from '../../Components/ConfirmModal';
 import EmptyState from '../../Components/EmptyState';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
+import { useCan } from '../../Hooks/useCan';
 import axios from 'axios';
-import { Search, RotateCcw, Plus, CalendarRange } from 'lucide-react';
+import { Eye, Edit, Trash2, Search, RotateCcw, Plus, CalendarRange, PlusCircle } from 'lucide-react';
 
-export default function Index({ title, subtitle }) {
+export default function Index({ title, subtitle, periods = [], currencies = [], categories = [] }) {
+    // ── Data state ──────────────────────────────────────────────
     const [budgets, setBudgets] = useState([]);
     const [meta, setMeta] = useState({ current_page: 1, last_page: 1, from: 0, to: 0, total: 0 });
     const [isLoading, setIsLoading] = useState(false);
+
+    // ── Filter / search state ────────────────────────────────────
     const [filters, setFilters] = useState({ search: '', status: 'all', period: 'all', perPage: 10, page: 1 });
     const [searchTerm, setSearchTerm] = useState('');
-    const { toast, showToast, dismissToast } = useToast(3500);
 
+    // ── Modal state ──────────────────────────────────────────────
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState('create');
+    const [selectedBudget, setSelectedBudget] = useState(null);
+
+    // ── Expenses List Modal state ────────────────────────────────
+    const [isExpensesListOpen, setIsExpensesListOpen] = useState(false);
+    const [selectedExpensesBudget, setSelectedExpensesBudget] = useState(null);
+
+    // ── Delete confirm state ─────────────────────────────────────
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [budgetToDelete, setBudgetToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // ── Toast & Permissions ─────────────────────────────────────
+    const { toast, showToast, dismissToast } = useToast(3500);
+    const { can } = useCan();
+
+    // ── Fetch ────────────────────────────────────────────────────
     const fetchBudgets = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -37,8 +62,11 @@ export default function Index({ title, subtitle }) {
         }
     }, [filters]);
 
-    useEffect(() => { fetchBudgets(); }, [filters]);
+    useEffect(() => {
+        fetchBudgets();
+    }, [filters.status, filters.period, filters.perPage, filters.page, filters.search]);
 
+    // Debounced search
     useEffect(() => {
         const h = setTimeout(() => {
             setFilters(prev => ({ ...prev, search: searchTerm, page: 1 }));
@@ -46,9 +74,152 @@ export default function Index({ title, subtitle }) {
         return () => clearTimeout(h);
     }, [searchTerm]);
 
+    // ── Handlers ─────────────────────────────────────────────────
+    const handleReload = () => {
+        setSearchTerm('');
+        setFilters({ search: '', status: 'all', period: 'all', perPage: 10, page: 1 });
+        showToast('Table data refreshed', 'info');
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= meta.last_page) {
+            setFilters(prev => ({ ...prev, page: newPage }));
+        }
+    };
+
+    const handleOpenCreate    = () => { setSelectedBudget(null); setModalMode('create'); setIsModalOpen(true); };
+    const handleOpenEdit      = (b) => { setSelectedBudget(b); setModalMode('edit'); setIsModalOpen(true); };
+    const handleOpenShow      = (b) => { setSelectedBudget(b); setModalMode('show'); setIsModalOpen(true); };
+    const handleOpenAddExpense = (b) => {
+        setIsExpensesListOpen(false);
+        setSelectedBudget(b);
+        setModalMode('addExpense');
+        setIsModalOpen(true);
+    };
+
+    const handleOpenExpensesList = (b) => {
+        setIsModalOpen(false);
+        setSelectedExpensesBudget(b);
+        setIsExpensesListOpen(true);
+    };
+
+    const handleBudgetSaved = () => {
+        fetchBudgets();
+    };
+
+    const triggerDelete = (b) => { setBudgetToDelete(b); setIsDeleteOpen(true); };
+    const closeDelete   = () => { if (isDeleting) return; setIsDeleteOpen(false); setBudgetToDelete(null); };
+
+    const handleDeleteConfirm = async () => {
+        if (!budgetToDelete) return;
+        setIsDeleting(true);
+        try {
+            const response = await axios.delete(route('budget.destroy', { budget: budgetToDelete.id }));
+            if (response.data.success) {
+                showToast('Budget deleted successfully!', 'success');
+                if (budgets.length === 1 && filters.page > 1) {
+                    setFilters(prev => ({ ...prev, page: prev.page - 1 }));
+                } else {
+                    fetchBudgets();
+                }
+                closeDelete();
+            } else {
+                showToast(response.data.message || 'Failed to delete budget', 'error');
+            }
+        } catch (error) {
+            showToast(error.response?.data?.message || 'Server error during deletion', 'error');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    // ── Pagination numbers ────────────────────────────────────────
+    const renderPageNumbers = () => {
+        const { current_page: current, last_page: last } = meta;
+        let pages = [];
+        if (last <= 5) {
+            pages = Array.from({ length: last }, (_, i) => i + 1);
+        } else if (current <= 3) {
+            pages = [1, 2, 3, '...', last];
+        } else if (current >= last - 2) {
+            pages = [1, '...', last - 2, last - 1, last];
+        } else {
+            pages = [1, '...', current, '...', last];
+        }
+
+        return pages.map((p, idx) =>
+            p === '...'
+                ? <button key={`d${idx}`} disabled>...</button>
+                : <button key={`p${p}`} onClick={() => handlePageChange(p)} className={p === current ? 'active' : ''}>{p}</button>
+        );
+    };
+
     return (
         <AuthenticatedLayout>
+            <style>{`
+                .act-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    border: none;
+                    cursor: pointer;
+                    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+                    flex-shrink: 0;
+                }
+                .act-btn:hover {
+                    transform: translateY(-2px);
+                    filter: brightness(1.15);
+                }
+                .act-btn:active { transform: scale(0.92); }
+
+                .act-btn-view {
+                    background: rgba(96, 165, 250, 0.15);
+                    color: #60a5fa;
+                    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.1);
+                }
+                .act-btn-view:hover { box-shadow: 0 4px 14px rgba(96, 165, 250, 0.25); }
+
+                .act-btn-add-exp {
+                    background: rgba(245, 158, 11, 0.15);
+                    color: #f59e0b;
+                    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
+                }
+                .act-btn-add-exp:hover { box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25); }
+
+                .act-btn-edit {
+                    background: rgba(52, 211, 153, 0.15);
+                    color: #34d399;
+                    box-shadow: 0 2px 8px rgba(52, 211, 153, 0.1);
+                }
+                .act-btn-edit:hover { box-shadow: 0 4px 14px rgba(52, 211, 153, 0.25); }
+
+                .act-btn-delete {
+                    background: rgba(248, 113, 113, 0.12);
+                    color: #f87171;
+                    box-shadow: 0 2px 8px rgba(248, 113, 113, 0.08);
+                }
+                .act-btn-delete:hover { box-shadow: 0 4px 14px rgba(248, 113, 113, 0.22); }
+
+                html.light .act-btn-view    { background: rgba(59, 130, 246, 0.08); color: #2563eb; }
+                html.light .act-btn-add-exp { background: rgba(217, 119, 6, 0.08); color: #d97706; }
+                html.light .act-btn-edit    { background: rgba(16, 185, 129, 0.08); color: #059669; }
+                html.light .act-btn-delete  { background: rgba(239, 68,  68, 0.08); color: #dc2626; }
+
+                .skeleton-pulse { animation: sk-pulse 1.4s ease-in-out infinite; }
+                @keyframes sk-pulse { 0%,100%{opacity:.4} 50%{opacity:.85} }
+                .skeleton-block {
+                    background: var(--bg-card-border);
+                    height: 14px;
+                    border-radius: 4px;
+                }
+            `}</style>
+
             <DynamicToastContainer toast={toast} onDismiss={dismissToast} />
+
+            {/* ── Page Header ── */}
             <div className="page-header" style={{ marginBottom: '28px' }}>
                 <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{
@@ -66,16 +237,19 @@ export default function Index({ title, subtitle }) {
                         </p>
                     </div>
                 </div>
-                <button
-                    onClick={() => showToast('Add budget feature coming soon!', 'info')}
-                    className="btn-primary action"
-                    style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                >
-                    <Plus size={16} />
-                    Add Data
-                </button>
+                {can('create budgets') && (
+                    <button
+                        onClick={handleOpenCreate}
+                        className="btn-primary action"
+                        style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                        <Plus size={16} />
+                        Add Data
+                    </button>
+                )}
             </div>
 
+            {/* ── Table Card ── */}
             <div className="table-card">
                 <div className="table-controls">
                     <div className="table-controls-left">
@@ -113,7 +287,7 @@ export default function Index({ title, subtitle }) {
                             </select>
                         </div>
 
-                        <button className="btn-icon" onClick={() => fetchBudgets()} title="Reload">
+                        <button className="btn-icon" onClick={handleReload} title="Reload">
                             <RotateCcw size={15} />
                         </button>
                     </div>
@@ -141,13 +315,26 @@ export default function Index({ title, subtitle }) {
                                 <th>Period</th>
                                 <th>Total Amount</th>
                                 <th>Spent / Progress</th>
-                                <th>Status</th>
-                                <th style={{ width: '120px', textAlign: 'center' }}>Actions</th>
+                                <th style={{ width: '115px' }}>Status</th>
+                                <th style={{ width: '150px', textAlign: 'center' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
-                                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Loading...</td></tr>
+                                [...Array(5)].map((_, i) => (
+                                    <tr key={`sk-${i}`} className="skeleton-pulse">
+                                        <td><div className="skeleton-block" style={{ width: '70%' }} /></td>
+                                        <td><div className="skeleton-block" style={{ width: '50%' }} /></td>
+                                        <td><div className="skeleton-block" style={{ width: '60%' }} /></td>
+                                        <td><div className="skeleton-block" style={{ width: '55%' }} /></td>
+                                        <td><div className="skeleton-block" style={{ width: 60, height: 20, borderRadius: 20 }} /></td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+                                                {[0,1,2,3].map(j => <div key={j} style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--bg-card-border)' }} />)}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
                             ) : budgets.length === 0 ? (
                                 <tr>
                                     <td colSpan="6">
@@ -157,23 +344,136 @@ export default function Index({ title, subtitle }) {
                             ) : (
                                 budgets.map((row) => (
                                     <tr key={row.id}>
-                                        <td>{row.name}</td>
-                                        <td>{row.period}</td>
-                                        <td>{row.amount_formatted || row.amount}</td>
-                                        <td>{row.spent_formatted || '0'}</td>
+                                        <td style={{ fontWeight: 500 }}>{row.name}</td>
+                                        <td style={{ textTransform: 'capitalize' }}>{row.period || '—'}</td>
+                                        <td style={{ fontWeight: 600 }}>
+                                            {row.total_amount_formatted || row.amount_formatted || (row.total_amount ? Number(row.total_amount).toLocaleString('id-ID') : '0')}
+                                        </td>
+                                        <td>
+                                            <div style={{ fontSize: '13px', fontWeight: 500 }}>
+                                                {row.spent_amount_formatted || row.spent_formatted || (row.total_spent ? Number(row.total_spent).toLocaleString('id-ID') : '0')}
+                                            </div>
+                                            {row.progress_percentage !== undefined && (
+                                                <div style={{ width: '100px', height: '4px', background: 'var(--bg-card-border)', borderRadius: '2px', marginTop: '4px', overflow: 'hidden' }}>
+                                                    <div style={{
+                                                        width: `${Math.min(100, row.progress_percentage)}%`,
+                                                        height: '100%',
+                                                        background: row.progress_percentage > 90 ? '#f87171' : 'var(--accent)',
+                                                        borderRadius: '2px'
+                                                    }} />
+                                                </div>
+                                            )}
+                                        </td>
                                         <td>
                                             <span className={`badge ${row.is_active ? 'success' : 'danger'}`}>
                                                 {row.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>
-                                        <td>-</td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: 7, justifyContent: 'center' }}>
+                                                {can('show budgets') && (
+                                                    <button
+                                                        className="act-btn act-btn-view"
+                                                        onClick={() => handleOpenShow(row)}
+                                                        title="View Details"
+                                                    >
+                                                        <Eye size={14} />
+                                                    </button>
+                                                )}
+                                                {can('update budgets') && (
+                                                    <button
+                                                        className="act-btn act-btn-add-exp"
+                                                        onClick={() => handleOpenAddExpense(row)}
+                                                        title="Add Expense to Budget"
+                                                    >
+                                                        <PlusCircle size={14} />
+                                                    </button>
+                                                )}
+                                                {can('update budgets') && (
+                                                    <button
+                                                        className="act-btn act-btn-edit"
+                                                        onClick={() => handleOpenEdit(row)}
+                                                        title="Edit Budget"
+                                                    >
+                                                        <Edit size={14} />
+                                                    </button>
+                                                )}
+                                                {can('delete budgets') && (
+                                                    <button
+                                                        className="act-btn act-btn-delete"
+                                                        onClick={() => triggerDelete(row)}
+                                                        title="Delete Budget"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))
                             )}
                         </tbody>
                     </table>
                 </div>
+
+                <div className="table-footer">
+                    <div className="table-info">
+                        Showing {meta.from || 0} to {meta.to || 0} of {meta.total || 0} entries
+                    </div>
+                    <div className="pagination">
+                        <button onClick={() => handlePageChange(meta.current_page - 1)} disabled={meta.current_page === 1 || isLoading}>‹</button>
+                        {renderPageNumbers()}
+                        <button onClick={() => handlePageChange(meta.current_page + 1)} disabled={meta.current_page === meta.last_page || isLoading}>›</button>
+                    </div>
+                </div>
             </div>
+
+            {/* ── Budget Form / Detail Modal ── */}
+            <BudgetModal
+                isOpen={isModalOpen}
+                mode={modalMode}
+                data={selectedBudget}
+                periods={periods}
+                currencies={currencies}
+                categories={categories}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleBudgetSaved}
+                onShowToast={showToast}
+                onShowExpenses={handleOpenExpensesList}
+            />
+
+            {/* ── Budget Expenses List Modal ── */}
+            <BudgetExpensesListModal
+                isOpen={isExpensesListOpen}
+                budget={selectedExpensesBudget}
+                onClose={() => setIsExpensesListOpen(false)}
+                onBackToDetail={(b) => {
+                    setIsExpensesListOpen(false);
+                    setSelectedBudget(b);
+                    setModalMode('show');
+                    setIsModalOpen(true);
+                }}
+                onShowToast={showToast}
+            />
+
+            {/* ── Delete Confirmation ── */}
+            <ConfirmModal
+                isOpen={isDeleteOpen}
+                onClose={closeDelete}
+                onConfirm={handleDeleteConfirm}
+                isLoading={isDeleting}
+                variant="danger"
+                title="Delete Budget?"
+                message={
+                    <>
+                        Are you sure you want to delete budget{' '}
+                        <b style={{ color: 'var(--text-primary)' }}>{budgetToDelete?.name}</b>?
+                        {' '}This action cannot be undone.
+                    </>
+                }
+                confirmLabel="Yes, Delete"
+                cancelLabel="Cancel"
+            />
         </AuthenticatedLayout>
     );
 }

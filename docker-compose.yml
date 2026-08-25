@@ -39,6 +39,37 @@ services:
       - cuan_network
 
   # --------------------------------------------------------------------------
+  # ⏰ Laravel Scheduler Service (Auto Rollover & Scheduled Tasks)
+  # --------------------------------------------------------------------------
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cuan_money_scheduler
+    restart: always
+    command: php artisan schedule:work
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_HOST: cuan_money_db
+      DB_PORT: 3306
+      DB_DATABASE: money_management_v2
+      DB_USERNAME: money_management_v2
+      DB_PASSWORD: ${DB_PASSWORD:-HumaCode2026}
+      WA_GATEWAY_URL: ${WA_GATEWAY_URL:-https://wa.humacode.my.id/api/v1/whatsapp/messages}
+      WA_GATEWAY_KEY: ${WA_GATEWAY_KEY}
+    volumes:
+      - ./storage:/app/storage
+      - ./bootstrap/cache:/app/bootstrap/cache
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+    networks:
+      - cuan_network
+
+  # --------------------------------------------------------------------------
   # 🗄️ MySQL Database
   # Port Container: 3306 -> Port Host: 3311 (Aman dari 3306, 3310, dll di Host)
   # --------------------------------------------------------------------------

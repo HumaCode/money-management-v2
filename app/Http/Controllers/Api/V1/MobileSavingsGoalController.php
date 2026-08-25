@@ -6,9 +6,12 @@ use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\SavingsGoal\AddSavingRequest;
 use App\Http\Requests\Api\SavingsGoal\StoreSavingsGoalRequest;
+use App\Models\Account;
+use App\Models\Category;
 use App\Models\Currency;
 use App\Models\SavingsGoal;
 use App\Models\SavingsGoalContribution;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -60,10 +63,21 @@ class MobileSavingsGoalController extends Controller
         $currentAmount = (float) ($request->current_amount ?? 0);
         $status        = $currentAmount >= $targetAmount && $targetAmount > 0 ? 'completed' : 'active';
 
+        $currencyId = $request->currency_id;
+        if (!$currencyId && $request->account_id) {
+            $account = Account::find($request->account_id);
+            if ($account) {
+                $currencyId = $account->currency_id;
+            }
+        }
+        if (!$currencyId) {
+            $currencyId = Currency::where('is_active', true)->value('id') ?? Currency::value('id');
+        }
+
         $goal = SavingsGoal::create([
             'user_id'        => $userId,
             'account_id'     => $request->account_id,
-            'currency_id'    => $request->currency_id,
+            'currency_id'    => $currencyId,
             'name'           => $request->name,
             'description'    => $request->description ?? $request->notes,
             'target_amount'  => $targetAmount,
@@ -132,9 +146,16 @@ class MobileSavingsGoalController extends Controller
             return ResponseHelper::notFound('Target tabungan tidak ditemukan');
         }
 
-        $goal->delete();
+        DB::beginTransaction();
+        try {
+            $goal->delete();
+            DB::commit();
 
-        return ResponseHelper::success(null, 'Target tabungan berhasil dihapus');
+            return ResponseHelper::success(null, 'Target tabungan berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseHelper::error('Gagal menghapus target tabungan: ' . $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -151,8 +172,22 @@ class MobileSavingsGoalController extends Controller
 
         DB::beginTransaction();
         try {
-            $amount        = (float) $request->amount;
-            $contributedAt = $request->input('contributed_at', now());
+            $amount          = (float) $request->amount;
+            $contributedAt   = $request->input('contributed_at', now());
+            $sourceAccountId = $request->account_id;
+
+            if ($sourceAccountId) {
+                $sourceAccount = Account::find($sourceAccountId);
+                if ($sourceAccount) {
+                    $availableBalance = (float) ($sourceAccount->current_balance ?? $sourceAccount->balance);
+                    if ($amount > $availableBalance) {
+                        return ResponseHelper::error(
+                            'Saldo rekening ' . $sourceAccount->name . ' tidak mencukupi (Tersedia: Rp ' . number_format($availableBalance, 0, ',', '.') . ', Dibutuhkan: Rp ' . number_format($amount, 0, ',', '.') . ')',
+                            422
+                        );
+                    }
+                }
+            }
 
             // Create contribution record
             $contribution = SavingsGoalContribution::create([
@@ -171,6 +206,33 @@ class MobileSavingsGoalController extends Controller
                 'status'         => $status,
             ]);
 
+            // Create Transaction record (Triggers TransactionObserver for atomic balance update & account history)
+            if ($sourceAccountId && $goal->account_id) {
+                $category = Category::where('type', 'transfer')->first() 
+                    ?? Category::where('user_id', $userId)->first() 
+                    ?? Category::first();
+
+                $sourceAccount = Account::find($sourceAccountId);
+                $currencyId = $sourceAccount ? $sourceAccount->currency_id : $goal->currency_id;
+
+                $tx = Transaction::create([
+                    'user_id'          => $userId,
+                    'account_id'       => $sourceAccountId,    // Rekening Sumber (BRI) -> Saldo berkurang!
+                    'to_account_id'    => $goal->account_id,   // Rekening Tujuan (BCA) -> Saldo bertambah!
+                    'category_id'      => $category ? $category->id : null,
+                    'currency_id'      => $currencyId,
+                    'amount'           => $amount,
+                    'type'             => 'transfer',
+                    'description'      => 'Setoran Tabungan ' . $goal->name,
+                    'notes'            => $request->notes,
+                    'transaction_date' => $contributedAt,
+                ]);
+
+                $contribution->update(['transaction_id' => $tx->id]);
+            } else if ($goal->account_id) {
+                DB::table('accounts')->where('id', $goal->account_id)->increment('current_balance', $amount);
+            }
+
             DB::commit();
 
             $goal->load(['account:id,name', 'currency:id,code,symbol']);
@@ -182,6 +244,103 @@ class MobileSavingsGoalController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return ResponseHelper::error('Gagal mencatat setoran: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Update Contribution
+     */
+    public function updateContribution(Request $request, $goalId, $contributionId)
+    {
+        $userId = $request->user()->id;
+        $goal = SavingsGoal::where('user_id', $userId)->where('id', $goalId)->first();
+
+        if (!$goal) {
+            return ResponseHelper::notFound('Target tabungan tidak ditemukan');
+        }
+
+        $contribution = SavingsGoalContribution::where('savings_goal_id', $goal->id)
+            ->where('id', $contributionId)
+            ->first();
+
+        if (!$contribution) {
+            return ResponseHelper::notFound('Catatan setoran tidak ditemukan');
+        }
+
+        DB::beginTransaction();
+        try {
+            $oldAmount = (float) $contribution->amount;
+            $newAmount = (float) ($request->amount ?? $oldAmount);
+            $contributedAt = $request->input('contributed_at', $contribution->contributed_at);
+
+            $contribution->update([
+                'amount'         => $newAmount,
+                'contributed_at' => $contributedAt,
+                'notes'          => $request->notes ?? $contribution->notes,
+            ]);
+
+            // Recalculate goal current amount
+            $diff = $newAmount - $oldAmount;
+            $newCurrent = max(0, (float) $goal->current_amount + $diff);
+            $status     = $newCurrent >= (float) $goal->target_amount ? 'completed' : 'active';
+
+            $goal->update([
+                'current_amount' => $newCurrent,
+                'status'         => $status,
+            ]);
+
+            DB::commit();
+
+            return ResponseHelper::success([
+                'goal'         => $this->formatGoalData($goal),
+                'contribution' => $contribution,
+            ], 'Catatan setoran berhasil diperbarui');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseHelper::error('Gagal memperbarui setoran: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Delete Contribution
+     */
+    public function deleteContribution(Request $request, $goalId, $contributionId)
+    {
+        $userId = $request->user()->id;
+        $goal = SavingsGoal::where('user_id', $userId)->where('id', $goalId)->first();
+
+        if (!$goal) {
+            return ResponseHelper::notFound('Target tabungan tidak ditemukan');
+        }
+
+        $contribution = SavingsGoalContribution::where('savings_goal_id', $goal->id)
+            ->where('id', $contributionId)
+            ->first();
+
+        if (!$contribution) {
+            return ResponseHelper::notFound('Catatan setoran tidak ditemukan');
+        }
+
+        DB::beginTransaction();
+        try {
+            $amount = (float) $contribution->amount;
+            $contribution->delete();
+
+            // Recalculate goal current amount
+            $newCurrent = max(0, (float) $goal->current_amount - $amount);
+            $status     = $newCurrent >= (float) $goal->target_amount ? 'completed' : 'active';
+
+            $goal->update([
+                'current_amount' => $newCurrent,
+                'status'         => $status,
+            ]);
+
+            DB::commit();
+
+            return ResponseHelper::success(null, 'Catatan setoran berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseHelper::error('Gagal menghapus setoran: ' . $e->getMessage(), 500);
         }
     }
 

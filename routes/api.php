@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\MobileBudgetController;
 use App\Http\Controllers\Api\V1\MobileSavingsGoalController;
 use App\Http\Controllers\Api\V1\MobileSummaryController;
 use App\Http\Controllers\Api\V1\MobileTransactionController;
@@ -58,6 +59,7 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
         Route::get('/categories', [MobileTransactionController::class, 'categories']);
         Route::get('/accounts', [MobileTransactionController::class, 'accounts']);
         Route::get('/currencies', [MobileSavingsGoalController::class, 'currencies']);
+        Route::get('/budget-periods', [MobileBudgetController::class, 'periods']);
 
         // Savings Goals
         Route::get('/saving-goals', [MobileSavingsGoalController::class, 'index']);
@@ -67,5 +69,17 @@ Route::prefix('v1')->middleware([ValidateMobileApiKey::class])->group(function (
         Route::patch('/saving-goals/{id}', [MobileSavingsGoalController::class, 'update']);
         Route::delete('/saving-goals/{id}', [MobileSavingsGoalController::class, 'destroy']);
         Route::post('/saving-goals/{id}/add-saving', [MobileSavingsGoalController::class, 'addSaving']);
+        Route::put('/saving-goals/{goalId}/contributions/{contributionId}', [MobileSavingsGoalController::class, 'updateContribution']);
+        Route::delete('/saving-goals/{goalId}/contributions/{contributionId}', [MobileSavingsGoalController::class, 'deleteContribution']);
+
+        // Budgets (Anggaran)
+        Route::get('/budgets', [MobileBudgetController::class, 'index']);
+        Route::get('/budgets/{id}', [MobileBudgetController::class, 'show']);
+        Route::post('/budgets', [MobileBudgetController::class, 'store']);
+        Route::put('/budgets/{id}', [MobileBudgetController::class, 'update']);
+        Route::patch('/budgets/{id}', [MobileBudgetController::class, 'update']);
+        Route::delete('/budgets/{id}', [MobileBudgetController::class, 'destroy']);
+        Route::post('/budgets/{id}/add-expense', [MobileBudgetController::class, 'addExpense']);
+        Route::get('/budgets/{id}/expenses', [MobileBudgetController::class, 'expenses']);
     });
 });

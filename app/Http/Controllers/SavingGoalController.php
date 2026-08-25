@@ -11,8 +11,10 @@ use App\Http\Requests\SavingGoal\SavingGoalAddSavingRequest;
 use App\Http\Resources\SavingResource;
 use App\Http\Resources\PaginateResource;
 use App\Models\SavingsGoal;
+use App\Models\SavingsGoalContribution;
 use App\Services\SavingGoalService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SavingGoalController extends Controller
@@ -133,5 +135,51 @@ class SavingGoalController extends Controller
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
+    }
+
+    public function updateContribution(Request $request, SavingsGoal $saving, $contributionId)
+    {
+        $contribution = SavingsGoalContribution::where('savings_goal_id', $saving->id)->where('id', $contributionId)->firstOrFail();
+        
+        $validated = $request->validate([
+            'amount'         => 'required|numeric|min:0.01',
+            'notes'          => 'nullable|string',
+            'contributed_at' => 'required|date',
+        ]);
+
+        DB::transaction(function () use ($contribution, $validated, $saving) {
+            $contribution->update([
+                'amount'         => $validated['amount'],
+                'notes'          => $validated['notes'] ?? null,
+                'contributed_at' => $validated['contributed_at'],
+            ]);
+
+            // Recalculate goal current_amount
+            $saving->current_amount = (float) $saving->contributions()->sum('amount');
+            if ($saving->current_amount >= $saving->target_amount) {
+                $saving->status = 'completed';
+            }
+            $saving->save();
+        });
+
+        return ResponseHelper::jsonResponse(true, 'Contribution updated successfully!', null, 200);
+    }
+
+    public function deleteContribution(SavingsGoal $saving, $contributionId)
+    {
+        $contribution = SavingsGoalContribution::where('savings_goal_id', $saving->id)->where('id', $contributionId)->firstOrFail();
+
+        DB::transaction(function () use ($contribution, $saving) {
+            $contribution->delete();
+
+            // Recalculate goal current_amount
+            $saving->current_amount = (float) $saving->contributions()->sum('amount');
+            if ($saving->current_amount < $saving->target_amount && $saving->status === 'completed') {
+                $saving->status = 'active';
+            }
+            $saving->save();
+        });
+
+        return ResponseHelper::jsonResponse(true, 'Contribution deleted successfully!', null, 200);
     }
 }

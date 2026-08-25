@@ -15,6 +15,7 @@ class SavingGoalAddSavingRequest extends FormRequest
     {
         return [
             'amount'         => 'required|numeric|min:0.01',
+            'account_id'     => 'nullable|string',
             'notes'          => 'nullable|string|max:1000',
             'contributed_at' => 'required|date',
         ];
