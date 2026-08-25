@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import BudgetModal from '../../Components/BudgetModal';
+import BudgetExpensesListModal from '../../Components/BudgetExpensesListModal';
 import ConfirmModal from '../../Components/ConfirmModal';
 import EmptyState from '../../Components/EmptyState';
 import { DynamicToastContainer, useToast } from '../../Components/DynamicToast';
 import { useCan } from '../../Hooks/useCan';
 import axios from 'axios';
-import { Eye, Edit, Trash2, Search, RotateCcw, Plus, CalendarRange } from 'lucide-react';
+import { Eye, Edit, Trash2, Search, RotateCcw, Plus, CalendarRange, PlusCircle } from 'lucide-react';
 
 export default function Index({ title, subtitle, periods = [], currencies = [], categories = [] }) {
     // ── Data state ──────────────────────────────────────────────
@@ -22,6 +23,10 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedBudget, setSelectedBudget] = useState(null);
+
+    // ── Expenses List Modal state ────────────────────────────────
+    const [isExpensesListOpen, setIsExpensesListOpen] = useState(false);
+    const [selectedExpensesBudget, setSelectedExpensesBudget] = useState(null);
 
     // ── Delete confirm state ─────────────────────────────────────
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -82,15 +87,23 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
         }
     };
 
-    const handleOpenCreate = () => { setSelectedBudget(null); setModalMode('create'); setIsModalOpen(true); };
-    const handleOpenEdit   = (b) => { setSelectedBudget(b); setModalMode('edit'); setIsModalOpen(true); };
-    const handleOpenShow   = (b) => { setSelectedBudget(b); setModalMode('show'); setIsModalOpen(true); };
+    const handleOpenCreate    = () => { setSelectedBudget(null); setModalMode('create'); setIsModalOpen(true); };
+    const handleOpenEdit      = (b) => { setSelectedBudget(b); setModalMode('edit'); setIsModalOpen(true); };
+    const handleOpenShow      = (b) => { setSelectedBudget(b); setModalMode('show'); setIsModalOpen(true); };
+    const handleOpenAddExpense = (b) => {
+        setIsExpensesListOpen(false);
+        setSelectedBudget(b);
+        setModalMode('addExpense');
+        setIsModalOpen(true);
+    };
+
+    const handleOpenExpensesList = (b) => {
+        setIsModalOpen(false);
+        setSelectedExpensesBudget(b);
+        setIsExpensesListOpen(true);
+    };
 
     const handleBudgetSaved = () => {
-        if (modalMode === 'create') {
-            setSearchTerm('');
-            setFilters(prev => ({ ...prev, search: '', status: 'all', period: 'all', page: 1 }));
-        }
         fetchBudgets();
     };
 
@@ -169,6 +182,13 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
                 }
                 .act-btn-view:hover { box-shadow: 0 4px 14px rgba(96, 165, 250, 0.25); }
 
+                .act-btn-add-exp {
+                    background: rgba(245, 158, 11, 0.15);
+                    color: #f59e0b;
+                    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
+                }
+                .act-btn-add-exp:hover { box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25); }
+
                 .act-btn-edit {
                     background: rgba(52, 211, 153, 0.15);
                     color: #34d399;
@@ -183,9 +203,10 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
                 }
                 .act-btn-delete:hover { box-shadow: 0 4px 14px rgba(248, 113, 113, 0.22); }
 
-                html.light .act-btn-view   { background: rgba(59, 130, 246, 0.08); color: #2563eb; }
-                html.light .act-btn-edit   { background: rgba(16, 185, 129, 0.08); color: #059669; }
-                html.light .act-btn-delete { background: rgba(239, 68,  68, 0.08); color: #dc2626; }
+                html.light .act-btn-view    { background: rgba(59, 130, 246, 0.08); color: #2563eb; }
+                html.light .act-btn-add-exp { background: rgba(217, 119, 6, 0.08); color: #d97706; }
+                html.light .act-btn-edit    { background: rgba(16, 185, 129, 0.08); color: #059669; }
+                html.light .act-btn-delete  { background: rgba(239, 68,  68, 0.08); color: #dc2626; }
 
                 .skeleton-pulse { animation: sk-pulse 1.4s ease-in-out infinite; }
                 @keyframes sk-pulse { 0%,100%{opacity:.4} 50%{opacity:.85} }
@@ -295,7 +316,7 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
                                 <th>Total Amount</th>
                                 <th>Spent / Progress</th>
                                 <th style={{ width: '115px' }}>Status</th>
-                                <th style={{ width: '120px', textAlign: 'center' }}>Actions</th>
+                                <th style={{ width: '150px', textAlign: 'center' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -309,7 +330,7 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
                                         <td><div className="skeleton-block" style={{ width: 60, height: 20, borderRadius: 20 }} /></td>
                                         <td>
                                             <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                                                {[0,1,2].map(j => <div key={j} style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--bg-card-border)' }} />)}
+                                                {[0,1,2,3].map(j => <div key={j} style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--bg-card-border)' }} />)}
                                             </div>
                                         </td>
                                     </tr>
@@ -361,6 +382,15 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
                                                 )}
                                                 {can('update budgets') && (
                                                     <button
+                                                        className="act-btn act-btn-add-exp"
+                                                        onClick={() => handleOpenAddExpense(row)}
+                                                        title="Add Expense to Budget"
+                                                    >
+                                                        <PlusCircle size={14} />
+                                                    </button>
+                                                )}
+                                                {can('update budgets') && (
+                                                    <button
                                                         className="act-btn act-btn-edit"
                                                         onClick={() => handleOpenEdit(row)}
                                                         title="Edit Budget"
@@ -408,6 +438,21 @@ export default function Index({ title, subtitle, periods = [], currencies = [], 
                 categories={categories}
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleBudgetSaved}
+                onShowToast={showToast}
+                onShowExpenses={handleOpenExpensesList}
+            />
+
+            {/* ── Budget Expenses List Modal ── */}
+            <BudgetExpensesListModal
+                isOpen={isExpensesListOpen}
+                budget={selectedExpensesBudget}
+                onClose={() => setIsExpensesListOpen(false)}
+                onBackToDetail={(b) => {
+                    setIsExpensesListOpen(false);
+                    setSelectedBudget(b);
+                    setModalMode('show');
+                    setIsModalOpen(true);
+                }}
                 onShowToast={showToast}
             />
 
