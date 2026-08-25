@@ -15,7 +15,7 @@ class StoreTransactionRequest extends BaseApiRequest
     {
         return [
             'type'             => 'required|in:income,expense,transfer',
-            'amount'           => 'required|numeric|min:0.01',
+            'amount'           => 'required|numeric|min:0',
             'account_id'       => 'required|exists:accounts,id',
             'to_account_id'    => 'required_if:type,transfer|nullable|exists:accounts,id',
             'category_id'      => 'required_if:type,income,expense|nullable|exists:categories,id',
