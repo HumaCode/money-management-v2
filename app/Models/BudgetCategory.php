@@ -27,6 +27,7 @@ class BudgetCategory extends Model
     protected $fillable = [
         'budget_id',
         'category_id',        // FK ke categories table (untuk grouping/filtering)
+        'transaction_id',     // FK ke transactions table (jika dibuat dari transaksi)
         'spent_amount',       // Jumlah yang dikeluarkan
         'allocated_amount',   // Jumlah yang dialokasikan (opsional)
         'spent_date',         // Tanggal pengeluaran (opsional)
@@ -53,6 +54,11 @@ class BudgetCategory extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
     }
 
     /* =========================
