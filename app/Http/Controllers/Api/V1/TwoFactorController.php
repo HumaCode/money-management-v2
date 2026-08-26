@@ -70,7 +70,16 @@ class TwoFactorController extends Controller
              . "Berlaku selama 5 menit.\n\n"
              . "⚠️ Jangan berikan kode ini kepada siapapun demi keamanan akun Anda.";
 
-        $waService->sendMessage($user->phone, $msg);
+        $isSent = $waService->sendMessage($user->phone, $msg);
+
+        if (!$isSent) {
+            return ResponseHelper::jsonResponse(
+                false,
+                'Gagal mengirim kode OTP ke WhatsApp. Pastikan server WA Gateway aktif dan nomor WhatsApp Anda valid.',
+                null,
+                500
+            );
+        }
 
         $len = strlen($user->phone);
         $maskedPhone = $len > 6 ? substr($user->phone, 0, 4) . '****' . substr($user->phone, -4) : $user->phone;
@@ -234,7 +243,16 @@ class TwoFactorController extends Controller
              . "Berlaku selama 5 menit.\n\n"
              . "⚠️ Jangan berikan kode ini kepada siapapun demi keamanan akun Anda.";
 
-        $waService->sendMessage($user->phone, $msg);
+        $isSent = $waService->sendMessage($user->phone, $msg);
+
+        if (!$isSent) {
+            return ResponseHelper::jsonResponse(
+                false,
+                'Gagal mengirim ulang kode OTP ke WhatsApp. Pastikan server WA Gateway aktif dan nomor Anda valid.',
+                null,
+                500
+            );
+        }
 
         $len = strlen($user->phone);
         $maskedPhone = $len > 6 ? substr($user->phone, 0, 4) . '****' . substr($user->phone, -4) : $user->phone;
