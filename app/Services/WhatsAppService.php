@@ -12,7 +12,7 @@ class WhatsAppService
 
     public function __construct()
     {
-        $this->baseUrl = env('WA_GATEWAY_URL', 'https://wa.humacode.my.id/api/v1/whatsapp/messages');
+        $this->baseUrl = env('WA_GATEWAY_URL', 'https://wa.humacode.my.id/api/v1/messages');
         $this->apiKey  = env('WA_GATEWAY_KEY', '');
     }
 
