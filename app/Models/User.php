@@ -29,6 +29,9 @@ class User extends Authenticatable
         'gender',
         'email',
         'is_active',
+        'is_2fa_enabled',
+        'two_factor_code',
+        'two_factor_expires_at',
         'last_login_at',
         'last_login_ip',
         'password',
@@ -54,6 +57,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_2fa_enabled' => 'boolean',
+            'two_factor_expires_at' => 'datetime',
         ];
     }
 
