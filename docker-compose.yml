@@ -35,8 +35,7 @@ services:
       - ./storage:/app/storage
       - ./bootstrap/cache:/app/bootstrap/cache
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     networks:
       - cuan_network
 
@@ -66,10 +65,8 @@ services:
       - ./storage:/app/storage
       - ./bootstrap/cache:/app/bootstrap/cache
     depends_on:
-      app:
-        condition: service_started
-      db:
-        condition: service_healthy
+      - app
+      - db
     networks:
       - cuan_network
 
@@ -88,11 +85,6 @@ services:
       MYSQL_USER: money_management_v2
       MYSQL_PASSWORD: ${DB_PASSWORD:-HumaCode2026}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-HumaCode2026}
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pHumaCode2026" ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
     volumes:
       - db_data:/var/lib/mysql
     networks:
